@@ -1,13 +1,12 @@
-"""MCP tool functions for Todo operations.
+"""Shared Todo tool functions.
 
-Each tool accepts user_id as a required parameter and uses the existing
-task_service / tag_service for DB operations, keeping all existing features
-(priority, tags, search, filter, sort) stable.
+These functions are the single source of truth for agent task operations.
+They accept a caller-provided ``session`` so the same DB session can be shared
+across a request (used both by the SDK function tools and the MCP server).
 
 Per spec, the 5 required tools are:
   add_task, list_tasks, complete_task, delete_task, update_task
 """
-import json
 from typing import Optional, List
 
 from sqlmodel import Session
@@ -20,7 +19,7 @@ from src.core.database import engine
 
 
 def get_session() -> Session:
-    """Create a database session for MCP tool operations."""
+    """Create a database session for standalone (MCP) tool operations."""
     return Session(engine)
 
 
@@ -35,6 +34,7 @@ def _parse_priority(priority_str: Optional[str]) -> Priority:
 
 
 def add_task(
+    session: Session,
     user_id: str,
     title: str,
     description: Optional[str] = None,
@@ -44,6 +44,7 @@ def add_task(
     """Create a new task.
 
     Args:
+        session: DB session to use (shared across the request).
         user_id: The authenticated user's ID (required).
         title: Task title (required).
         description: Task description (optional).
@@ -53,7 +54,6 @@ def add_task(
     Returns:
         dict with task_id, status, title.
     """
-    session = get_session()
     try:
         task_data = TaskCreate(
             title=title,
@@ -66,11 +66,10 @@ def add_task(
         return {"task_id": task.id, "status": "created", "title": task.title}
     except Exception as e:
         return {"error": str(e)}
-    finally:
-        session.close()
 
 
 def list_tasks(
+    session: Session,
     user_id: str,
     status: Optional[str] = "all",
     priority: Optional[str] = None,
@@ -80,6 +79,7 @@ def list_tasks(
     """Retrieve tasks for a user with optional filtering.
 
     Args:
+        session: DB session to use (shared across the request).
         user_id: The authenticated user's ID (required).
         status: Filter by status: "all", "pending", "completed" (optional, default "all").
         priority: Filter by priority: "none", "low", "medium", "high" (optional).
@@ -89,7 +89,6 @@ def list_tasks(
     Returns:
         List of task objects.
     """
-    session = get_session()
     try:
         status_map = {"all": None, "pending": "pending", "completed": "completed"}
         mapped_status = status_map.get(status or "all", None)
@@ -117,42 +116,38 @@ def list_tasks(
         ]
     except Exception as e:
         return [{"error": str(e)}]
-    finally:
-        session.close()
 
 
-def complete_task(user_id: str, task_id: str) -> dict:
+def complete_task(session: Session, user_id: str, task_id: str) -> dict:
     """Mark a task as complete (toggle completion).
 
     Args:
+        session: DB session to use (shared across the request).
         user_id: The authenticated user's ID (required).
         task_id: ID of the task to complete (required).
 
     Returns:
         dict with task_id, status, title.
     """
-    session = get_session()
     try:
         task = task_service.toggle_task_completion(session, task_id, user_id)
         status = "completed" if task.completed else "pending"
         return {"task_id": task.id, "status": status, "title": task.title}
     except Exception as e:
         return {"error": str(e)}
-    finally:
-        session.close()
 
 
-def delete_task(user_id: str, task_id: str) -> dict:
+def delete_task(session: Session, user_id: str, task_id: str) -> dict:
     """Remove a task from the list.
 
     Args:
+        session: DB session to use (shared across the request).
         user_id: The authenticated user's ID (required).
         task_id: ID of the task to delete (required).
 
     Returns:
         dict with task_id, status, title.
     """
-    session = get_session()
     try:
         # Get task info before deleting
         task = task_service.get_task(session, task_id, user_id)
@@ -161,11 +156,10 @@ def delete_task(user_id: str, task_id: str) -> dict:
         return {"task_id": task_id, "status": "deleted", "title": title}
     except Exception as e:
         return {"error": str(e)}
-    finally:
-        session.close()
 
 
 def update_task(
+    session: Session,
     user_id: str,
     task_id: str,
     title: Optional[str] = None,
@@ -176,6 +170,7 @@ def update_task(
     """Modify task title, description, priority, or tags.
 
     Args:
+        session: DB session to use (shared across the request).
         user_id: The authenticated user's ID (required).
         task_id: ID of the task to update (required).
         title: New title (optional).
@@ -186,7 +181,6 @@ def update_task(
     Returns:
         dict with task_id, status, title.
     """
-    session = get_session()
     try:
         priority_val = None
         if priority:
@@ -202,5 +196,3 @@ def update_task(
         return {"task_id": task.id, "status": "updated", "title": task.title}
     except Exception as e:
         return {"error": str(e)}
-    finally:
-        session.close()

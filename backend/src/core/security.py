@@ -28,9 +28,7 @@ def verify_jwt(token: str) -> Dict[str, any]:
     Raises jwt.InvalidTokenError if token is invalid or expired.
     """
     try:
-        print("calling jwks client to get the signing key")  # Debug log before calling JWKS client
         signing_key = jwks_client.get_signing_key_from_jwt(token)
-        print("JWKS client returned signing key successfully  that is ", signing_key.key)  # Debug log after getting signing key
         payload = jwt.decode(
             token,
             signing_key.key,
@@ -70,9 +68,7 @@ async def get_current_user(
             detail="Missing authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    print("Received Credentials:", credentials)  # Debug log for received token
-    print("Received token:", credentials.credentials)  # Debug log for received token
-    token = credentials.credentials # token
+    token = credentials.credentials
     try:
         return get_user_id_from_token(token)
     except jwt.ExpiredSignatureError:

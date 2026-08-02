@@ -38,7 +38,7 @@ async def chat(
     Per spec stateless flow:
     1. Receives user message
     2. Fetches conversation history from database
-    3. Runs agent with MCP tools
+    3. Runs agent with SDK function tools
     4. Stores messages in database
     5. Returns response (server holds NO state)
 
@@ -49,7 +49,7 @@ async def chat(
     Response:
         - conversation_id: The conversation ID
         - response: AI assistant's response
-        - tool_calls: List of MCP tools invoked
+        - tool_calls: List of tools invoked
     
     Rate Limit: 20 requests per minute
     """
@@ -78,7 +78,7 @@ async def chat_stream(
     Per spec stateless flow with streaming:
     1. Receives user message
     2. Fetches conversation history from database
-    3. Runs agent with MCP tools
+    3. Runs agent with SDK function tools
     4. Streams response tokens as they arrive (word-by-word)
     5. Stores messages in database
     6. Returns SSE stream (server holds NO state)

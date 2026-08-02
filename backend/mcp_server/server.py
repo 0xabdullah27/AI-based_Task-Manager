@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """MCP server exposing Todo backend services as tools.
 
-This server is mounted inside the FastAPI app at /mcp.
-The agent connects to it via MCPServerStreamableHttp.
+This server is mounted inside the FastAPI app at /mcp. It shares the same
+todo_tools business functions as the SDK agent tools, but keeps a standalone
+MCP HTTP surface for external MCP clients.
 
 Per spec, exposes 5 tools: add_task, list_tasks, complete_task, delete_task, update_task.
 All tools accept user_id as required parameter.
@@ -12,17 +13,14 @@ import json
 from typing import Optional, List
 from mcp.server.fastmcp import FastMCP
 
+from mcp_server.tools.todo_tools import get_session
+
 # Initialize MCP server
 mcp = FastMCP(
     "todo_mcp",
     stateless_http=True,
-    # streamable_http_path="/",  # Maps exactly to the mount point (app.mount("/mcp"))
 )
-# print("mcp.settings is ", mcp.settings)
 mcp.settings.streamable_http_path = "/"
-# print("mcp.settings.streamable_http_path is ", mcp.settings.streamable_http_path)
-
-# mcp_app = mcp.streamable_http_app(mount_path="/")
 
 # ── MCP Tools (wrapping todo_tools functions) ──
 
@@ -55,14 +53,19 @@ async def add_task(
     """
 
     from mcp_server.tools.todo_tools import add_task as _add_task
-    result = _add_task(
-        user_id=user_id,
-        title=title,
-        description=description,
-        priority=priority,
-        tags=tags,
-    )
-    return json.dumps(result)
+    session = get_session()
+    try:
+        result = _add_task(
+            session=session,
+            user_id=user_id,
+            title=title,
+            description=description,
+            priority=priority,
+            tags=tags,
+        )
+        return json.dumps(result)
+    finally:
+        session.close()
 
 
 @mcp.tool(
@@ -93,14 +96,19 @@ async def list_tasks(
     """
     from mcp_server.tools.todo_tools import list_tasks as _list_tasks
 
-    result = _list_tasks(
-        user_id=user_id,
-        status=status,
-        priority=priority,
-        search=search,
-        tags=tags,
-    )
-    return json.dumps(result)
+    session = get_session()
+    try:
+        result = _list_tasks(
+            session=session,
+            user_id=user_id,
+            status=status,
+            priority=priority,
+            search=search,
+            tags=tags,
+        )
+        return json.dumps(result)
+    finally:
+        session.close()
 
 
 @mcp.tool(
@@ -122,8 +130,12 @@ async def complete_task(user_id: str, task_id: str) -> str:
     """
     from mcp_server.tools.todo_tools import complete_task as _complete_task
 
-    result = _complete_task(user_id=user_id, task_id=task_id)
-    return json.dumps(result)
+    session = get_session()
+    try:
+        result = _complete_task(session=session, user_id=user_id, task_id=task_id)
+        return json.dumps(result)
+    finally:
+        session.close()
 
 
 @mcp.tool(
@@ -145,8 +157,12 @@ async def delete_task(user_id: str, task_id: str) -> str:
     """
     from mcp_server.tools.todo_tools import delete_task as _delete_task
 
-    result = _delete_task(user_id=user_id, task_id=task_id)
-    return json.dumps(result)
+    session = get_session()
+    try:
+        result = _delete_task(session=session, user_id=user_id, task_id=task_id)
+        return json.dumps(result)
+    finally:
+        session.close()
 
 
 @mcp.tool(
@@ -179,15 +195,20 @@ async def update_task(
     """
     from mcp_server.tools.todo_tools import update_task as _update_task
 
-    result = _update_task(
-        user_id=user_id,
-        task_id=task_id,
-        title=title,
-        description=description,
-        priority=priority,
-        tags=tags,
-    )
-    return json.dumps(result)
+    session = get_session()
+    try:
+        result = _update_task(
+            session=session,
+            user_id=user_id,
+            task_id=task_id,
+            title=title,
+            description=description,
+            priority=priority,
+            tags=tags,
+        )
+        return json.dumps(result)
+    finally:
+        session.close()
 
 
 # Export the Starlette ASGI app for mounting in FastAPI
