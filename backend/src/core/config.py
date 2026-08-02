@@ -19,7 +19,8 @@ class Settings(BaseSettings):
 
     # Better Auth
     better_auth_url: str = "http://localhost:3000"
-    better_auth_secret: Optional[str] = None
+    
+    # no need the secret key for EdDSA, as that uses public/private key pairs.
 
     # CORS
     cors_origins: List[str] = ["http://localhost:3000"]

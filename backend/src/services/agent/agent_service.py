@@ -84,56 +84,6 @@ def _get_model():
     return OpenAIChatCompletionsModel(model=MODEL_ID, openai_client=client)
 
 
-def _extract_tool_calls(result) -> list[ToolCallInfo]:
-    """Extract tool call information from agent result."""
-    tool_calls = []
-    try:
-        # Walk through the result's raw responses to find tool calls
-        if hasattr(result, "raw_responses"):
-            for response in result.raw_responses:
-                if hasattr(response, "output"):
-                    for item in response.output:
-                        if hasattr(item, "type") and item.type == "tool_call":
-                            tool_calls.append(
-                                ToolCallInfo(
-                                    tool_name=(
-                                        item.name
-                                        if hasattr(item, "name")
-                                        else "unknown"
-                                    ),
-                                    arguments=(
-                                        json.loads(item.arguments)
-                                        if hasattr(item, "arguments")
-                                        else {}
-                                    ),
-                                    result=None,
-                                )
-                            )
-        # Also check new_items for tool usage
-        if hasattr(result, "new_items"):
-            for item in result.new_items:
-                if hasattr(item, "type") and "tool_call" in str(item.type):
-                    name = getattr(item, "name", None) or getattr(
-                        item, "tool_name", "unknown"
-                    )
-                    args = getattr(item, "arguments", None)
-                    if isinstance(args, str):
-                        try:
-                            args = json.loads(args)
-                        except json.JSONDecodeError:
-                            args = {"raw": args}
-                    tool_calls.append(
-                        ToolCallInfo(
-                            tool_name=name,
-                            arguments=args or {},
-                            result=getattr(item, "output", None),
-                        )
-                    )
-    except Exception as e:
-        logger.warning(f"Could not extract tool calls: {e}")
-    return tool_calls
-
-
 async def handle_chat(
     user_id: str,
     message: str,
@@ -194,7 +144,6 @@ async def handle_chat(
         },
     )
 
-    tool_calls = []
     response_text = ""
 
     try:

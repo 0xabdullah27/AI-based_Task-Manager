@@ -28,7 +28,9 @@ def verify_jwt(token: str) -> Dict[str, any]:
     Raises jwt.InvalidTokenError if token is invalid or expired.
     """
     try:
+        print("calling jwks client to get the signing key")  # Debug log before calling JWKS client
         signing_key = jwks_client.get_signing_key_from_jwt(token)
+        print("JWKS client returned signing key successfully  that is ", signing_key.key)  # Debug log after getting signing key
         payload = jwt.decode(
             token,
             signing_key.key,
@@ -58,6 +60,7 @@ def get_user_id_from_token(token: str) -> str:
 
 
 async def get_current_user(
+        # this is the same as extracting the token from the Authorization header using the oauth2 scheme, but we can keep it simple by just using the HTTPBearer security scheme provided by FastAPI,that also give the obj with the scheme(Bearer) and credentials(actual token) instead of just token string.
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> str:
     """Dependency to get current authenticated user ID from JWT token."""
@@ -67,8 +70,9 @@ async def get_current_user(
             detail="Missing authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-    token = credentials.credentials
+    print("Received Credentials:", credentials)  # Debug log for received token
+    print("Received token:", credentials.credentials)  # Debug log for received token
+    token = credentials.credentials # token
     try:
         return get_user_id_from_token(token)
     except jwt.ExpiredSignatureError:
@@ -83,3 +87,7 @@ async def get_current_user(
             detail=f"Invalid authentication credentials: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+# both initial two function just use in this file and third is depend on second and second is depend on first, so we can keep all in one file and make it more clear and simple to use in other files by just importing get_current_user dependency.
+
+# this get_current_user is just importing the src.api.deps and export there as the CurrentUser type alias, so we can use it in all route signatures without having to import the whole security module or the individual functions.

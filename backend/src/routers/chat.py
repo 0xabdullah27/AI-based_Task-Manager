@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
-
+# main chat endpoint takes(message, optional conversation_id) and returns (conversation_id, response)
 @router.post("/chat", response_model=ChatResponse, status_code=status.HTTP_200_OK)
 @limiter.limit("20/minute")
 async def chat(
@@ -118,9 +118,10 @@ async def chat_stream(
             yield chunk
 
     # Return SSE stream
-    return EventSourceResponse(event_generator())
+    return EventSourceResponse(event_generator()) 
+    #this "EventSourceResponse()" actually make this endpoint sse that can send the responce in junks
 
-
+# Get latest conversation (chat history)
 @router.get("/chat/history", response_model=ChatHistoryResponse, status_code=status.HTTP_200_OK)
 async def get_history(
     user_id: CurrentUser,
@@ -137,7 +138,7 @@ async def get_history(
 
     return history_data
 
-
+# Get the specific conversation (chat history) using conversation_id. 
 @router.get("/chat/history/{conversation_id}", response_model=ChatHistoryResponse, status_code=status.HTTP_200_OK)
 async def get_conversation_history(
     conversation_id: str,
@@ -180,7 +181,7 @@ async def get_conversation_history(
         messages=messages
     )
 
-
+# Get all conversations
 @router.get("/conversations", response_model=ConversationListResponse)
 async def list_conversations(
     user_id: CurrentUser,

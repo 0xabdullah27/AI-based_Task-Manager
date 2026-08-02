@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { getJwtToken, useSession } from "@/lib/auth-client";
 
 export default function HomePage() {
   const router = useRouter();
@@ -11,8 +11,11 @@ export default function HomePage() {
   useEffect(() => {
     if (!isPending) {
       if (session) {
+        const token = getJwtToken();
+        console.log("bearer token is", token)
         router.push("/dashboard");
       } else {
+        console.log("no session (Not logged In)")
         router.push("/sign-in");
       }
     }

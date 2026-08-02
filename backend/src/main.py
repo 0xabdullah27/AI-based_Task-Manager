@@ -3,29 +3,40 @@
 from contextlib import asynccontextmanager, AsyncExitStack
 
 from fastapi import FastAPI
-from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.gzip import GZipMiddleware # to cpmpress the lar
+
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from src.core.config import settings
-from src.core.database import create_db_and_tables
 from src.middleware.cors import configure_cors
 from src.middleware.logging import logging_middleware
 from src.middleware.error_handler import error_handler_middleware
 from src.middleware.rate_limit import limiter
+
+from src.core.config import settings
+from src.core.database import create_db_and_tables
+
+
 from src.routers import health, tasks, tags, chat
+
 from src.exceptions.base import TaskNotFoundError, UnauthorizedError, ValidationError
 from src.exceptions.handlers import (
     task_not_found_handler,
     unauthorized_handler,
     validation_error_handler,
 )
+
 import logging
 
 from mcp_server.server import mcp_app
 from mcp_server.server import mcp
 
 # Configure logging
+# DEBUG
+# INFO
+# WARNING
+# ERROR
+# CRITICAL
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )

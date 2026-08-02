@@ -175,7 +175,7 @@ export default function TodosPage() {
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-4">
+      <div className="  rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-4">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />

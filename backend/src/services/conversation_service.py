@@ -20,7 +20,9 @@ class ConversationService:
         self._repo = repo
 
     def get_or_create_conversation(
-        self, session: Session, user_id: str, conversation_id: Optional[str] = None
+        self, session: Session, 
+        user_id: str, 
+        conversation_id: Optional[str] = None
     ) -> Conversation:
         """Get existing conversation or create a new one.
 

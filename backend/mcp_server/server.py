@@ -53,8 +53,8 @@ async def add_task(
         priority: Priority level: none, low, medium, high (optional).
         tags: List of tags to attach (optional).
     """
-    from mcp_server.tools.todo_tools import add_task as _add_task
 
+    from mcp_server.tools.todo_tools import add_task as _add_task
     result = _add_task(
         user_id=user_id,
         title=title,

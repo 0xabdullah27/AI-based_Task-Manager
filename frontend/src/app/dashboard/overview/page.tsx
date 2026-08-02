@@ -25,10 +25,10 @@ export default function OverviewPage() {
     <div className="space-y-8">
       {/* Page Header - T063: Use semantic theme variables */}
       <div>
-        <h1 className="text-3xl font-bold" style={{ color: "var(--foreground)" }}>
+        <h1 className="text-3xl font-bold text-black">
           Dashboard Overview
         </h1>
-        <p className="mt-2" style={{ color: "var(--muted-foreground)" }}>
+        <p className="mt-2" >
           Welcome back! Here&apos;s your task summary for today.
         </p>
       </div>
@@ -78,9 +78,9 @@ export default function OverviewPage() {
 
       {/* Empty State */}
       {!isLoading && stats.total === 0 && (
-        <div className="text-center py-12 bg-slate-50 dark:bg-slate-900 rounded-lg">
-          <BarChart3 className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+        <div className="text-center py-12 rounded-lg">
+          <BarChart3 className="h-12 w-12  mx-auto mb-4" />
+          <h3 className="text-lg font-semibold  mb-2">
             No tasks yet
           </h3>
           <p className="text-slate-600 dark:text-slate-400 mb-6">

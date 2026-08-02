@@ -31,10 +31,10 @@ export function StatCard({
 
           {/* Content */}
           <div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+            <p className="text-sm  font-medium">
               {label}
             </p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+            <p className="text-3xl font-bold   mt-1">
               {value}
             </p>
           </div>

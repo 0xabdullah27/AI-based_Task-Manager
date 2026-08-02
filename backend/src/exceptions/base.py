@@ -4,6 +4,7 @@
 class TodoAppException(Exception):
     """Base exception for all todo app exceptions"""
     pass
+# here we are not getting the __init__ method and not getting the message so why the child classes pass the message to the super class
 
 
 class TaskNotFoundError(TodoAppException):
