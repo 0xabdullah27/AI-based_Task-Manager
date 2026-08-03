@@ -1,15 +1,15 @@
 """SDK function tools for the Todo agent.
 
-Wraps the shared todo_tools logic (mcp_server.tools.todo_tools) as OpenAI
-Agents SDK function tools. The request's DB session and the authenticated
-user_id are injected via RunContextWrapper — the LLM never sees them, so no
-user_id prompt-hack is needed.
+These tools call the task service directly and share the request DB session and
+the authenticated user_id via RunContextWrapper — the LLM never sees them, so no
+user_id prompt-hack is needed. (The mcp_server.tools.todo_tools module remains a
+separate wrapper for standalone MCP integration; it is not used here.)
+
+Per spec, exposes 5 tools: add_task, list_tasks, complete_task, delete_task, update_task.
 
 Each tool exists in two forms:
   - the raw async function (directly testable)
   - the FunctionTool wrapper (used by the Agent via AGENT_TOOLS)
-
-Per spec, exposes 5 tools: add_task, list_tasks, complete_task, delete_task, update_task.
 """
 
 from dataclasses import dataclass
@@ -19,13 +19,9 @@ from sqlmodel import Session
 
 from agents import RunContextWrapper, function_tool
 
-from mcp_server.tools.todo_tools import (
-    add_task as _add_task,
-    list_tasks as _list_tasks,
-    complete_task as _complete_task,
-    delete_task as _delete_task,
-    update_task as _update_task,
-)
+from src.models.priority import Priority
+from src.schemas.task import TaskCreate, TaskUpdate
+from src.services.task_service import task_service
 
 
 @dataclass
@@ -39,6 +35,16 @@ class AgentContext:
 
     session: Session
     user_id: str
+
+
+def _parse_priority(priority: Optional[str]) -> Priority:
+    """Parse a priority string into a Priority enum, defaulting to NONE."""
+    if not priority:
+        return Priority.NONE
+    upper = priority.upper()
+    if upper in ("NONE", "LOW", "MEDIUM", "HIGH"):
+        return Priority(upper)
+    return Priority.NONE
 
 
 async def add_task(
@@ -56,14 +62,18 @@ async def add_task(
         priority: Priority level: none, low, medium, high (optional).
         tags: List of tags to attach (optional).
     """
-    return _add_task(
-        session=ctx.context.session,
-        user_id=ctx.context.user_id,
-        title=title,
-        description=description,
-        priority=priority,
-        tags=tags,
-    )
+    try:
+        task_data = TaskCreate(
+            title=title,
+            description=description,
+            priority=_parse_priority(priority),
+            tags=tags or [],
+            completed=False,
+        )
+        task = task_service.create_task(ctx.context.session, task_data, ctx.context.user_id)
+        return {"task_id": task.id, "status": "created", "title": task.title}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 async def list_tasks(
@@ -81,14 +91,33 @@ async def list_tasks(
         search: Search in title/description (optional).
         tags: Filter by tag names (optional).
     """
-    return _list_tasks(
-        session=ctx.context.session,
-        user_id=ctx.context.user_id,
-        status=status,
-        priority=priority,
-        search=search,
-        tags=tags,
-    )
+    try:
+        status_map = {"all": None, "pending": "pending", "completed": "completed"}
+        mapped_status = status_map.get(status or "all", None)
+
+        tasks = task_service.list_tasks(
+            session=ctx.context.session,
+            user_id=ctx.context.user_id,
+            status=mapped_status,
+            priority=None if not priority or priority == "all" else priority,
+            search=search,
+            tags=tags,
+            limit=50,
+        )
+
+        return [
+            {
+                "id": t.id,
+                "title": t.title,
+                "description": t.description,
+                "completed": t.completed,
+                "priority": t.priority.value if hasattr(t.priority, "value") else str(t.priority),
+                "tags": [tag.name for tag in t.tags] if t.tags else [],
+            }
+            for t in tasks
+        ]
+    except Exception as e:
+        return [{"error": str(e)}]
 
 
 async def complete_task(
@@ -100,11 +129,14 @@ async def complete_task(
     Args:
         task_id: ID of the task to complete (required).
     """
-    return _complete_task(
-        session=ctx.context.session,
-        user_id=ctx.context.user_id,
-        task_id=task_id,
-    )
+    try:
+        task = task_service.toggle_task_completion(
+            ctx.context.session, task_id, ctx.context.user_id
+        )
+        status = "completed" if task.completed else "pending"
+        return {"task_id": task.id, "status": status, "title": task.title}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 async def delete_task(
@@ -116,11 +148,13 @@ async def delete_task(
     Args:
         task_id: ID of the task to delete (required).
     """
-    return _delete_task(
-        session=ctx.context.session,
-        user_id=ctx.context.user_id,
-        task_id=task_id,
-    )
+    try:
+        task = task_service.get_task(ctx.context.session, task_id, ctx.context.user_id)
+        title = task.title
+        task_service.delete_task(ctx.context.session, task_id, ctx.context.user_id)
+        return {"task_id": task_id, "status": "deleted", "title": title}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 async def update_task(
@@ -140,15 +174,20 @@ async def update_task(
         priority: New priority: none, low, medium, high (optional).
         tags: New tags list (optional).
     """
-    return _update_task(
-        session=ctx.context.session,
-        user_id=ctx.context.user_id,
-        task_id=task_id,
-        title=title,
-        description=description,
-        priority=priority,
-        tags=tags,
-    )
+    try:
+        priority_val = _parse_priority(priority) if priority else None
+        task_data = TaskUpdate(
+            title=title,
+            description=description,
+            priority=priority_val,
+            tags=tags,
+        )
+        task = task_service.update_task(
+            ctx.context.session, task_id, task_data, ctx.context.user_id
+        )
+        return {"task_id": task.id, "status": "updated", "title": task.title}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 # FunctionTool wrappers for the Agent
