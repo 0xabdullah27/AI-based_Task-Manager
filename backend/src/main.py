@@ -77,7 +77,7 @@ app.state.limiter = limiter
 app.middleware("http")(logging_middleware)  # 1. Log + X-Process-Time
 app.middleware("http")(error_handler_middleware)  # 2. Handle errors
 configure_cors(app)  # 3. CORS
-app.add_middleware(GZipMiddleware, minimum_size=500)  # 4. Compress responses
+# app.add_middleware(GZipMiddleware, minimum_size=500)  # 4. Compress responses
 
 
 # Register exception handlers

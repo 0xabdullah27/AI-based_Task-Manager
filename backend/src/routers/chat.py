@@ -3,6 +3,7 @@
 Per spec: POST /api/chat — sends message & gets AI response.
 The endpoint is authenticated via JWT, conversation state is persisted to DB.
 """
+import asyncio
 import logging
 import json
 
@@ -31,8 +32,10 @@ async def chat(
     request: Request,
     chat_request: ChatRequest,
     user_id: CurrentUser,
-    session: DbSession,
+    session: DbSession, 
 ):
+    # user_id= "put user d for testing"
+
     """Send a message and get an AI response.
 
     Per spec stateless flow:
@@ -64,7 +67,17 @@ async def chat(
 
     return response
 
+# async def text_streamer():
+#     for i in range(1, 11):
+#         yield f"Chunk {i}\n"
+#         await asyncio.sleep(0.5)  # Simulate processing delay
 
+# @router.get("/stream-text")
+# async def get_stream():
+#     # 2. Return the generator wrapped in a StreamingResponse
+#     # return StreamingResponse(text_streamer(), media_type="text/plain")
+#     return EventSourceResponse(text_streamer(), media_type="text/plain")
+    
 @router.post("/chat/stream")
 @limiter.limit("10/minute")
 async def chat_stream(
@@ -73,6 +86,7 @@ async def chat_stream(
     user_id: CurrentUser,
     session: DbSession,
 ):
+    # user_id= "put user d for testing"
     """Send a message and get a streaming AI response via SSE.
 
     Per spec stateless flow with streaming:
@@ -118,7 +132,9 @@ async def chat_stream(
             yield chunk
 
     # Return SSE stream
-    return EventSourceResponse(event_generator()) 
+    # return EventSourceResponse(event_generator()) 
+    return EventSourceResponse(event_generator(), media_type="text/plain")
+
     #this "EventSourceResponse()" actually make this endpoint sse that can send the responce in junks
 
 # Get latest conversation (chat history)
