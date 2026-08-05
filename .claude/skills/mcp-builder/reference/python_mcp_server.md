@@ -147,6 +147,33 @@ class CreateUserInput(BaseModel):
         return v.lower()
 ```
 
+## Understanding Your Client: The MCP Protocol Flow
+
+Before implementing response formats, understand how clients use your tools:
+
+1. **Client Discovery**: Calls `list_tools` → receives list of all your tools with:
+   - Tool name (string)
+   - Tool description (string)
+   - Input schema (JSON Schema auto-generated from Pydantic model)
+   - Tool annotations (hints about side effects)
+
+2. **LLM Tool Selection**: Agent LLM reads tool descriptions and picks which tool to use
+   - **Clear descriptions are critical** — this is how LLMs learn when to call your tool
+   - Tool names must be unique (use service prefix)
+   - Input schema constraints (Field() definitions) become JSON schema the LLM understands
+
+3. **Tool Invocation**: Client calls your tool with:
+   - Tool name (must match exactly)
+   - Arguments (validated against your Pydantic model)
+
+4. **Response Processing**: Your tool returns:
+   - JSON-formatted text response (what the LLM sees)
+   - Optional structuredContent for modern clients (client-specific processing)
+
+**Implication**: Your Pydantic model definitions matter immensely — constraints become JSON schema that helps clients and LLMs understand parameters.
+
+---
+
 ## Response Format Options
 
 Support multiple output formats for flexibility:

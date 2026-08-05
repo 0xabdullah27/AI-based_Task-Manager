@@ -16,12 +16,12 @@ export function StatCard({
   label,
   value,
   icon: Icon,
-  bgColor = "bg-blue-50 dark:bg-blue-900/30",
-  textColor = "text-blue-600 dark:text-blue-400",
+  bgColor = "bg-primary/10",
+  textColor = "text-primary",
   progress,
 }: StatCardProps) {
   return (
-    <Card className="border-slate-200 dark:border-slate-800 hover:shadow-lg transition">
+    <Card className="border-border hover:shadow-lg transition">
       <CardContent className="pt-6">
         <div className="space-y-4">
           {/* Icon */}
@@ -31,19 +31,19 @@ export function StatCard({
 
           {/* Content */}
           <div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+            <p className="text-sm  font-medium">
               {label}
             </p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+            <p className="text-3xl font-bold   mt-1">
               {value}
             </p>
           </div>
 
           {/* Progress Bar (optional) */}
           {progress !== undefined && (
-            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+            <div className="w-full bg-muted rounded-full h-2">
               <div
-                className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all"
+                className="bg-primary h-2 rounded-full transition-all"
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>

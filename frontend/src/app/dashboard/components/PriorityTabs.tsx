@@ -53,7 +53,7 @@ export function PriorityTabs({
       {priorities.map((priority) => (
         <TabsContent key={priority} value={priority} className="space-y-4">
           {isLoading ? (
-            <div className="text-center py-8 text-slate-500">Loading...</div>
+            <div className="text-center py-8 text-muted-foreground">Loading...</div>
           ) : (
             renderContent(
               todos?.filter((t) => t.priority === priority) || [],

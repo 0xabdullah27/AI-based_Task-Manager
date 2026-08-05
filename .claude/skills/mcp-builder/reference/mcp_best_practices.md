@@ -122,6 +122,36 @@ Example pagination response:
 - Deploying as a cloud service
 - Integration with web applications
 
+**Authentication Pattern for Streamable HTTP**:
+Clients will connect with authentication headers (Bearer tokens, API keys):
+
+```typescript
+// Client side (from openai-agents-sdk perspective)
+MCPServerStreamableHttp({
+  params: {
+    url: "https://mcp.example.com/mcp",
+    headers: { "Authorization": "Bearer sk-xxx" }
+  }
+})
+```
+
+Your server should:
+1. **Validate Authorization header** on incoming requests
+2. **Extract and verify** the token/key (check against allowed credentials)
+3. **Return 401 Unauthorized** if invalid or missing (unless public server)
+4. **Scope permissions** — different tokens may have different access levels
+
+**CORS and Origin Validation**:
+For local Streamable HTTP servers (localhost), validate the `Origin` header to prevent DNS rebinding attacks.
+
+**Rate Limiting for HTTP Servers**:
+Consider implementing rate limiting based on:
+- Client IP address
+- API key/token
+- Total requests per time window
+
+Include rate limit info in error responses (429 status code).
+
 ### stdio
 
 **Best for**: Local integrations, command-line tools
@@ -146,6 +176,33 @@ Example pagination response:
 | **Clients** | Single | Multiple |
 | **Complexity** | Low | Medium |
 | **Real-time** | No | Yes |
+
+---
+
+## Windows-Specific MCP Server Considerations
+
+When testing or deploying MCP servers on Windows:
+
+**Python stdio Servers**:
+- If running Python MCP servers on Windows with stdio transport, clients may need proper event loop setup:
+  ```python
+  import asyncio
+  asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+  ```
+  However, most stdio servers (especially npm packages) handle this automatically.
+
+**Resource URI Paths**:
+- Use forward slashes in resource URI templates even on Windows: `file://documents/{name}`
+- SDK handles path conversion internally
+
+**npm/npx Packages**:
+- When clients spawn MCP servers as npx packages on Windows, expect cold-start delays (10-30s on first run)
+- Clients handle this with configurable timeouts (e.g., `client_session_timeout_seconds=30`)
+- Your server doesn't need special Windows handling — SDK transport handles it
+
+**Testing stdio Servers**:
+- Use MCP Inspector: `npx @modelcontextprotocol/inspector`
+- Works the same on Windows, Linux, macOS
 
 ---
 

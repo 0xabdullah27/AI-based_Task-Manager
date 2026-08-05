@@ -94,7 +94,7 @@ def test_api_get_tags_case_insensitive_merge(client, auth_headers):
 def test_api_get_tags_different_users_isolated(client, auth_headers):
     """Test GET /api/tags returns only tags for the authenticated user"""
     from src.main import app
-    from src.auth.dependencies import get_current_user
+    from src.core.security import get_current_user
 
     # Create task with tags for current user (test-user-id)
     client.post(

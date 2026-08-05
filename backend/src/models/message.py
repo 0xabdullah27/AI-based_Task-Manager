@@ -1,21 +1,34 @@
-# Task: T003 | Spec: specs/006-agent-mcp-integration/spec.md
-"""Message model — represents a single turn in a conversation."""
+"""Message model for chat history."""
+from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, String, Text
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING
-from sqlmodel import Field, SQLModel, Relationship
+
+from src.utils.helpers import utc_now, generate_uuid
 
 if TYPE_CHECKING:
     from src.models.conversation import Conversation
 
 
 class Message(SQLModel, table=True):
-    __tablename__ = "message"
+    """Message model for chat history.
 
-    id: Optional[int] = Field(default=None, primary_key=True)
-    conversation_id: int = Field(foreign_key="conversation.id", index=True)
-    user_id: str = Field(foreign_key="user.id", index=True)
-    role: str = Field()  # "user" or "assistant" only — tool calls not stored
-    content: str = Field()
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    Per spec: user_id, id, conversation_id, role (user/assistant), content, created_at
+    """
 
+    id: str = Field(default_factory=generate_uuid, primary_key=True)
+    conversation_id: str = Field(foreign_key="conversation.id", index=True)
+    user_id: str = Field(index=True)
+
+    role: str = Field(
+        sa_column=Column(String(20), nullable=False)
+    )  # "user" or "assistant"
+
+    content: str = Field(
+        sa_column=Column(Text, nullable=False)
+    )
+
+    created_at: datetime = Field(default_factory=utc_now, index=True)
+
+    # Relationship back to conversation
     conversation: Optional["Conversation"] = Relationship(back_populates="messages")

@@ -9,7 +9,7 @@ import type { Priority } from "@/lib/validations/task";
 
 /**
  * Priority color configuration
- * Maps priority levels to Tailwind CSS classes
+ * Maps priority levels to theme CSS variables
  */
 export const PRIORITY_COLORS: Record<
   Priority,
@@ -21,28 +21,28 @@ export const PRIORITY_COLORS: Record<
   }
 > = {
   high: {
-    badge: "bg-red-100 text-red-800 border-red-200",
-    bg: "bg-red-100",
-    text: "text-red-800",
-    border: "border-red-200",
+    badge: "var(--priority-high-bg) var(--priority-high-text)",
+    bg: "var(--priority-high-bg)",
+    text: "var(--priority-high-text)",
+    border: "var(--priority-high-bg)",
   },
   medium: {
-    badge: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    bg: "bg-yellow-100",
-    text: "text-yellow-800",
-    border: "border-yellow-200",
+    badge: "var(--priority-medium-bg) var(--priority-medium-text)",
+    bg: "var(--priority-medium-bg)",
+    text: "var(--priority-medium-text)",
+    border: "var(--priority-medium-bg)",
   },
   low: {
-    badge: "bg-blue-100 text-blue-800 border-blue-200",
-    bg: "bg-blue-100",
-    text: "text-blue-800",
-    border: "border-blue-200",
+    badge: "var(--priority-low-bg) var(--priority-low-text)",
+    bg: "var(--priority-low-bg)",
+    text: "var(--priority-low-text)",
+    border: "var(--priority-low-bg)",
   },
   none: {
-    badge: "bg-gray-100 text-gray-600 border-gray-200",
-    bg: "bg-gray-100",
-    text: "text-gray-600",
-    border: "border-gray-200",
+    badge: "var(--priority-none-bg) var(--priority-none-text)",
+    bg: "var(--priority-none-bg)",
+    text: "var(--priority-none-text)",
+    border: "var(--priority-none-bg)",
   },
 };
 

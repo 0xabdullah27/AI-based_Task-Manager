@@ -25,6 +25,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-overlay: var(--overlay);
+  --color-thumb: var(--thumb);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -75,6 +78,13 @@
 
   /* Destructive */
   --destructive: oklch(0.65 0.22 25);
+
+  /* Success */
+  --success: oklch(0.55 0.17 150);
+
+  /* Modal overlay + control surfaces */
+  --overlay: oklch(0 0 0 / 50%);
+  --thumb: oklch(0.98 0 0);
 
   /* Borders & inputs */
   --border: oklch(1 0 0 / 12%);
@@ -156,6 +166,13 @@
 
   /* Destructive (keep red but toned) */
   --destructive: oklch(0.65 0.22 25);
+
+  /* Success */
+  --success: oklch(0.65 0.16 150);
+
+  /* Modal overlay + control surfaces */
+  --overlay: oklch(0 0 0 / 50%);
+  --thumb: oklch(0.98 0 0);
 
   /* Borders & inputs */
   --border: oklch(1 0 0 / 12%);

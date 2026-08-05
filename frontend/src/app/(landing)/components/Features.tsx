@@ -32,11 +32,11 @@ const features = [
 
 export function Features() {
   return (
-    <section className="py-20 px-4 bg-slate-50 dark:bg-slate-950">
+    <section className="py-20 px-4 bg-background">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">Powerful Features</h2>
-          <p className="text-xl text-slate-600 dark:text-slate-400">
+          <p className="text-xl text-muted-foreground">
             Everything you need to stay organized and productive
           </p>
         </div>
@@ -45,14 +45,14 @@ export function Features() {
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
-              <Card key={feature.title} className="border-slate-200 dark:border-slate-800">
+              <Card key={feature.title} className="border-border">
                 <CardContent className="pt-6">
                   <div className="space-y-4">
-                    <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-lg w-fit">
-                      <Icon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                    <div className="bg-primary/10 p-3 rounded-lg w-fit">
+                      <Icon className="w-6 h-6 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold">{feature.title}</h3>
-                    <p className="text-slate-600 dark:text-slate-400">
+                    <p className="text-muted-foreground">
                       {feature.description}
                     </p>
                   </div>

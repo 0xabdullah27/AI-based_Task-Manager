@@ -1,7 +1,10 @@
 """Unit tests for task CRUD operations with priority support"""
 import pytest
 from sqlmodel import Session, select
-from src.crud.task import create_task, update_task, list_tasks
+from src.services.task_service import task_service
+create_task = task_service.create_task
+update_task = task_service.update_task
+list_tasks = task_service.list_tasks
 from src.schemas.task import TaskCreate, TaskUpdate
 from src.models.task import Task
 from src.models.priority import Priority

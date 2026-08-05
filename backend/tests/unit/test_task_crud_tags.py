@@ -1,7 +1,9 @@
 """Unit tests for task CRUD operations with tags"""
 import pytest
 from sqlmodel import Session
-from src.crud.task import create_task, update_task
+from src.services.task_service import task_service
+create_task = task_service.create_task
+update_task = task_service.update_task
 from src.schemas.task import TaskCreate, TaskUpdate
 
 

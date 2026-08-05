@@ -10,6 +10,7 @@ import {
   getActiveSection,
 } from "@/lib/dashboard-navigation";
 import { LogOut, CheckSquare } from "lucide-react";
+import Link from "next/link";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -33,7 +34,7 @@ export function Sidebar() {
   return (
     <div className="h-full flex flex-col overflow-y-auto p-4 space-y-6">
       {/* Logo - T021: Use primary color variable */}
-      <div className="flex items-center gap-2 px-2">
+      <Link href="/" className="flex items-center gap-2 px-2">
         <div
           className="p-2 rounded-lg"
           style={{
@@ -49,7 +50,7 @@ export function Sidebar() {
         >
           TaskHub
         </span>
-      </div>
+      </Link>
 
       <Separator style={{ backgroundColor: "var(--border)" }} />
 
@@ -105,7 +106,7 @@ export function Sidebar() {
                       color: "var(--muted-foreground)",
                     }
               }
-              className={`w-full   flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition hover:opacity-80`}
+              className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition hover:opacity-80`}
               onMouseEnter={(e) => {
                 if (!isActive) {
                   (e.currentTarget as HTMLElement).style.backgroundColor =
@@ -119,7 +120,7 @@ export function Sidebar() {
                 }
               }}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
+              <Icon className="h-5 w-5 shrink-0" />
               <span className="truncate">{section.label}</span>
             </button>
           );

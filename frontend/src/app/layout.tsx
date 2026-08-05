@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/providers/auth-provider";
+import { TasksProvider } from "@/providers/tasks-provider";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Todo App",
@@ -16,9 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased ">
+      <body className="antialiased">
         <AuthProvider>
-          {children}
+          <TasksProvider>
+            {children}
+          </TasksProvider>
         </AuthProvider>
         <Toaster />
       </body>

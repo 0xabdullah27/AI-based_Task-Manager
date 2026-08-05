@@ -1,7 +1,10 @@
 """Unit tests for task CRUD operations with sort functionality"""
+import time
 import pytest
 from sqlmodel import Session
-from src.crud.task import create_task, list_tasks
+from src.services.task_service import task_service
+create_task = task_service.create_task
+list_tasks = task_service.list_tasks
 from src.schemas.task import TaskCreate
 
 
@@ -45,13 +48,15 @@ def test_list_tasks_with_title_sort_desc(session: Session, mock_user_id: str):
 
 def test_list_tasks_with_created_at_sort_desc(session: Session, mock_user_id: str):
     """Test sorting tasks by creation date descending (newest first)"""
-    # Create tasks in sequence (each will have slightly different timestamps)
+    # Create tasks with sleep to ensure distinct timestamps
     task1 = TaskCreate(title="First created", description="Created first")
     task2 = TaskCreate(title="Second created", description="Created second")
     task3 = TaskCreate(title="Third created", description="Created third")
 
     create_task(session, task1, mock_user_id)
+    time.sleep(0.01)
     create_task(session, task2, mock_user_id)
+    time.sleep(0.01)
     create_task(session, task3, mock_user_id)
 
     # Sort by created_at descending (newest first)

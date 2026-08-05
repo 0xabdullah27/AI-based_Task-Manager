@@ -20,19 +20,32 @@ Creating a high-quality MCP server involves four main phases:
 
 ### Phase 1: Deep Research and Planning
 
-#### 1.1 Understand Modern MCP Design
+#### 1.1 Understand Modern MCP Design and How Clients Use Your Server
+
+**Client Discovery and Tool Selection:**
+Clients use your MCP server by:
+1. Calling `list_tools` → your server returns tool descriptors (name, description, input schema)
+2. Agent LLM reads descriptions and chooses which tools to call based on usefulness
+3. Client calls tool with name + arguments validated against your input schema
+4. Your server returns structured data (text + optional JSON schema)
+
+This means:
+- Tool **descriptions** are critical — LLMs decide tool usage based on clarity and relevance
+- Tool **names** must be unique and discoverable (use service prefix)
+- Input **schemas** (Pydantic/Zod constraints) become JSON schemas clients inspect
+- Output format affects how results are presented to the LLM
 
 **API Coverage vs. Workflow Tools:**
 Balance comprehensive API endpoint coverage with specialized workflow tools. Workflow tools can be more convenient for specific tasks, while comprehensive coverage gives agents flexibility to compose operations. Performance varies by client—some clients benefit from code execution that combines basic tools, while others work better with higher-level workflows. When uncertain, prioritize comprehensive API coverage.
 
 **Tool Naming and Discoverability:**
-Clear, descriptive tool names help agents find the right tools quickly. Use consistent prefixes (e.g., `github_create_issue`, `github_list_repos`) and action-oriented naming.
+Clear, descriptive tool names help clients find the right tools quickly. Use consistent prefixes (e.g., `github_create_issue`, `github_list_repos`) and action-oriented naming. Remember: your tool description is the only thing telling the LLM when to use your tool.
 
 **Context Management:**
-Agents benefit from concise tool descriptions and the ability to filter/paginate results. Design tools that return focused, relevant data. Some clients support code execution which can help agents filter and process data efficiently.
+Clients benefit from concise tool descriptions and the ability to filter/paginate results. Design tools that return focused, relevant data. Some clients support code execution which can help agents filter and process data efficiently.
 
 **Actionable Error Messages:**
-Error messages should guide agents toward solutions with specific suggestions and next steps.
+Error messages should guide agents toward solutions with specific suggestions and next steps. Client-side error handling will catch your errors and show them to the LLM, so be helpful.
 
 #### 1.2 Study MCP Protocol Documentation
 

@@ -37,7 +37,7 @@ export function TodoCard({ todo, onToggle, onEdit, onDelete }: TodoCardProps) {
           {/* Checkbox */}
           <button onClick={onToggle} className="mt-1 flex-shrink-0">
             {todo.completed ? (
-              <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-500" />
+              <CheckCircle2 className="w-6 h-6 text-success" />
             ) : (
               <Circle
                 className="w-6 h-6 transition hover:opacity-70"

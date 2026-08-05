@@ -1,9 +1,14 @@
 """Unit tests for tag CRUD operations"""
 import pytest
 from sqlmodel import Session
-from src.crud.tag import get_or_create_tag, list_tags, get_tags_for_task, get_tag_stats
+from src.services.tag_service import tag_service
+from src.services.task_service import task_service
 from src.schemas.task import TaskCreate
-from src.crud.task import create_task
+get_or_create_tag = tag_service.get_or_create
+list_tags = tag_service.list_tags
+get_tags_for_task = tag_service.get_tags_for_task
+get_tag_stats = tag_service.get_tag_stats
+create_task = task_service.create_task
 
 
 def test_get_or_create_tag_new(session: Session, mock_user_id: str):
@@ -84,7 +89,6 @@ def test_get_tags_for_task(session: Session, mock_user_id: str):
     task = create_task(session, task_data, mock_user_id)
 
     # Get tags for the task
-    from src.crud.tag import get_tags_for_task
     tags = get_tags_for_task(session, task.id, mock_user_id)
 
     assert len(tags) == 2
