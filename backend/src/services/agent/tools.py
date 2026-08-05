@@ -13,7 +13,7 @@ Each tool exists in two forms:
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from sqlmodel import Session
 
@@ -51,15 +51,27 @@ async def add_task(
     ctx: RunContextWrapper[AgentContext],
     title: str,
     description: Optional[str] = None,
-    priority: Optional[str] = None,
+    priority: Literal["low", "medium", "high"] | None = None,
     tags: Optional[List[str]] = None,
 ) -> dict:
+    print("========== add_task ==========")
+    print("title =", title)
+    print("priority =", priority)
     """Create a new todo task for the current user.
 
     Args:
         title: Task title (required).
         description: Task description (optional).
-        priority: Priority level: none, low, medium, high (optional).
+
+        priority: Optional priority.
+        Allowed values:
+        - "high"
+        - "medium"
+        - "low"
+        Do not use any other value.
+        If the user does not express urgency,
+        leave this argument empty.
+
         tags: List of tags to attach (optional).
     """
     try:

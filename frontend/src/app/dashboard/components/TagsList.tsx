@@ -34,8 +34,8 @@ export function TagsList({
 
   if (tagCounts.length === 0) {
     return (
-      <div className="text-center py-8 bg-slate-50 dark:bg-slate-900 rounded-lg">
-        <p className="text-slate-600 dark:text-slate-400">
+      <div className="text-center py-8 bg-muted rounded-lg">
+        <p className="text-muted-foreground">
           No tags found. Add tags to your tasks to organize them.
         </p>
       </div>
@@ -50,14 +50,14 @@ export function TagsList({
           onClick={() => onSelectTag(selectedTag === tag ? "" : tag)}
           className={`p-4 text-center rounded-lg border-2 transition ${
             selectedTag === tag
-              ? "border-purple-600 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/30"
-              : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+              ? "border-primary bg-primary/10"
+              : "border-border hover:border-muted-foreground"
           }`}
         >
-          <div className="font-semibold text-slate-900 dark:text-white truncate">
+          <div className="font-semibold text-foreground truncate">
             {tag}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+          <div className="text-xs text-muted-foreground mt-1">
             {count} task{count !== 1 ? "s" : ""}
           </div>
         </button>

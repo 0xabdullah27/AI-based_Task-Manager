@@ -35,6 +35,7 @@ async def chat(
     session: DbSession, 
 ):
     # user_id= "put user d for testing"
+    # user_id= "yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI"
 
     """Send a message and get an AI response.
 
@@ -66,6 +67,7 @@ async def chat(
     )
 
     return response
+   
 
 # async def text_streamer():
 #     for i in range(1, 11):
@@ -151,7 +153,7 @@ async def get_history(
 
     logger.info(f"Fetching chat history for user {user_id}")
     history_data = conversation_service.get_latest_conversation_history(session, user_id)
-
+    print(f"Retrieved chat history for user {user_id}")
     return history_data
 
 # Get the specific conversation (chat history) using conversation_id. 
@@ -191,7 +193,7 @@ async def get_conversation_history(
         )
     
     messages = conversation_service.get_history(session, conversation_id, limit)
-    
+    print(f"Fetched {len(messages)} messages for conversation {conversation_id} for user {user_id}")
     return ChatHistoryResponse(
         conversation_id=conversation_id,
         messages=messages
@@ -225,7 +227,7 @@ async def list_conversations(
     
     logger.info(f"Listing conversations for user {user_id}")
     conversations = conversation_service.list_conversations(session, user_id, limit)
-    
+    print(f"Found {len(conversations)} conversations for user {user_id}")
     return ConversationListResponse(
         conversations=conversations,
         total=len(conversations)

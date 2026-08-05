@@ -2,8 +2,6 @@ import { getJwtToken } from "@/lib/auth-client";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-console.log("Chat API initialized with BACKEND_URL:", BACKEND_URL);
-
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -20,14 +18,29 @@ export interface ChatHistoryResponsePayload {
   messages: ChatMessage[];
 }
 
+// Added interface for the Sidebar conversations
+export interface Conversation {
+  id: string;
+  created_at: Date;
+  updated_at: Date | null;
+  message_count: number;
+  first_message_preview: string | null;
+}
+
+export interface ConversationsResponsePayload {
+  conversations: Conversation[];
+}
+
 export const chatApi = {
   /**
-   * Send a chat message to the FastAPI backend.
-   * Automatically attaches the Better Auth JWT token.
+   * Send a standard, non-streaming chat message to the FastAPI backend.
    */
-  async sendMessage(message: string, conversation_id: string | null = null): Promise<ChatResponsePayload> {
+  async sendMessage(
+    message: string,
+    conversation_id: string | null = null,
+  ): Promise<ChatResponsePayload> {
     const token = getJwtToken();
-    
+
     const response = await fetch(`${BACKEND_URL}/api/chat`, {
       method: "POST",
       headers: {
@@ -49,12 +62,19 @@ export const chatApi = {
   },
 
   /**
-   * Fetch the latest conversation history from the backend.
+   * Fetch all past conversations for the sidebar.
    */
-  async getHistory(): Promise<ChatHistoryResponsePayload> {
-    const token = getJwtToken();
-    
-    const response = await fetch(`${BACKEND_URL}/api/chat/history`, {
+  async getConversations(
+    authToken?: string,
+  ): Promise<ConversationsResponsePayload> {
+    let token;
+    if (authToken) {
+      token = authToken;
+    } else {
+      token = getJwtToken();
+    }
+
+    const response = await fetch(`${BACKEND_URL}/api/conversations`, {
       method: "GET",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -63,9 +83,101 @@ export const chatApi = {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Chat History API error (${response.status}): ${errorText}`);
+      throw new Error(
+        `Conversations API error (${response.status}): ${errorText}`,
+      );
     }
 
     return response.json();
-  }
+  },
+
+  /**
+   * Fetch the client secret for ChatKit streaming initialization.
+   */
+  async getStreamSecret(conversation_id: string): Promise<string> {
+    const token = getJwtToken();
+
+    const response = await fetch(`${BACKEND_URL}/api/chat/stream`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        conversation_id,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Stream API error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.client_secret;
+  },
+
+  /**
+   * Fetch the conversation history for a specific chat ID.
+   */
+  async getHistory(
+    conversation_id: string,
+    authToken?: string,
+  ): Promise<ChatHistoryResponsePayload> {
+    let token;
+    if (authToken) {
+      token = authToken;
+    } else {
+      token = getJwtToken();
+    }
+
+    const response = await fetch(
+      `${BACKEND_URL}/api/chat/history/${conversation_id}`,
+      {
+        method: "GET",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Chat History API error (${response.status}): ${errorText}`,
+      );
+    }
+
+    return response.json();
+  },
+
+  async getLastMessagesHistory(
+    authToken?: string,
+  ): Promise<ChatHistoryResponsePayload> {
+    let token;
+    if (authToken) {
+      token = authToken;
+    } else {
+      token = getJwtToken();
+    }
+
+    const response = await fetch(
+      `${BACKEND_URL}/api/chat/history`,
+      {
+        method: "GET",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Chat History API error (${response.status}): ${errorText}`,
+      );
+    }
+
+    return response.json();
+  },
 };

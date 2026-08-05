@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useTasks } from "@/hooks/useTasks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
@@ -50,7 +50,6 @@ export default function TodosPage() {
   const {
     tasks,
     isLoading,
-    fetchTasks,
     createTask,
     updateTask,
     deleteTask,
@@ -62,10 +61,6 @@ export default function TodosPage() {
   const [deletingTodoId, setDeletingTodoId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
 
   // Filter and search todos
   const filteredTodos = useMemo(() => {
@@ -158,10 +153,10 @@ export default function TodosPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-foreground">
             All Tasks
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
+          <p className="text-muted-foreground mt-2">
             Manage and organize all your tasks
           </p>
         </div>
@@ -175,16 +170,16 @@ export default function TodosPage() {
       </div>
 
       {/* Filters and Search */}
-      <div className="  rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-4">
+      <div className="rounded-lg border border-border p-4 space-y-4">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search tasks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+            className="pl-10 bg-muted border-border"
           />
         </div>
 
@@ -206,7 +201,7 @@ export default function TodosPage() {
         </div>
 
         {/* Task Count */}
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-muted-foreground">
           Showing {filteredCount} of {totalCount} tasks
           {filterStatus !== "all" && ` (${filterStatus})`}
         </p>
@@ -223,9 +218,9 @@ export default function TodosPage() {
           </>
         ) : filteredCount === 0 ? (
           // Empty State
-          <div className="text-center py-12 bg-slate-50 dark:bg-slate-900 rounded-lg">
-            <CheckCircle2 className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+          <div className="text-center py-12 bg-muted rounded-lg">
+            <CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               {searchQuery
                 ? "No tasks found"
                 : filterStatus === "completed"
@@ -234,7 +229,7 @@ export default function TodosPage() {
                     ? "No active tasks"
                     : "No tasks yet"}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
+            <p className="text-muted-foreground mb-6">
               {searchQuery
                 ? "Try adjusting your search"
                 : "Create a new task to get started"}
@@ -256,9 +251,9 @@ export default function TodosPage() {
             return (
               <Card
                 key={todo.id}
-                className={`border-slate-200 dark:border-slate-700 transition ${
+                className={`border-border transition ${
                   todo.completed
-                    ? "bg-slate-100 dark:bg-slate-800/50"
+                    ? "bg-muted"
                     : "hover:shadow-md"
                 }`}
               >
@@ -270,9 +265,9 @@ export default function TodosPage() {
                       className="mt-1 flex-shrink-0"
                     >
                       {todo.completed ? (
-                        <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-500" />
+                        <CheckCircle2 className="w-6 h-6 text-success" />
                       ) : (
-                        <Circle className="w-6 h-6 text-slate-300 dark:text-slate-600 hover:text-slate-400" />
+                        <Circle className="w-6 h-6 text-muted-foreground hover:text-foreground" />
                       )}
                     </button>
 
@@ -281,9 +276,9 @@ export default function TodosPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <h3
-                            className={`font-semibold text-slate-900 dark:text-white transition ${
+                            className={`font-semibold text-foreground transition ${
                               todo.completed
-                                ? "line-through text-slate-500 dark:text-slate-400"
+                                ? "line-through text-muted-foreground"
                                 : ""
                             }`}
                           >
@@ -291,7 +286,7 @@ export default function TodosPage() {
                           </h3>
                           {todo.description && (
                             <p
-                              className={`text-sm text-slate-600 dark:text-slate-400 mt-1 ${
+                              className={`text-sm text-muted-foreground mt-1 ${
                                 todo.completed ? "line-through" : ""
                               }`}
                             >
@@ -320,7 +315,7 @@ export default function TodosPage() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => openDeleteConfirm(todo.id)}
-                              className="text-red-600 dark:text-red-400"
+                              className="text-destructive"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
@@ -333,7 +328,11 @@ export default function TodosPage() {
                       <div className="flex flex-wrap gap-2 mt-3">
                         {/* Priority Badge */}
                         <Badge
-                          className={`${priorityConfig.bgColor} ${priorityConfig.textColor} border-0`}
+                          className="border-0"
+                          style={{
+                            backgroundColor: priorityConfig.bgVar,
+                            color: priorityConfig.textVar,
+                          }}
                         >
                           {priorityConfig.label}
                         </Badge>
@@ -345,7 +344,7 @@ export default function TodosPage() {
                               <Badge
                                 key={tag}
                                 variant="outline"
-                                className="border-slate-300 dark:border-slate-600"
+                                className="border-border"
                               >
                                 {tag}
                               </Badge>
@@ -361,7 +360,7 @@ export default function TodosPage() {
           })
         )}
       </div>
-
+  
       {/* Create/Edit Dialog */}
       <Dialog open={formDialogOpen} onOpenChange={closeFormDialog}>
         <DialogContent className="max-w-md">
@@ -403,7 +402,7 @@ export default function TodosPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteTodo}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>

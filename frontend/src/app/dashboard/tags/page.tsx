@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useTasks } from "@/hooks/useTasks";
 import { TagsList } from "../components/TagsList";
 import { TodoCard } from "../components/TodoCard";
@@ -9,12 +9,8 @@ import { Tag } from "lucide-react";
 import type { Todo } from "@/types/task";
 
 export default function TagsPage() {
-  const { tasks, isLoading, fetchTasks, updateTask, deleteTask, toggleTask } = useTasks();
+  const { tasks, isLoading, updateTask, deleteTask, toggleTask } = useTasks();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
 
   // Filter todos by selected tag
   const filteredTodos = useMemo(() => {
@@ -26,7 +22,7 @@ export default function TagsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-foreground">
             Tasks by Tags
           </h1>
         </div>
@@ -39,17 +35,17 @@ export default function TagsPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+        <h1 className="text-3xl font-bold text-foreground">
           Tasks by Tags
         </h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-2">
+        <p className="text-muted-foreground mt-2">
           Filter and organize tasks by custom tags
         </p>
       </div>
 
       {/* Tags Grid */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">
           All Tags
         </h2>
         <TagsList
@@ -63,19 +59,19 @@ export default function TagsPage() {
       {selectedTag && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-              Tasks tagged: <span className="text-purple-600 dark:text-purple-400">#{selectedTag}</span>
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              Tasks tagged: <span className="text-primary">#{selectedTag}</span>
             </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               {filteredTodos.length} task{filteredTodos.length !== 1 ? "s" : ""} found
             </p>
           </div>
 
           <div className="space-y-3">
             {filteredTodos.length === 0 ? (
-              <div className="text-center py-8 bg-slate-50 dark:bg-slate-900 rounded-lg">
-                <Tag className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-                <p className="text-slate-600 dark:text-slate-400">
+              <div className="text-center py-8 bg-muted rounded-lg">
+                <Tag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">
                   No tasks with this tag
                 </p>
               </div>

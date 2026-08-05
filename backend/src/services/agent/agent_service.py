@@ -68,6 +68,36 @@ IMPORTANT RULES:
 - Gracefully handle errors (e.g., task not found).
 - When deleting a task by name, use `list_tasks` first to find the task ID, then `delete_task`.
 - Be conversational and helpful.
+
+Task Creation Rules
+
+Whenever the user expresses an intention, obligation, reminder, or future work,
+create a task.
+
+Infer priority from the user's wording:
+
+- "as soon as possible"
+- "ASAP"
+- "urgent"
+- "immediately"
+
+→ priority = "high"
+
+- "important"
+
+→ priority = "medium"
+
+Otherwise
+
+→ priority = null
+
+Only use these values:
+
+- high
+- medium
+- low
+
+If no priority is implied, omit the priority argument entirely.
 """
 
 
@@ -137,23 +167,27 @@ async def handle_chat(
 
     try:
         logger.info("Running AI agent with SDK function tools")
-        agent = Agent(
-            name="Todo Assistant",
-            instructions=AGENT_SYSTEM_PROMPT,
-            tools=[add_task_tool, list_tasks_tool, complete_task_tool, delete_task_tool, update_task_tool],
-            model=model,
-        )
+        # agent = Agent(
+        #     name="Todo Assistant",
+        #     instructions=AGENT_SYSTEM_PROMPT,
+        #     tools=[add_task_tool, list_tasks_tool, complete_task_tool, delete_task_tool, update_task_tool],
+        #     model=model,
+        # )
 
-        result = await Runner.run(agent, input=input_for_agent, context=context, max_turns=10)
-        response_text = (
-            result.final_output or "I'm sorry, I couldn't process that request."
-        )
-
+        # result = await Runner.run(agent, input=input_for_agent, context=context, max_turns=10)
+        # response_text = (
+        #     result.final_output or "I'm sorry, I couldn't process that request."
+        # )
+        response_text = "This is a placeholder response. The agent execution is currently disabled for testing."
         logger.info(f"AI agent completed. Response length: {len(response_text)} chars")
 
     except Exception as e:
-        logger.error(f"Agent error: {e}", exc_info=True)
-        response_text = f"I encountered an error processing your request: {str(e)}"
+        import traceback
+
+        traceback.print_exc()
+        raise
+        # logger.error(f"Agent error: {e}", exc_info=True)
+        # response_text = f"I encountered an error processing your request: {str(e)}"
 
     # 6. Store assistant response in database
     conversation_service.add_message(

@@ -47,8 +47,8 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
 
   return (
     <div
-      className={`p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors ${
-        task.completed ? "bg-gray-50" : "bg-white"
+      className={`p-4 border border-border rounded-lg hover:bg-muted transition-colors ${
+        task.completed ? "bg-muted" : "bg-card"
       }`}
     >
       <div className="flex items-start gap-4">
@@ -59,7 +59,7 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
             checked={task.completed}
             onChange={handleToggle}
             disabled={isToggling}
-            className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 cursor-pointer"
+            className="h-5 w-5 rounded border-input accent-primary focus:ring-primary disabled:opacity-50 cursor-pointer"
           />
         </div>
 
@@ -69,8 +69,8 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
             <h4
               className={`text-base font-medium ${
                 task.completed
-                  ? "text-gray-500 line-through"
-                  : "text-gray-900"
+                  ? "text-muted-foreground line-through"
+                  : "text-foreground"
               }`}
             >
               {task.title}
@@ -80,7 +80,7 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
           {task.description && (
             <p
               className={`mt-1 text-sm ${
-                task.completed ? "text-gray-400" : "text-gray-600"
+                task.completed ? "text-muted-foreground" : "text-muted-foreground"
               }`}
             >
               {task.description}
@@ -96,7 +96,7 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
             </div>
           )}
 
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-muted-foreground">
             Created: {new Date(task.created_at).toLocaleDateString()}
             {task.updated_at && (
               <span className="ml-2">

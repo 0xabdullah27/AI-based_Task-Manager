@@ -38,7 +38,7 @@ export function TaskList({
   if (isLoading && tasks.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">Loading tasks...</p>
+        <p className="text-muted-foreground">Loading tasks...</p>
       </div>
     );
   }
@@ -61,7 +61,7 @@ export function TaskList({
   return (
     <div className="space-y-3">
       {/* Show task count */}
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-muted-foreground">
         Showing {tasks.length} of {filtered} tasks ({total} total)
       </div>
 
