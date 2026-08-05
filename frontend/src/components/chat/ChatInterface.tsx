@@ -23,6 +23,10 @@ export function ChatInterface() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
+  // True while a streaming response bubble is being filled with tokens
+  const isStreaming =
+    isSending && messages[messages.length - 1]?.role === "assistant";
+
   // Auto-scroll to latest message
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -115,7 +119,7 @@ export function ChatInterface() {
                         : "bg-muted text-foreground rounded-bl-sm border"
                     }`}
                   >
-                    {m.content}
+                    {m.content || "…"}
                   </div>
 
                   {m.role === "user" && (
@@ -127,7 +131,7 @@ export function ChatInterface() {
               ))
             )}
 
-            {isSending && (
+            {isSending && !isStreaming && (
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <Bot className="w-5 h-5 text-primary" />

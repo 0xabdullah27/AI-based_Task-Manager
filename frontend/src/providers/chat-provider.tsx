@@ -135,12 +135,47 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       }
 
       setIsSending(true);
+
+      // Reserve an empty assistant bubble that streamed tokens fill in
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
+      const appendToken = (token: string) => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last && last.role === "assistant") {
+            next[next.length - 1] = {
+              role: "assistant",
+              content: last.content + token,
+            };
+          }
+          return next;
+        });
+      };
+
       try {
-        const result = await chatApi.sendMessage(userMessage, activeId);
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: result.response },
-        ]);
+        const result = await chatApi.sendMessageStream(
+          userMessage,
+          activeId,
+          appendToken,
+        );
+
+        // Use the authoritative final response from the done event
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last && last.role === "assistant") {
+            if (result.response) {
+              next[next.length - 1] = {
+                role: "assistant",
+                content: result.response,
+              };
+            }
+          } else if (result.response) {
+            next.push({ role: "assistant", content: result.response });
+          }
+          return next;
+        });
 
         if (isNewThread && tempId) {
           setConversations((prev) =>
@@ -152,14 +187,24 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         setActiveId(result.conversation_id);
       } catch (error) {
         console.error("Chat Error:", error);
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content:
-              "Sorry, I encountered an error communicating with the server.",
-          },
-        ]);
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last && last.role === "assistant") {
+            next[next.length - 1] = {
+              role: "assistant",
+              content:
+                "Sorry, I encountered an error communicating with the server.",
+            };
+          } else {
+            next.push({
+              role: "assistant",
+              content:
+                "Sorry, I encountered an error communicating with the server.",
+            });
+          }
+          return next;
+        });
       } finally {
         setIsSending(false);
       }
