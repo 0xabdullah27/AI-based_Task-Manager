@@ -12,7 +12,7 @@ export function MobileMenu({ open, onOpenChange }: MobileMenuProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="p-0 w-64">
-        <Sidebar />
+        <Sidebar onNavigate={() => onOpenChange(false)} />
       </SheetContent>
     </Sheet>
   );

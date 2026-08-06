@@ -12,7 +12,11 @@ import {
 import { LogOut, CheckSquare } from "lucide-react";
 import Link from "next/link";
 
-export function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
@@ -34,7 +38,11 @@ export function Sidebar() {
   return (
     <div className="h-full flex flex-col overflow-y-auto p-4 space-y-6">
       {/* Logo - T021: Use primary color variable */}
-      <Link href="/" className="flex items-center gap-2 px-2">
+      <Link
+        href="/"
+        className="flex items-center gap-2 px-2"
+        onClick={() => onNavigate?.()}
+      >
         <div
           className="p-2 rounded-lg"
           style={{
@@ -95,7 +103,10 @@ export function Sidebar() {
           return (
             <button
               key={section.id}
-              onClick={() => router.push(section.href)}
+              onClick={() => {
+                router.push(section.href);
+                onNavigate?.();
+              }}
               style={
                 isActive
                   ? {
