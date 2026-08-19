@@ -1,0 +1,55 @@
+// {{FILE_PATH}}
+// Better Auth configuration for MONOLITHIC architecture (Next.js API routes only)
+// NO JWT plugin needed - uses HTTP-only cookies for authentication
+
+import { betterAuth } from "better-auth";
+import { {{DATABASE_IMPORT}} } from "{{DATABASE_PACKAGE}}";
+
+// Database connection
+const {{DATABASE_CLIENT}} = {{DATABASE_CONNECTION}};
+
+export const auth = betterAuth({
+  // ========================================
+  // Database Configuration
+  // ========================================
+
+  database: {{DATABASE_CLIENT}},
+
+  // ========================================
+  // Authentication Methods
+  // ========================================
+
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,  // Set to true for production
+    minPasswordLength: 8,
+    autoSignIn: true,
+  },
+
+  // ========================================
+  // Security Configuration
+  // ========================================
+
+  secret: process.env.BETTER_AUTH_SECRET || "your-secret-key-change-in-production",
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+
+  // ========================================
+  // Session Configuration
+  // ========================================
+
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24,      // 1 day
+  },
+
+  // ========================================
+  // Plugins
+  // ========================================
+
+  // NO JWT plugin for monolithic - cookies work fine
+  plugins: [],
+});
+
+// Export types for TypeScript
+export type Session = typeof auth.$Infer.Session;
+export type User = typeof auth.$Infer.Session.user;

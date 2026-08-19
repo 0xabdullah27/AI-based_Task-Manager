@@ -1,0 +1,72 @@
+// {{FILE_PATH}}
+// Better Auth configuration for SEPARATE BACKEND architecture
+// ⚠️ CRITICAL: JWT plugin REQUIRED for separate backend authentication
+
+import { betterAuth } from "better-auth";
+import { jwt } from "better-auth/plugins";  // 🔑 CRITICAL for separate backend
+import { {{DATABASE_IMPORT}} } from "{{DATABASE_PACKAGE}}";
+
+// Database connection
+const {{DATABASE_CLIENT}} = {{DATABASE_CONNECTION}};
+
+export const auth = betterAuth({
+  // ========================================
+  // Database Configuration
+  // ========================================
+
+  database: {{DATABASE_CLIENT}},
+
+  // ========================================
+  // Authentication Methods
+  // ========================================
+
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,  // Set to true for production
+    minPasswordLength: 8,
+    autoSignIn: true,
+  },
+
+  // ========================================
+  // Plugins (CRITICAL for Separate Backend)
+  // ========================================
+
+  plugins: [
+    // 🔑 JWT plugin enables JWT token generation for API authentication
+    // Without this, API calls to separate backend will fail with 401
+    jwt({
+      jwks: {
+        // JWKS endpoint path (Better Auth serves public keys here)
+        jwksPath: "/.well-known/jwks.json",
+      },
+      // JWT token expiration (24 hours)
+      expiresIn: 60 * 60 * 24,
+    }),
+  ],
+
+  // ========================================
+  // Security Configuration
+  // ========================================
+
+  secret: process.env.BETTER_AUTH_SECRET || "your-secret-key-change-in-production",
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+
+  // Trusted origins for CORS (MUST include backend URL)
+  trustedOrigins: [
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    process.env.NEXT_PUBLIC_API_URL || "{{BACKEND_URL}}",  // Backend URL
+  ],
+
+  // ========================================
+  // Session Configuration
+  // ========================================
+
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24,      // 1 day
+  },
+});
+
+// Export types for TypeScript
+export type Session = typeof auth.$Infer.Session;
+export type User = typeof auth.$Infer.Session.user;

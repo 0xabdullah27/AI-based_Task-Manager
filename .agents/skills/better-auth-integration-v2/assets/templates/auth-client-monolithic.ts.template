@@ -1,0 +1,26 @@
+// {{FILE_PATH}}
+// Better Auth client for MONOLITHIC architecture (Next.js API routes only)
+// NO JWT plugin needed - uses HTTP-only cookies
+
+"use client";
+
+import { createAuthClient } from "better-auth/react";
+
+// Create auth client
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  basePath: "/api/auth",
+
+  // NO jwtClient plugin for monolithic - cookies work fine
+  plugins: [],
+});
+
+// Export auth methods
+export const {
+  signIn,
+  signUp,
+  signOut,
+  useSession,
+  getSession,
+  updateUser,
+} = authClient;

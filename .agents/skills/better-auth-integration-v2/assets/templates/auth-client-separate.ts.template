@@ -1,0 +1,112 @@
+// {{FILE_PATH}}
+// Better Auth client for SEPARATE BACKEND architecture
+// ⚠️ CRITICAL: jwtClient plugin REQUIRED for JWT token management
+
+"use client";
+
+import { createAuthClient } from "better-auth/react";
+import { jwtClient } from "better-auth/client/plugins";  // 🔑 CRITICAL for JWT tokens
+
+// JWT token storage key
+const JWT_TOKEN_KEY = "better_auth_jwt";
+
+// Create auth client with JWT support
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  basePath: "/api/auth",
+
+  // 🔑 CRITICAL: jwtClient plugin enables JWT token access
+  plugins: [
+    jwtClient({
+      jwks: {
+        jwksPath: "/.well-known/jwks.json",
+      },
+    }),
+  ],
+
+  // Fetch options - capture JWT from response headers
+  fetchOptions: {
+    onSuccess: (ctx) => {
+      // Better Auth sets JWT in "set-auth-jwt" header after getSession calls
+      const jwtToken = ctx.response.headers.get("set-auth-jwt");
+      if (jwtToken && typeof window !== "undefined") {
+        localStorage.setItem(JWT_TOKEN_KEY, jwtToken);
+      }
+    },
+  },
+});
+
+// ========================================
+// JWT Token Management Functions
+// ========================================
+
+/**
+ * Get stored JWT token from localStorage
+ *
+ * @returns JWT token string or null if not found
+ *
+ * ⚠️ SECURITY: Storing JWT in localStorage is vulnerable to XSS attacks.
+ * For production, consider:
+ * - Using memory storage with service worker
+ * - Using httpOnly cookies (requires Next.js API proxy)
+ * - Implementing token refresh mechanism
+ */
+export function getJwtToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(JWT_TOKEN_KEY);
+}
+
+/**
+ * Clear stored JWT token from localStorage
+ * Call this on sign-out or when token is invalid
+ */
+export function clearJwtToken(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(JWT_TOKEN_KEY);
+}
+
+/**
+ * Fetch JWT token from Better Auth after sign-in/sign-up
+ *
+ * ⚠️ CRITICAL: MUST be called after successful authentication to enable API calls.
+ *
+ * @returns JWT token string or null if fetch fails
+ *
+ * Usage:
+ * ```typescript
+ * await signIn.email({ email, password });
+ * await fetchAndStoreJwt();  // ← CRITICAL: Don't forget this!
+ * router.push("/dashboard");
+ * ```
+ */
+export async function fetchAndStoreJwt(): Promise<string | null> {
+  try {
+    // Call Better Auth /token endpoint
+    const { data, error } = await authClient.token();
+
+    if (error || !data?.token) {
+      console.error("Failed to fetch JWT token:", error);
+      return null;
+    }
+
+    // Store token for API calls
+    if (typeof window !== "undefined") {
+      localStorage.setItem(JWT_TOKEN_KEY, data.token);
+    }
+
+    return data.token;
+  } catch (error) {
+    console.error("Error fetching JWT token:", error);
+    return null;
+  }
+}
+
+// Export Better Auth hooks and methods
+export const {
+  signIn,
+  signUp,
+  signOut,
+  useSession,
+  getSession,
+  updateUser,
+} = authClient;

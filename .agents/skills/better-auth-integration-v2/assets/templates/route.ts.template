@@ -1,0 +1,17 @@
+// {{FILE_PATH}}
+// Better Auth catch-all API route handler
+// Handles: /api/auth/sign-in, /api/auth/sign-up, /api/auth/token, etc.
+
+import { auth } from "@/lib/auth";
+import { toNextJsHandler } from "better-auth/next-js";
+
+// Export GET and POST handlers
+export const { GET, POST } = toNextJsHandler(auth);
+
+// ⚠️ IMPORTANT ENDPOINTS PROVIDED:
+// POST /api/auth/sign-in/email - Email/password sign-in
+// POST /api/auth/sign-up/email - Email/password sign-up
+// GET  /api/auth/token - Get JWT token (requires authenticated session)
+// GET  /api/auth/session - Get current session
+// POST /api/auth/sign-out - Sign out
+// GET  /api/auth/.well-known/jwks.json - JWKS for JWT verification

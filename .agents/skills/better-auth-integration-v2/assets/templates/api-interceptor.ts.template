@@ -1,0 +1,71 @@
+// {{FILE_PATH}}
+// Axios interceptor for backend API calls with JWT authentication
+// ⚠️ CRITICAL: This file adds JWT Bearer token to all backend API requests
+
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { getJwtToken, clearJwtToken } from '@/lib/auth-client';
+
+// Create API client for backend
+export const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '{{BACKEND_URL}}',
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// ========================================
+// Request Interceptor - Add JWT Token
+// ========================================
+
+apiClient.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    // Get JWT token from localStorage
+    const token = getJwtToken();
+
+    // 🔑 Add Bearer token to Authorization header
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error);
+  }
+);
+
+// ========================================
+// Response Interceptor - Handle Errors
+// ========================================
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    // Handle 401 Unauthorized - token expired or invalid
+    if (error.response?.status === 401) {
+      // Clear invalid/expired token
+      clearJwtToken();
+
+      // Save current location for return after sign-in
+      const returnUrl = window.location.pathname;
+      window.location.href = `/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`;
+    }
+
+    // Handle 422 Validation Error
+    if (error.response?.status === 422) {
+      // Let calling code handle validation errors
+      return Promise.reject(error);
+    }
+
+    // Handle 500 Server Error
+    if (error.response?.status === 500) {
+      console.error('Server error:', error);
+      // Could show toast notification here
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;
