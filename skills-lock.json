@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "skills": {
+    "build-modern-redux-apps/modern-redux": {
+      "source": "reduxjs/redux-toolkit",
+      "sourceType": "github",
+      "skillPath": "packages/toolkit/skills/build-modern-redux-apps/modern-redux/SKILL.md",
+      "computedHash": "f98b3f17f95c6483373cce4bd47095b704e5255d56ee40ef846960d6e1754de0"
+    },
+    "fastapi": {
+      "source": "fastapi/fastapi",
+      "sourceType": "github",
+      "skillPath": "fastapi/.agents/skills/fastapi/SKILL.md",
+      "computedHash": "187b2e06c41cdb6c6beeab15e6db4aeb1bf62f57735974646ad5646af8aacc66"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "b146008599c31057cef1c145774cea5d5afb30e8f43fa802e47a4b461419aaaf"
+    },
+    "manage-server-data/adopt-rtk-query": {
+      "source": "reduxjs/redux-toolkit",
+      "sourceType": "github",
+      "skillPath": "packages/toolkit/skills/manage-server-data/adopt-rtk-query/SKILL.md",
+      "computedHash": "258e013a383c45fb436530fc62e14096444889cc7442c1fe330b8831055a0642"
+    },
+    "openai-agents-sdk": {
+      "source": "laguagu/claude-code-nextjs-skills",
+      "sourceType": "github",
+      "skillPath": "skills/openai-agents-sdk/SKILL.md",
+      "computedHash": "f75656604ef9791e4a9328a0609ec5bc6c8993e796b752ebec280357b3d7cbe6"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "computedHash": "7e3c9cd74e9e2b4828527a857170e86310f2dab5ea8030a9043df2c7e6c88857"
+    },
+    "tailwind-4-docs": {
+      "source": "lombiq/tailwind-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tailwind-4-docs/SKILL.md",
+      "computedHash": "4900f575f24641b1af459cda37cbb8438ecf3f8f1a63148384197cb730895093"
+    }
+  }
+}
