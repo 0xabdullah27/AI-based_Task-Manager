@@ -10,6 +10,7 @@ import React, {
 } from "react";
 
 import { chatApi, ChatMessage, Conversation } from "@/lib/chat-api";
+import { useTasksContext } from "@/providers/tasks-provider";
 
 interface ChatContextValue {
   conversations: Conversation[];
@@ -33,6 +34,7 @@ const ChatContext = createContext<ChatContextValue | null>(null);
  * page never refetches. Optimistic updates keep the sidebar in sync.
  */
 export function ChatProvider({ children }: { children: React.ReactNode }) {
+  const { fetchTasks } = useTasksContext();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -150,6 +152,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           );
         }
         setActiveId(result.conversation_id);
+
+        // Refresh task list automatically in background in case AI agent created/updated/deleted any task
+        fetchTasks().catch(console.error);
       } catch (error) {
         console.error("Chat Error:", error);
         setMessages((prev) => [
