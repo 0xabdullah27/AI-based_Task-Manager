@@ -83,7 +83,7 @@ async def list_tasks(
         query = query.outerjoin(TaskTag).where(TaskTag.task_id.is_(None))
 
     filtered = session.exec(query).one()
-
+    # print("the tasks are", tasks)
     return TaskListResponse(tasks=tasks, total=total, filtered=filtered)
 
 

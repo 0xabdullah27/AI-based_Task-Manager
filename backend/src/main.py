@@ -50,8 +50,8 @@ async def lifespan(app: FastAPI):
         await stack.enter_async_context(mcp.session_manager.run())
         # yield
         logger.info("Starting up Todo Backend API...")
-        create_db_and_tables()
-        logger.info("Database tables created/verified")
+        # create_db_and_tables()
+        # logger.info("Database tables created/verified")
 
         # start MCP runtime
         # await mcp.run()
