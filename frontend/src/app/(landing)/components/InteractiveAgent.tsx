@@ -1,9 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import Spline from "@splinetool/react-spline";
+import dynamic from "next/dynamic";
 import { Sparkles, MessageSquare, ArrowRight, Loader2, Bot } from "lucide-react";
 import Link from "next/link";
+
+// Load Spline dynamically with ssr: false to prevent Next.js SSR Webpack bundling errors for WebGL/WASM assets
+const Spline = dynamic(() => import("@splinetool/react-spline"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground z-10 bg-background/50 backdrop-blur-xs rounded-3xl">
+      <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      <p className="text-sm font-medium">Loading 3D Interactive Robot...</p>
+    </div>
+  ),
+});
 
 export function InteractiveAgent() {
   const [isLoaded, setIsLoaded] = useState(false);
