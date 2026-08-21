@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Button } from "@/components/ui/Button";
@@ -17,10 +18,16 @@ export function Sidebar() {
   const router = useRouter();
   const { data: session } = useSession();
   const activeSection = getActiveSection(pathname);
+  const [isSigningOut, setIsSigningOut] = React.useState(false);
 
   const handleSignOut = async () => {
-    await signOut();
-    router.push("/sign-in");
+    try {
+      setIsSigningOut(true);
+      await signOut();
+      router.push("/sign-in");
+    } catch (error) {
+      setIsSigningOut(false);
+    }
   };
 
   const userInitials = session?.user?.name
@@ -133,10 +140,11 @@ export function Sidebar() {
       <Button
         onClick={handleSignOut}
         variant="outline"
-        className="bg-secondary text-secondary-foreground cursor-pointer hover:bg-primary/80"
+        disabled={isSigningOut}
+        className="bg-secondary text-secondary-foreground cursor-pointer hover:bg-primary/80 disabled:opacity-50"
       >
         <LogOut className="h-4 w-4 mr-2" />
-        Sign Out
+        {isSigningOut ? "Signing out..." : "Sign Out"}
       </Button>
     </div>
   );
