@@ -92,32 +92,6 @@ export const chatApi = {
   },
 
   /**
-   * Fetch the client secret for ChatKit streaming initialization.
-   */
-  async getStreamSecret(conversation_id: string): Promise<string> {
-    const token = getJwtToken();
-
-    const response = await fetch(`${BACKEND_URL}/api/chat/stream`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({
-        conversation_id,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Stream API error (${response.status}): ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data.client_secret;
-  },
-
-  /**
    * Fetch the conversation history for a specific chat ID.
    */
   async getHistory(
