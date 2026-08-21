@@ -1,27 +1,43 @@
 "use client";
 
-import React, { useState } from "react";
-import dynamic from "next/dynamic";
-import { Sparkles, MessageSquare, ArrowRight, Loader2, Bot } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import Script from "next/script";
+import { Sparkles, MessageSquare, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 
-// Load Spline dynamically with ssr: false to prevent Next.js SSR Webpack bundling errors for WebGL/WASM assets
-const Spline = dynamic(() => import("@splinetool/react-spline"), {
-  ssr: false,
-  loading: () => (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground z-10 bg-background/50 backdrop-blur-xs rounded-3xl">
-      <Loader2 className="w-10 h-10 animate-spin text-primary" />
-      <p className="text-sm font-medium">Loading 3D Interactive Robot...</p>
-    </div>
-  ),
-});
+// Declare custom element for React 19 TypeScript
+declare global {
+  namespace React {
+    namespace JSX {
+      interface IntrinsicElements {
+        "spline-viewer": React.DetailedHTMLProps<
+          React.HTMLAttributes<HTMLElement> & { url?: string; class?: string },
+          HTMLElement
+        >;
+      }
+    }
+  }
+}
 
 export function InteractiveAgent() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+
+  useEffect(() => {
+    // Check if custom element is already defined in window
+    if (typeof window !== "undefined" && customElements.get("spline-viewer")) {
+      setScriptLoaded(true);
+    }
+  }, []);
 
   return (
     <div className="relative flex flex-col items-center justify-center w-full min-h-[460px] md:min-h-[560px] select-none">
+      {/* Script to load Spline Web Component without Turbopack WASM bundling errors */}
+      <Script
+        src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"
+        type="module"
+        onLoad={() => setScriptLoaded(true)}
+      />
+
       {/* Outer Ambient Glow Aura */}
       <div className="absolute w-80 h-80 rounded-full bg-gradient-to-r from-primary/30 via-chart-4/20 to-chart-2/30 blur-3xl animate-pulse pointer-events-none" />
 
@@ -35,27 +51,18 @@ export function InteractiveAgent() {
       </div>
 
       {/* 3D Spline Interactive Canvas */}
-      <div className="relative w-full h-[400px] md:h-[500px] flex items-center justify-center">
-        {!isLoaded && !hasError && (
+      <div className="relative w-full h-[400px] md:h-[500px] flex items-center justify-center rounded-3xl overflow-hidden">
+        {!scriptLoaded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground z-10 bg-background/50 backdrop-blur-xs rounded-3xl">
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
             <p className="text-sm font-medium">Loading 3D Interactive Robot...</p>
           </div>
         )}
 
-        {hasError ? (
-          <div className="flex flex-col items-center justify-center text-center p-8 bg-card rounded-3xl border border-border space-y-4">
-            <Bot className="w-16 h-16 text-primary" />
-            <p className="text-sm font-medium text-foreground">3D Robot Canvas Active</p>
-          </div>
-        ) : (
-          <Spline
-            scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
-            onLoad={() => setIsLoaded(true)}
-            onError={() => setHasError(true)}
-            className="w-full h-full rounded-3xl"
-          />
-        )}
+        <spline-viewer
+          url="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
+          class="w-full h-full rounded-3xl"
+        />
       </div>
 
       {/* CTA Link to Dashboard Chat */}
