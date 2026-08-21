@@ -1,4 +1,4 @@
-"""Tag models for task categorization."""
+"""Database models for tags and task-tag relationship mappings."""
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, String
 from datetime import datetime
@@ -11,30 +11,41 @@ if TYPE_CHECKING:
 
 
 class TaskTag(SQLModel, table=True):
-    """Junction table for Task-Tag many-to-many relationship.
+    """Junction database model for the Task-Tag many-to-many relationship.
 
-    NOTE: This must be defined BEFORE Tag and Task models to be used in link_model.
+    Attributes:
+        task_id (str): Foreign key referencing task.id.
+        tag_id (str): Foreign key referencing tag.id.
     """
+
     __tablename__ = "task_tag"
 
-    task_id: str = Field(foreign_key="task.id", primary_key=True)
-    tag_id: str = Field(foreign_key="tag.id", primary_key=True)
+    task_id: str = Field(foreign_key="task.id", primary_key=True, description="Foreign key linking to Task primary key UUID")
+    tag_id: str = Field(foreign_key="tag.id", primary_key=True, description="Foreign key linking to Tag primary key UUID")
 
 
 class Tag(SQLModel, table=True):
-    """Tag for categorizing tasks - unique per user, case-insensitive.
+    """Tag database model for task categorization.
 
-    Tags are stored lowercase and must be unique per user.
+    Unique per user and stored in lowercase format.
+
+    Attributes:
+        id (str): Primary key UUID string.
+        user_id (str): Foreign key linking to user owner.
+        name (str): Case-insensitive unique tag name string (max 50 chars).
+        created_at (datetime): UTC creation timestamp.
+        tasks (List[Task]): Many-to-many relationship list back to tasks via TaskTag.
     """
 
-    id: str = Field(default_factory=generate_uuid, primary_key=True)
-    user_id: str = Field(foreign_key="user.id", index=True)
+    id: str = Field(default_factory=generate_uuid, primary_key=True, description="Unique UUID primary key string")
+    user_id: str = Field(foreign_key="user.id", index=True, description="Foreign key identifying tag owner")
     name: str = Field(
-        sa_column=Column(String(50), nullable=False, index=True)
+        sa_column=Column(String(50), nullable=False, index=True),
+        description="Tag name string (lowercased, indexed)",
     )
-    created_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=utc_now, description="UTC creation timestamp")
 
     tasks: List["Task"] = Relationship(
         back_populates="tags",
-        link_model=TaskTag
+        link_model=TaskTag,
     )

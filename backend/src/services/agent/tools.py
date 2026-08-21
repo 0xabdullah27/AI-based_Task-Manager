@@ -1,22 +1,16 @@
-"""SDK function tools for the Todo agent.
+"""SDK function tools for the Todo AI agent.
 
 These tools call the task service directly and share the request DB session and
-the authenticated user_id via RunContextWrapper — the LLM never sees them, so no
-user_id prompt-hack is needed. (The mcp_server.tools.todo_tools module remains a
-separate wrapper for standalone MCP integration; it is not used here.)
+the authenticated user_id via RunContextWrapper — the LLM never sees user IDs, so no
+user_id prompt-injecting is needed.
 
-Per spec, exposes 5 tools: add_task, list_tasks, complete_task, delete_task, update_task.
-
-Each tool exists in two forms:
-  - the raw async function (directly testable)
-  - the FunctionTool wrapper (used by the Agent via AGENT_TOOLS)
+Per spec, exposes 5 core tools: add_task, list_tasks, complete_task, delete_task, update_task.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional, Literal
+from typing import List, Optional, Dict, Any
 
 from sqlmodel import Session
-
 from agents import RunContextWrapper, function_tool
 
 from src.models.priority import Priority
@@ -26,11 +20,11 @@ from src.services.task_service import task_service
 
 @dataclass
 class AgentContext:
-    """Per-run context passed to every SDK tool.
+    """Per-run context passed to every SDK agent tool.
 
-    session: the shared request DB session (same one used for conversation history).
-    user_id: the authenticated user's ID.
-    Neither is ever sent to the LLM.
+    Attributes:
+        session (Session): Shared SQLModel database session from the HTTP request context.
+        user_id (str): ID of the authenticated user.
     """
 
     session: Session
@@ -38,7 +32,14 @@ class AgentContext:
 
 
 def _parse_priority(priority: Optional[str]) -> Priority:
-    """Parse a priority string into a Priority enum, defaulting to NONE."""
+    """Parse an raw string into a Priority enum, defaulting to Priority.NONE.
+
+    Args:
+        priority (Optional[str]): Input priority string (e.g. "high", "urgent", "low").
+
+    Returns:
+        Priority: Matched Priority enum value (HIGH, MEDIUM, LOW, or NONE).
+    """
     if not priority:
         return Priority.NONE
     upper = priority.upper().strip()
@@ -59,28 +60,22 @@ async def add_task(
     description: Optional[str] = None,
     priority: Optional[str] = None,
     tags: Optional[List[str]] = None,
-) -> dict:
-    print("========== add_task ==========")
-    print("title =", title)
-    print("priority =", priority)
+) -> Dict[str, Any]:
     """Create a new todo task for the current user.
 
     Args:
-        title: Task title (required).
-        description: Task description (optional).
+        ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
+        title (str): Short title of the task (required, 1 to 200 characters).
+        description (Optional[str]): Optional task description or detailed notes (max 2000 characters).
+        priority (Optional[str]): Urgency level. Allowed values: "high", "medium", "low".
+            Do not pass any other value. If no urgency is expressed, leave empty.
+        tags (Optional[List[str]]): Optional list of category tag names (e.g., ["work", "urgent"]).
 
-        priority: Optional priority.
-        Allowed values:
-        - "high"
-        - "medium"
-        - "low"
-        Do not use any other value.
-        If the user does not express urgency,
-        leave this argument empty.
+    Returns:
+        Dict[str, Any]: Dictionary containing 'task_id', 'status', and 'title', or 'error' on failure.
 
-        tags: List of tags to attach (optional).
-
-    IMPORTANT: Call this function EXACTLY ONCE per task creation request. After receiving the return value, do NOT call add_task again for the same task. Respond directly to the user.
+    IMPORTANT: Call this function EXACTLY ONCE per task creation request.
+    After receiving the return value, do NOT call add_task again for the same task.
     """
     try:
         task_data = TaskCreate(
@@ -90,7 +85,9 @@ async def add_task(
             tags=tags or [],
             completed=False,
         )
-        task = task_service.create_task(ctx.context.session, task_data, ctx.context.user_id)
+        task = task_service.create_task(
+            ctx.context.session, task_data=task_data, user_id=ctx.context.user_id
+        )
         return {"task_id": task.id, "status": "created", "title": task.title}
     except Exception as e:
         return {"error": str(e)}
@@ -102,14 +99,19 @@ async def list_tasks(
     priority: Optional[str] = None,
     search: Optional[str] = None,
     tags: Optional[List[str]] = None,
-) -> list:
+) -> List[Dict[str, Any]]:
     """Retrieve the current user's tasks with optional filtering.
 
     Args:
-        status: Filter by status: "all", "pending", "completed" (default "all").
-        priority: Filter by priority (optional).
-        search: Search in title/description (optional).
-        tags: Filter by tag names (optional).
+        ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
+        status (Optional[str]): Filter by status: "all", "pending", or "completed" (default "all").
+        priority (Optional[str]): Filter by priority: "high", "medium", "low", "none" (optional).
+        search (Optional[str]): Case-insensitive search keyword matching title or description (optional).
+        tags (Optional[List[str]]): Filter tasks matching any of the specified tag names (optional).
+
+    Returns:
+        List[Dict[str, Any]]: List of task summary dictionaries, each containing 'id', 'title',
+        'description', 'completed', 'priority', and 'tags'. Returns list with error dict on failure.
     """
     try:
         status_map = {"all": None, "pending": "pending", "completed": "completed"}
@@ -143,18 +145,22 @@ async def list_tasks(
 async def complete_task(
     ctx: RunContextWrapper[AgentContext],
     task_id: str,
-) -> dict:
-    """Mark a task as complete (toggles completion status).
+) -> Dict[str, Any]:
+    """Mark a task as complete (or toggle completion status) for the user.
 
     Args:
-        task_id: ID of the task to complete (required).
+        ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
+        task_id (str): Unique UUID string of the target task to complete (required).
+
+    Returns:
+        Dict[str, Any]: Dictionary containing 'task_id', 'status' ("completed" or "pending"), and 'title'.
     """
     try:
         task = task_service.toggle_task_completion(
             ctx.context.session, task_id, ctx.context.user_id
         )
-        status = "completed" if task.completed else "pending"
-        return {"task_id": task.id, "status": status, "title": task.title}
+        status_str = "completed" if task.completed else "pending"
+        return {"task_id": task.id, "status": status_str, "title": task.title}
     except Exception as e:
         return {"error": str(e)}
 
@@ -162,11 +168,15 @@ async def complete_task(
 async def delete_task(
     ctx: RunContextWrapper[AgentContext],
     task_id: str,
-) -> dict:
-    """Delete a task from the list.
+) -> Dict[str, Any]:
+    """Permanently delete a task from the user's task list.
 
     Args:
-        task_id: ID of the task to delete (required).
+        ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
+        task_id (str): Unique UUID string of the target task to delete (required).
+
+    Returns:
+        Dict[str, Any]: Dictionary containing 'task_id', 'status' ("deleted"), and 'title'.
     """
     try:
         task = task_service.get_task(ctx.context.session, task_id, ctx.context.user_id)
@@ -184,15 +194,19 @@ async def update_task(
     description: Optional[str] = None,
     priority: Optional[str] = None,
     tags: Optional[List[str]] = None,
-) -> dict:
+) -> Dict[str, Any]:
     """Update a task's title, description, priority, or tags.
 
     Args:
-        task_id: ID of the task to update (required).
-        title: New title (optional).
-        description: New description (optional).
-        priority: New priority: none, low, medium, high (optional).
-        tags: New tags list (optional).
+        ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
+        task_id (str): Unique UUID string of the target task to update (required).
+        title (Optional[str]): Updated task title string (optional).
+        description (Optional[str]): Updated task description string (optional).
+        priority (Optional[str]): Updated priority level: "high", "medium", "low", "none" (optional).
+        tags (Optional[List[str]]): Updated list of tag names (optional).
+
+    Returns:
+        Dict[str, Any]: Dictionary containing 'task_id', 'status' ("updated"), and 'title'.
     """
     try:
         priority_val = _parse_priority(priority) if priority else None
@@ -203,7 +217,7 @@ async def update_task(
             tags=tags,
         )
         task = task_service.update_task(
-            ctx.context.session, task_id, task_data, ctx.context.user_id
+            ctx.context.session, task_id, task_data=task_data, user_id=ctx.context.user_id
         )
         return {"task_id": task.id, "status": "updated", "title": task.title}
     except Exception as e:
@@ -217,7 +231,7 @@ complete_task_tool = function_tool(complete_task)
 delete_task_tool = function_tool(delete_task)
 update_task_tool = function_tool(update_task)
 
-# Tools the Todo agent can use
+# Tools exported for the Todo agent
 AGENT_TOOLS = [
     add_task_tool,
     list_tasks_tool,

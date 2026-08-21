@@ -1,206 +1,55 @@
-INFO:     Application startup complete.
-WARNING:  StatReload detected changes in 'src\routers\chat.py'. Reloading...
- INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-Shutting down Todo Backend API...
-StreamableHTTP session manager shutting down
-INFO:     Application shutdown complete.
-INFO:     Finished server process [3344]
-INFO:     Started server process [11008]
-INFO:     Waiting for application startup.
-StreamableHTTP session manager started
-Starting up Todo Backend API...
-Creating database tables...
-Database tables created successfully
-Database tables created/verified
-INFO:     Application startup complete.
-WARNING:  StatReload detected changes in 'src\services\agent\agent_service.py'. Reloading...
- INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-Shutting down Todo Backend API...
-StreamableHTTP session manager shutting down
-INFO:     Application shutdown complete.
-INFO:     Finished server process [11008]
-INFO:     Started server process [17304]
-INFO:     Waiting for application startup.
-StreamableHTTP session manager started
-Starting up Todo Backend API...
-Creating database tables...
-Database tables created successfully
-Database tables created/verified
-INFO:     Application startup complete.
-WARNING:  StatReload detected changes in 'src\services\agent\agent_service.py'. Reloading...
- INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-Shutting down Todo Backend API...
-StreamableHTTP session manager shutting down
-INFO:     Application shutdown complete.
-INFO:     Finished server process [17304]
-INFO:     Started server process [19200]
-INFO:     Waiting for application startup.
-StreamableHTTP session manager started
-Starting up Todo Backend API...
-Creating database tables...
-Database tables created successfully
-Database tables created/verified
-INFO:     Application startup complete.
-GET /docs
-GET /docs status=200 duration=0.003s
-INFO:     127.0.0.1:54673 - "GET /docs HTTP/1.1" 200 OK
-GET /openapi.json
-GET /openapi.json status=200 duration=0.231s
-INFO:     127.0.0.1:54673 - "GET /openapi.json HTTP/1.1" 200 OK
-GET /
-GET / status=200 duration=0.004s
-INFO:     127.0.0.1:53719 - "GET / HTTP/1.1" 200 OK
-GET /api/conversations
-GET /api/conversations status=401 duration=0.003s
-INFO:     127.0.0.1:63443 - "GET /api/conversations?limit=50 HTTP/1.1" 401 Unauthorized
-GET /api/chat/stream
-GET /api/chat/stream status=405 duration=0.004s
-INFO:     127.0.0.1:50869 - "GET /api/chat/stream HTTP/1.1" 405 Method Not Allowed
-POST /api/chat/stream
-JWT token has expired
-POST /api/chat/stream status=401 duration=1.398s
-INFO:     127.0.0.1:53217 - "POST /api/chat/stream HTTP/1.1" 401 Unauthorized
-GET /api/todos
-GET /api/todos status=307 duration=0.002s
-INFO:     127.0.0.1:60767 - "GET /api/todos HTTP/1.1" 307 Temporary Redirect
-GET /api/todos
-GET /api/todos status=307 duration=0.013s
-INFO:     127.0.0.1:60767 - "GET /api/todos HTTP/1.1" 307 Temporary Redirect
-GET /api/todos/
-GET /api/todos/ status=200 duration=1.657s
-INFO:     127.0.0.1:60767 - "GET /api/todos/ HTTP/1.1" 200 OK
-GET /api/todos/
-GET /api/todos/ status=200 duration=2.383s
-INFO:     127.0.0.1:65141 - "GET /api/todos/ HTTP/1.1" 200 OK
-POST /api/chat/stream
-Streaming chat request from user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI: show my tasks...
-Starting streaming chat for user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI, conversation: 6b525953-c98d-4d25-a09c-24801152cc75
-Stream: Running AI agent with MCP server at http://localhost:8000/mcp/
-POST /api/chat/stream status=200 duration=5.607s
-POST /mcp/
-POST /mcp/ status=200 duration=0.069s
-INFO:     127.0.0.1:49966 - "POST /mcp/ HTTP/1.1" 200 OK
-HTTP Request: POST http://localhost:8000/mcp/ "HTTP/1.1 200 OK"
-Negotiated protocol version: 2025-11-25
-Terminating session: None
-Stream: Agent error: Runner.run() got an unexpected keyword argument 'stream'
-Traceback (most recent call last):
-  File "D:\AbdullahQureshi\workspace\Hackathon-2025\hackathon-2\todo-in-memory-console-app\backend\src\services\agent\agent_service.py", line 314, in handle_chat_stream
-    result = Runner.run(
-             ^^^^^^^^^^^
-TypeError: Runner.run() got an unexpected keyword argument 'stream'
-Stream: Completed for user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI, conversation: 6b525953-c98d-4d25-a09c-24801152cc75, tokens: 0
-INFO:     127.0.0.1:50262 - "POST /api/chat/stream HTTP/1.1" 200 OK
-WARNING:  StatReload detected changes in 'src\services\agent\agent_service.py'. Reloading...
- INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-Shutting down Todo Backend API...
-StreamableHTTP session manager shutting down
-INFO:     Application shutdown complete.
-INFO:     Finished server process [19200]
-INFO:     Started server process [17156]
-INFO:     Waiting for application startup.
-StreamableHTTP session manager started
-Starting up Todo Backend API...
-Creating database tables...
-Database tables created successfully
-Database tables created/verified
-INFO:     Application startup complete.
-POST /api/chat/stream
-Streaming chat request from user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI: show my tasks...
-Starting streaming chat for user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI, conversation: 6b525953-c98d-4d25-a09c-24801152cc75
-Stream: Running AI agent with MCP server at http://localhost:8000/mcp/
-POST /api/chat/stream status=200 duration=7.246s
-POST /mcp/
-POST /mcp/ status=200 duration=0.012s
-INFO:     127.0.0.1:50439 - "POST /mcp/ HTTP/1.1" 200 OK
-HTTP Request: POST http://localhost:8000/mcp/ "HTTP/1.1 200 OK"
-Negotiated protocol version: 2025-11-25
-Terminating session: None
-Stream: Agent error: 'coroutine' object has no attribute 'stream_events'    
-Traceback (most recent call last):
-  File "D:\AbdullahQureshi\workspace\Hackathon-2025\hackathon-2\todo-in-memory-console-app\backend\src\services\agent\agent_service.py", line 321, in handle_chat_stream
-    async for chunk in result.stream_events:
-                       ^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'coroutine' object has no attribute 'stream_events'
-Stream: Completed for user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI, conversation: 6b525953-c98d-4d25-a09c-24801152cc75, tokens: 0
-INFO:     127.0.0.1:62219 - "POST /api/chat/stream HTTP/1.1" 200 OK
-D:\AbdullahQureshi\workspace\Hackathon-2025\hackathon-2\todo-in-memory-console-app\backend\src\routers\chat.py:112: RuntimeWarning: coroutine 'Runner.run' was never awaited
-  async for chunk in handle_chat_stream(
-RuntimeWarning: Enable tracemalloc to get the object allocation traceback   
-POST /api/chat/stream
-Streaming chat request from user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI: show my tasks...
-Starting streaming chat for user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI, conversation: new
-Stream: Running AI agent with MCP server at http://localhost:8000/mcp/
-POST /api/chat/stream status=200 duration=4.831s
-POST /mcp/
-POST /mcp/ status=200 duration=0.007s
-INFO:     127.0.0.1:51213 - "POST /mcp/ HTTP/1.1" 200 OK
-HTTP Request: POST http://localhost:8000/mcp/ "HTTP/1.1 200 OK"
-Negotiated protocol version: 2025-11-25
-Terminating session: None
-Stream: Agent error: 'coroutine' object has no attribute 'stream_events'    
-Traceback (most recent call last):
-  File "D:\AbdullahQureshi\workspace\Hackathon-2025\hackathon-2\todo-in-memory-console-app\backend\src\services\agent\agent_service.py", line 321, in handle_chat_stream
-    async for chunk in result.stream_events:
-                       ^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'coroutine' object has no attribute 'stream_events'
-Stream: Completed for user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI, conversation: dc35a6c7-13c4-45c7-a945-ac13dd0d1721, tokens: 0
-INFO:     127.0.0.1:53621 - "POST /api/chat/stream HTTP/1.1" 200 OK
-WARNING:  StatReload detected changes in 'src\services\agent\agent_service.py'. Reloading...
- INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-Shutting down Todo Backend API...
-StreamableHTTP session manager shutting down
-INFO:     Application shutdown complete.
-INFO:     Finished server process [17156]
-INFO:     Started server process [6880]
-INFO:     Waiting for application startup.
-StreamableHTTP session manager started
-Starting up Todo Backend API...
-Creating database tables...
-Database tables created successfully
-Database tables created/verified
-INFO:     Application startup complete.
-POST /api/chat/stream
-Streaming chat request from user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI: show my tasks...
-Starting streaming chat for user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI, conversation: new
-Stream: Running AI agent with MCP server at http://localhost:8000/mcp/
-POST /api/chat/stream status=200 duration=7.867s
-POST /mcp/
-POST /mcp/ status=200 duration=0.024s
-INFO:     127.0.0.1:51057 - "POST /mcp/ HTTP/1.1" 200 OK
-HTTP Request: POST http://localhost:8000/mcp/ "HTTP/1.1 200 OK"
-Negotiated protocol version: 2025-11-25
-Terminating session: None
-POST /mcp/
-POST /mcp/ status=202 duration=0.024s
-Terminating session: None
-INFO:     127.0.0.1:51059 - "POST /mcp/ HTTP/1.1" 202 Accepted
-HTTP Request: POST http://localhost:8000/mcp/ "HTTP/1.1 202 Accepted"       
-POST /mcp/
-POST /mcp/ status=200 duration=0.024s
-Processing request of type ListToolsRequest
-INFO:     127.0.0.1:51061 - "POST /mcp/ HTTP/1.1" 200 OK
-HTTP Request: POST http://localhost:8000/mcp/ "HTTP/1.1 200 OK"
-Terminating session: None
-HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/openai/chat/completions "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:61421 - "POST /api/chat/stream HTTP/1.1" 200 OK
-POST /mcp/
-POST /mcp/ status=200 duration=0.012s
-Processing request of type CallToolRequest
-INFO:     127.0.0.1:54677 - "POST /mcp/ HTTP/1.1" 200 OK
-HTTP Request: POST http://localhost:8000/mcp/ "HTTP/1.1 200 OK"
-Terminating session: None
-POST /mcp/
-POST /mcp/ status=200 duration=0.025s
-Processing request of type ListToolsRequest
-INFO:     127.0.0.1:55186 - "POST /mcp/ HTTP/1.1" 200 OK
-HTTP Request: POST http://localhost:8000/mcp/ "HTTP/1.1 200 OK"
-Terminating session: None
-HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/openai/chat/completions "HTTP/1.1 200 OK"
-Stream: AI agent completed. Tokens streamed: 13, Response length: 138 chars
-Stream: Completed for user yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI, conversation: 5309ed2c-6384-4c54-959a-16cc4f298735, tokens: 13
+    ./frontend/src/app/(landing)/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./frontend/node_modules/@splinetool/runtime/build/runtime-DRACOLoader-TQHJ6SJB.js:1:259
+Module not found: Can't resolve '../libs/draco/draco_wasm_wrapper.js'
+> 1 | import{Fe as e,Hc as t,Ib as r,Jb as o,Tc as s,Zc as a,dd as i,ed as n,fd as d,qe as l,re as c}from"./runtime-chunk-VGN7YHB7.js";import"./runtime-chunk-ML3Z74BL.js";var u=new WeakMap,h=new URL("../libs/draco/draco_decoder.wasm",import.meta.url).toString(),f=new URL("../libs/draco/draco_wasm_wrapper.js",import.meta.url).toString(),w=new URL("../libs/draco/draco_decoder.js",import.meta.url).toString(),p={js:new URL("../libs/draco/gltf/draco_wasm_wrapper.js",import.meta.url).toString(),wasm:new URL("../libs/draco/gltf/draco_decoder.wasm",import.meta.url).toString()},m=class extends l{constructor(e){super(e),this.decoderPaths={js:f,wasm:h,dep_js:w},this.decoderConfig={},this.decoderBinary=null,this.decoderPending=null,this.workerLimit=4,this.workerPool=[],this.workerNextTaskID=1,this.workerSourceURL="",this.defaultAttributeIDs={position:"POSITION",normal:"NORMAL",color:"COLOR",uv:"TEX_COORD"},this.defaultAttributeTypes={position:"Float32Array",normal:"Float32Array",color:"Float32Array",uv:"Float32Array"}}setDecoderPath(t){let{decoderPaths:r}=this;return"object"==typeof t?(r.js=t.js,r.wasm=t.wasm,r.dep_js=null):(r.js=e.resolveURL("draco_wasm_wrapper.js",t),r.wasm=e.resolveURL("draco_decoder.wasm",t),r.dep_js=e.resolveURL("draco_decoder.js",t)),this}setDecoderConfig(e){return console.warn("THREE.DRACOLoader: setDecoderConfig to has been deprecated and will be removed in r194."),this.decoderConfig=e,this}setWorkerLimit(e){return this.workerLimit=e,this}load(e,t,r,o){let s=new c(this.manager);s.setPath(this.path),s.setResponseType("arraybuffer"),s.setRequestHeader(this.requestHeader),s.setWithCredentials(this.withCredentials),s.load(e,e=>{this.parse(e,t,o)},r,o)}parse(e,t,o=()=>{}){this.decodeDracoFile(e,t,null,null,r,o).catch(o)}decodeDracoFile(e,t,r,s,a=o,i=()=>{}){let n={attributeIDs:r||this.defaultAttributeIDs,attributeTypes:s||this.defaultAttributeTypes,useUniqueIDs:!!r,vertexColorSpace:a};return this.decodeGeometry(e,n).then(t).catch(i)}decodeGeometry(e,t){let r=JSON.stringify(t);if(u.has(e)){let t=u.get(e);if(t.key===r)return t.promise;if(0===e.byteLength)throw new Error("THREE.DRACOLoader: Unable to re-decode a buffer with different settings. Buffer has already been transferred.")}let o,s=this.workerNextTaskID++,a=e.byteLength,i=this._getWorker(s,a).then(r=>(o=r,new Promise((r,a)=>{o._callbacks[s]={resolve:r,reject:a},o.postMessage({type:"decode",id:s,taskConfig:t,buffer:e},[e])}))).then(e=>this._createGeometry(e.geometry));return i.catch(()=>!0).then(()=>{o&&s&&this._releaseTask(o,s)}),u.set(e,{key:r,promise:i}),i}_createGeometry(e){let t=new i;e.index&&t.setIndex(new a(e.index.array,1));for(let r=0;r<e.attributes.length;r++){let o,{name:s,array:i,itemSize:l,stride:c,vertexColorSpace:u}=e.attributes[r];if(l===c)o=new a(i,l);else{let e=new n(i,c);o=new d(e,l,0)}"color"===s&&(this._assignVertexColorSpace(o,u),o.normalized=!(i instanceof Float32Array)),t.setAttribute(s,o)}return t}_assignVertexColorSpace(e,o){if(o!==r)return;let a=new s;for(let o=0,s=e.count;o<s;o++)a.fromBufferAttribute(e,o),t.colorSpaceToWorking(a,r),e.setXYZ(o,a.r,a.g,a.b)}_loadLibrary(e,t){let r=new c(this.manager);return r.setResponseType(t),r.setWithCredentials(this.withCredentials),new Promise((t,o)=>{r.load(e,t,void 0,o)})}preload(){return this._initDecoder(),this}_initDecoder(){if(this.decoderPending)return this.decoderPending;let e="object"!=typeof WebAssembly||"js"===this.decoderConfig.type,t=[],{decoderPaths:r}=this;if(e){if(null===r.dep_js)throw new Error("THREE.DRACOLoader: WebAssembly is required when using a custom decoder paths.");t.push(this._loadLibrary(r.dep_js,"text"))}else t.push(this._loadLibrary(r.js,"text")),t.push(this._loadLibrary(r.wasm,"arraybuffer"));return this.decoderPending=Promise.all(t).then(t=>{let r=t[0];e||(this.decoderConfig.wasmBinary=t[1]);let o=_.toString(),s=["/* draco decoder */",r,"","/* worker */",o.substring(o.indexOf("{")+1,o.lastIndexOf("}"))].join("\n");this.workerSourceURL=URL.createObjectURL(new Blob([s]))}),this.decoderPending}_getWorker(e,t){return this._initDecoder().then(()=>{if(this.workerPool.length<this.workerLimit){let e=new Worker(this.workerSourceURL);e._callbacks={},e._taskCosts={},e._taskLoad=0,e.postMessage({type:"init",decoderConfig:this.decoderConfig}),e.onmessage=function(t){let r=t.data;switch(r.type){case"decode":e._callbacks[r.id].resolve(r);break;case"error":e._callbacks[r.id].reject(r);break;default:console.error('THREE.DRACOLoader: Unexpected message, "'+r.type+'"')}},this.workerPool.push(e)}else this.workerPool.sort(function(e,t){return e._taskLoad>t._taskLoad?-1:1});let r=this.workerPool[this.workerPool.length-1];return r._taskCosts[e]=t,r._taskLoad+=t,r})}_releaseTask(e,t){e._taskLoad-=e._taskCosts[t],delete e._callbacks[t],delete e._taskCosts[t]}debug(){console.log("Task load: ",this.workerPool.map(e=>e._taskLoad))}dispose(){for(let e=0;e<this.workerPool.length;++e)this.workerPool[e].terminate();return this.workerPool.length=0,""!==this.workerSourceURL&&URL.revokeObjectURL(this.workerSourceURL),this}};function _(){let e,t;function r(e,t,r,o,s,a){let i=r.num_points(),n=a.num_components(),d=function(e,t){switch(t){case Float32Array:return e.DT_FLOAT32;case Int8Array:return e.DT_INT8;case Int16Array:return e.DT_INT16;case Int32Array:return e.DT_INT32;case Uint8Array:return e.DT_UINT8;case Uint16Array:return e.DT_UINT16;case Uint32Array:return e.DT_UINT32}}(e,s),l=n*s.BYTES_PER_ELEMENT,c=4*Math.ceil(l/4),u=c/s.BYTES_PER_ELEMENT,h=i*l,f=i*c,w=e._malloc(h);t.GetAttributeDataArrayForAllPoints(r,a,d,h,w);let p,m=new s(e.HEAPF32.buffer,w,h/s.BYTES_PER_ELEMENT);if(l===c)p=m.slice();else{p=new s(f/s.BYTES_PER_ELEMENT);let e=0;for(let t=0,r=m.length;t<r;t++){for(let r=0;r<n;r++)p[e+r]=m[t*n+r];e+=u}}return e._free(w),{name:o,count:i,itemSize:n,array:p,stride:u}}onmessage=function(o){let s=o.data;switch(s.type){case"init":e=s.decoderConfig,t=new Promise(function(t){e.onModuleLoaded=function(e){t({draco:e})},DracoDecoderModule(e)});break;case"decode":let o=s.buffer,a=s.taskConfig;t.then(e=>{let t=e.draco,i=new t.Decoder;try{let e=function(e,t,o,s){let a,i,n=s.attributeIDs,d=s.attributeTypes,l=t.GetEncodedGeometryType(o);if(l===e.TRIANGULAR_MESH)a=new e.Mesh,i=t.DecodeArrayToMesh(o,o.byteLength,a);else{if(l!==e.POINT_CLOUD)throw new Error("THREE.DRACOLoader: Unexpected geometry type.");a=new e.PointCloud,i=t.DecodeArrayToPointCloud(o,o.byteLength,a)}if(!i.ok()||0===a.ptr)throw new Error("THREE.DRACOLoader: Decoding failed: "+i.error_msg());let c={index:null,attributes:[]};for(let o in n){let i,l,u=self[d[o]];if(s.useUniqueIDs)l=n[o],i=t.GetAttributeByUniqueId(a,l);else{if(l=t.GetAttributeId(a,e[n[o]]),-1===l)continue;i=t.GetAttribute(a,l)}let h=r(e,t,a,o,u,i);"color"===o&&(h.vertexColorSpace=s.vertexColorSpace),c.attributes.push(h)}return l===e.TRIANGULAR_MESH&&(c.index=function(e,t,r){let o=3*r.num_faces(),s=4*o,a=e._malloc(s);t.GetTrianglesUInt32Array(r,s,a);let i=new Uint32Array(e.HEAPF32.buffer,a,o).slice();return e._free(a),{array:i,itemSize:1}}(e,t,a)),e.destroy(a),c}(t,i,new Int8Array(o),a),n=e.attributes.map(e=>e.array.buffer);e.index&&n.push(e.index.array.buffer),self.postMessage({type:"decode",id:s.id,geometry:e},n)}catch(e){console.error(e),self.postMessage({type:"error",id:s.id,error:e.message})}finally{t.destroy(i)}})}}}export{m as DRACOLoader,p as DRACO_GLTF_CONFIG};
+    |                                                                                                                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+Import traces:
+  Client Component Browser:
+    ./frontend/node_modules/@splinetool/runtime/build/runtime-DRACOLoader-TQHJ6SJB.js [Client Component Browser]
+    ./frontend/node_modules/@splinetool/runtime/build/runtime.js [Client Component Browser]
+    ./frontend/node_modules/@splinetool/react-spline/dist/react-spline.js [Client Component Browser]
+    ./frontend/src/app/(landing)/components/InteractiveAgent.tsx [Client Component Browser]
+    ./frontend/src/app/(landing)/components/Hero.tsx [Client Component Browser]
+    ./frontend/src/app/(landing)/components/Hero.tsx [Server Component]
+    ./frontend/src/app/(landing)/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/node_modules/@splinetool/runtime/build/runtime-DRACOLoader-TQHJ6SJB.js [Client Component SSR]
+    ./frontend/node_modules/@splinetool/runtime/build/runtime.js [Client Component SSR]
+    ./frontend/node_modules/@splinetool/react-spline/dist/react-spline.js [Client Component SSR]
+    ./frontend/src/app/(landing)/components/InteractiveAgent.tsx [Client Component SSR]
+    ./frontend/src/app/(landing)/components/Hero.tsx [Client Component SSR]
+    ./frontend/src/app/(landing)/components/Hero.tsx [Server Component]
+    ./frontend/src/app/(landing)/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./frontend/node_modules/@splinetool/runtime/build/runtime-DRACOLoader-TQHJ6SJB.js:1:494
+Module not found: Can't resolve '../libs/draco/gltf/draco_decoder.wasm'
+> 1 | import{Fe as e,Hc as t,Ib as r,Jb as o,Tc as s,Zc as a,dd as i,ed as n,fd as d,qe as l,re as c}from"./runtime-chunk-VGN7YHB7.js";import"./runtime-chunk-ML3Z74BL.js";var u=new WeakMap,h=new URL("../libs/draco/draco_decoder.wasm",import.meta.url).toString(),f=new URL("../libs/draco/draco_wasm_wrapper.js",import.meta.url).toString(),w=new URL("../libs/draco/draco_decoder.js",import.meta.url).toString(),p={js:new URL("../libs/draco/gltf/draco_wasm_wrapper.js",import.meta.url).toString(),wasm:new URL("../libs/draco/gltf/draco_decoder.wasm",import.meta.url).toString()},m=class extends l{constructor(e){super(e),this.decoderPaths={js:f,wasm:h,dep_js:w},this.decoderConfig={},this.decoderBinary=null,this.decoderPending=null,this.workerLimit=4,this.workerPool=[],this.workerNextTaskID=1,this.workerSourceURL="",this.defaultAttributeIDs={position:"POSITION",normal:"NORMAL",color:"COLOR",uv:"TEX_COORD"},this.defaultAttributeTypes={position:"Float32Array",normal:"Float32Array",color:"Float32Array",uv:"Float32Array"}}setDecoderPath(t){let{decoderPaths:r}=this;return"object"==typeof t?(r.js=t.js,r.wasm=t.wasm,r.dep_js=null):(r.js=e.resolveURL("draco_wasm_wrapper.js",t),r.wasm=e.resolveURL("draco_decoder.wasm",t),r.dep_js=e.resolveURL("draco_decoder.js",t)),this}setDecoderConfig(e){return console.warn("THREE.DRACOLoader: setDecoderConfig to has been deprecated and will be removed in r194."),this.decoderConfig=e,this}setWorkerLimit(e){return this.workerLimit=e,this}load(e,t,r,o){let s=new c(this.manager);s.setPath(this.path),s.setResponseType("arraybuffer"),s.setRequestHeader(this.requestHeader),s.setWithCredentials(this.withCredentials),s.load(e,e=>{this.parse(e,t,o)},r,o)}parse(e,t,o=()=>{}){this.decodeDracoFile(e,t,null,null,r,o).catch(o)}decodeDracoFile(e,t,r,s,a=o,i=()=>{}){let n={attributeIDs:r||this.defaultAttributeIDs,attributeTypes:s||this.defaultAttributeTypes,useUniqueIDs:!!r,vertexColorSpace:a};return this.decodeGeometry(e,n).then(t).catch(i)}decodeGeometry(e,t){let r=JSON.stringify(t);if(u.has(e)){let t=u.get(e);if(t.key===r)return t.promise;if(0===e.byteLength)throw new Error("THREE.DRACOLoader: Unable to re-decode a buffer with different settings. Buffer has already been transferred.")}let o,s=this.workerNextTaskID++,a=e.byteLength,i=this._getWorker(s,a).then(r=>(o=r,new Promise((r,a)=>{o._callbacks[s]={resolve:r,reject:a},o.postMessage({type:"decode",id:s,taskConfig:t,buffer:e},[e])}))).then(e=>this._createGeometry(e.geometry));return i.catch(()=>!0).then(()=>{o&&s&&this._releaseTask(o,s)}),u.set(e,{key:r,promise:i}),i}_createGeometry(e){let t=new i;e.index&&t.setIndex(new a(e.index.array,1));for(let r=0;r<e.attributes.length;r++){let o,{name:s,array:i,itemSize:l,stride:c,vertexColorSpace:u}=e.attributes[r];if(l===c)o=new a(i,l);else{let e=new n(i,c);o=new d(e,l,0)}"color"===s&&(this._assignVertexColorSpace(o,u),o.normalized=!(i instanceof Float32Array)),t.setAttribute(s,o)}return t}_assignVertexColorSpace(e,o){if(o!==r)return;let a=new s;for(let o=0,s=e.count;o<s;o++)a.fromBufferAttribute(e,o),t.colorSpaceToWorking(a,r),e.setXYZ(o,a.r,a.g,a.b)}_loadLibrary(e,t){let r=new c(this.manager);return r.setResponseType(t),r.setWithCredentials(this.withCredentials),new Promise((t,o)=>{r.load(e,t,void 0,o)})}preload(){return this._initDecoder(),this}_initDecoder(){if(this.decoderPending)return this.decoderPending;let e="object"!=typeof WebAssembly||"js"===this.decoderConfig.type,t=[],{decoderPaths:r}=this;if(e){if(null===r.dep_js)throw new Error("THREE.DRACOLoader: WebAssembly is required when using a custom decoder paths.");t.push(this._loadLibrary(r.dep_js,"text"))}else t.push(this._loadLibrary(r.js,"text")),t.push(this._loadLibrary(r.wasm,"arraybuffer"));return this.decoderPending=Promise.all(t).then(t=>{let r=t[0];e||(this.decoderConfig.wasmBinary=t[1]);let o=_.toString(),s=["/* draco decoder */",r,"","/* worker */",o.substring(o.indexOf("{")+1,o.lastIndexOf("}"))].join("\n");this.workerSourceURL=URL.createObjectURL(new Blob([s]))}),this.decoderPending}_getWorker(e,t){return this._initDecoder().then(()=>{if(this.workerPool.length<this.workerLimit){let e=new Worker(this.workerSourceURL);e._callbacks={},e._taskCosts={},e._taskLoad=0,e.postMessage({type:"init",decoderConfig:this.decoderConfig}),e.onmessage=function(t){let r=t.data;switch(r.type){case"decode":e._callbacks[r.id].resolve(r);break;case"error":e._callbacks[r.id].reject(r);break;default:console.error('THREE.DRACOLoader: Unexpected message, "'+r.type+'"')}},this.workerPool.push(e)}else this.workerPool.sort(function(e,t){return e._taskLoad>t._taskLoad?-1:1});let r=this.workerPool[this.workerPool.length-1];return r._taskCosts[e]=t,r._taskLoad+=t,r})}_releaseTask(e,t){e._taskLoad-=e._taskCosts[t],delete e._callbacks[t],delete e._taskCosts[t]}debug(){console.log("Task load: ",this.workerPool.map(e=>e._taskLoad))}dispose(){for(let e=0;e<this.workerPool.length;++e)this.workerPool[e].terminate();return this.workerPool.length=0,""!==this.workerSourceURL&&URL.revokeObjectURL(this.workerSourceURL),this}};function _(){let e,t;function r(e,t,r,o,s,a){let i=r.num_points(),n=a.num_components(),d=function(e,t){switch(t){case Float32Array:return e.DT_FLOAT32;case Int8Array:return e.DT_INT8;case Int16Array:return e.DT_INT16;case Int32Array:return e.DT_INT32;case Uint8Array:return e.DT_UINT8;case Uint16Array:return e.DT_UINT16;case Uint32Array:return e.DT_UINT32}}(e,s),l=n*s.BYTES_PER_ELEMENT,c=4*Math.ceil(l/4),u=c/s.BYTES_PER_ELEMENT,h=i*l,f=i*c,w=e._malloc(h);t.GetAttributeDataArrayForAllPoints(r,a,d,h,w);let p,m=new s(e.HEAPF32.buffer,w,h/s.BYTES_PER_ELEMENT);if(l===c)p=m.slice();else{p=new s(f/s.BYTES_PER_ELEMENT);let e=0;for(let t=0,r=m.length;t<r;t++){for(let r=0;r<n;r++)p[e+r]=m[t*n+r];e+=u}}return e._free(w),{name:o,count:i,itemSize:n,array:p,stride:u}}onmessage=function(o){let s=o.data;switch(s.type){case"init":e=s.decoderConfig,t=new Promise(function(t){e.onModuleLoaded=function(e){t({draco:e})},DracoDecoderModule(e)});break;case"decode":let o=s.buffer,a=s.taskConfig;t.then(e=>{let t=e.draco,i=new t.Decoder;try{let e=function(e,t,o,s){let a,i,n=s.attributeIDs,d=s.attributeTypes,l=t.GetEncodedGeometryType(o);if(l===e.TRIANGULAR_MESH)a=new e.Mesh,i=t.DecodeArrayToMesh(o,o.byteLength,a);else{if(l!==e.POINT_CLOUD)throw new Error("THREE.DRACOLoader: Unexpected geometry type.");a=new e.PointCloud,i=t.DecodeArrayToPointCloud(o,o.byteLength,a)}if(!i.ok()||0===a.ptr)throw new Error("THREE.DRACOLoader: Decoding failed: "+i.error_msg());let c={index:null,attributes:[]};for(let o in n){let i,l,u=self[d[o]];if(s.useUniqueIDs)l=n[o],i=t.GetAttributeByUniqueId(a,l);else{if(l=t.GetAttributeId(a,e[n[o]]),-1===l)continue;i=t.GetAttribute(a,l)}let h=r(e,t,a,o,u,i);"color"===o&&(h.vertexColorSpace=s.vertexColorSpace),c.attributes.push(h)}return l===e.TRIANGULAR_MESH&&(c.index=function(e,t,r){let o=3*r.num_faces(),s=4*o,a=e._malloc(s);t.GetTrianglesUInt32Array(r,s,a);let i=new Uint32Array(e.HEAPF32.buffer,a,o).slice();return e._free(a),{array:i,itemSize:1}}(e,t,a)),e.destroy(a),c}(t,i,new Int8Array(o),a),n=e.attributes.map(e=>e.array.buffer);e.index&&n.push(e.index.array.buffer),self.postMessage({type:"decode",id:s.id,geometry:e},n)}catch(e){console.error(e),self.postMessage({type:"error",id:s.id,error:e.message})}finally{t.destroy(i)}})}}}export{m as DRACOLoader,p as DRACO_GLTF_CONFIG};
+    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+Import traces:
+  Client Component Browser:
+    ./frontend/node_modules/@splinetool/runtime/build/runtime-DRACOLoader-TQHJ6SJB.js [Client Component Browser]
+    ./frontend/node_modules/@splinetool/runtime/build/runtime.js [Client Component Browser]
+    ./frontend/node_modules/@splinetool/react-spline/dist/react-spline.js [Client Component Browser]
+    ./frontend/src/app/(landing)/components/InteractiveAgent.tsx [Client Component Browser]
+    ./frontend/src/app/(landing)/components/Hero.tsx [Client Component Browser]
+    ./frontend/src/app/(landing)/components/Hero.tsx [Server Component]
+    ./frontend/src/app/(landing)/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./fronten

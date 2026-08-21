@@ -1,4 +1,4 @@
-"""Message model for chat history."""
+"""Database model for chat message history in AI conversations."""
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, String, Text
 from datetime import datetime
@@ -11,24 +11,32 @@ if TYPE_CHECKING:
 
 
 class Message(SQLModel, table=True):
-    """Message model for chat history.
+    """Message database model representing individual entries in a conversation.
 
-    Per spec: user_id, id, conversation_id, role (user/assistant), content, created_at
+    Attributes:
+        id (str): Primary key UUID string of the message.
+        conversation_id (str): Foreign key linking to parent conversation.id.
+        user_id (str): ID of the user who owns the parent conversation.
+        role (str): Message author role ('user' or 'assistant').
+        content (str): Text content of the message.
+        created_at (datetime): UTC creation timestamp.
+        conversation (Optional[Conversation]): Relationship back to parent Conversation.
     """
 
-    id: str = Field(default_factory=generate_uuid, primary_key=True)
-    conversation_id: str = Field(foreign_key="conversation.id", index=True)
-    user_id: str = Field(index=True)
+    id: str = Field(default_factory=generate_uuid, primary_key=True, description="Unique message UUID string")
+    conversation_id: str = Field(foreign_key="conversation.id", index=True, description="Foreign key linking to Conversation")
+    user_id: str = Field(index=True, description="User ID for ownership scoping")
 
     role: str = Field(
-        sa_column=Column(String(20), nullable=False)
-    )  # "user" or "assistant"
-
-    content: str = Field(
-        sa_column=Column(Text, nullable=False)
+        sa_column=Column(String(20), nullable=False),
+        description="Message author role ('user' or 'assistant')",
     )
 
-    created_at: datetime = Field(default_factory=utc_now, index=True)
+    content: str = Field(
+        sa_column=Column(Text, nullable=False),
+        description="Text content of the message",
+    )
 
-    # Relationship back to conversation
+    created_at: datetime = Field(default_factory=utc_now, index=True, description="UTC creation timestamp")
+
     conversation: Optional["Conversation"] = Relationship(back_populates="messages")

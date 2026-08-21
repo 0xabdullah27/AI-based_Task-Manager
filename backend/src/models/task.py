@@ -1,4 +1,8 @@
-"""Task model for todo items."""
+"""Task database model definition for SQLModel / SQLAlchemy ORM.
+
+This module defines the database representation of a user task item,
+including priority levels, completion status, timestamps, and tag relationships.
+"""
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, String, Boolean, Enum as SQLEnum
 from datetime import datetime
@@ -13,9 +17,18 @@ if TYPE_CHECKING:
 
 
 class Task(SQLModel, table=True):
-    """Task model for user todo items.
+    """Database model representing a task (todo item) owned by a user.
 
-    Extended with priority field (enum) and tags relationship (many-to-many).
+    Attributes:
+        id (str): Unique UUID identifier for the task (primary key).
+        user_id (str): Foreign key linking the task to a specific user account.
+        title (str): Concise title/heading of the task (1-200 characters).
+        description (Optional[str]): Detailed task description or notes (up to 2000 characters).
+        completed (bool): Flag indicating whether the task is finished (default False).
+        priority (Priority): Priority level enum (NONE, LOW, MEDIUM, HIGH).
+        created_at (datetime): UTC timestamp when the task was created.
+        updated_at (Optional[datetime]): UTC timestamp when the task was last modified.
+        tags (List[Tag]): Many-to-many relationship with Tag model via TaskTag link table.
     """
 
     id: str = Field(default_factory=generate_uuid, primary_key=True)
