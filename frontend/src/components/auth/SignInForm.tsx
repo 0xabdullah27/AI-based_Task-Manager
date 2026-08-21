@@ -7,6 +7,7 @@ import { signInSchema, type SignInInput } from "@/lib/validations/auth";
 import { signIn, fetchAndStoreJwt } from "@/lib/auth-client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -15,6 +16,7 @@ export function SignInForm() {
   const router = useRouter();
   const [error, setError] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const {
     register,
@@ -45,12 +47,23 @@ export function SignInForm() {
             const errorMessage = ctx.error.message || "Failed to sign in";
             const statusCode = ctx.error.status;
             const errorCode = (ctx.error as { code?: string })?.code;
+            const lowerMsg = errorMessage.toLowerCase();
 
             // Handle specific error cases
             if (
-              errorMessage.toLowerCase().includes("credential account not found") ||
-              errorMessage.toLowerCase().includes("account not found") ||
-              errorMessage.toLowerCase().includes("user not found")
+              lowerMsg.includes("invalid email or password") ||
+              lowerMsg.includes("invalid password or email") ||
+              lowerMsg.includes("invalid credentials") ||
+              statusCode === 401
+            ) {
+              setError("Invalid email or password. Please try again.");
+              toast.error("Authentication failed", {
+                description: "Please check your email and password.",
+              });
+            } else if (
+              lowerMsg.includes("credential account not found") ||
+              lowerMsg.includes("account not found") ||
+              lowerMsg.includes("user not found")
             ) {
               setError("No account found with this email. Please sign up first.");
               toast.error("Account not found", {
@@ -65,19 +78,17 @@ export function SignInForm() {
                 duration: 5000,
               });
             } else if (
-              errorMessage.toLowerCase().includes("invalid password") ||
-              errorMessage.toLowerCase().includes("incorrect password")
+              lowerMsg.includes("invalid password") ||
+              lowerMsg.includes("incorrect password")
             ) {
               setError("Incorrect password. Please try again.");
               toast.error("Invalid password");
-            } else if (errorMessage.toLowerCase().includes("invalid email")) {
+            } else if (
+              lowerMsg.includes("invalid email") &&
+              !lowerMsg.includes("password")
+            ) {
               setError("Please enter a valid email address.");
               toast.error("Invalid email");
-            } else if (statusCode === 401) {
-              setError("Invalid email or password.");
-              toast.error("Authentication failed", {
-                description: "Please check your credentials and try again.",
-              });
             } else {
               setError(errorMessage);
               toast.error("Sign in failed", {
@@ -110,11 +121,26 @@ export function SignInForm() {
       <Input
         // label="Password"
         placeholder="Your password"
-        type="password"
+        type={showPassword ? "text" : "password"}
         {...register("password")}
         // error={errors.password?.message}
         disabled={isLoading}
       />
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="show-password-signin"
+          checked={showPassword}
+          onCheckedChange={(checked) => setShowPassword(!!checked)}
+          disabled={isLoading}
+        />
+        <label
+          htmlFor="show-password-signin"
+          className="text-sm font-medium text-muted-foreground cursor-pointer select-none"
+        >
+          Show password
+        </label>
+      </div>
 
       {error && (
         // T011: Use semantic error color variables instead of hardcoded red

@@ -7,6 +7,7 @@ import { signUpSchema, type SignUpInput } from "@/lib/validations/auth";
 import { signUp, fetchAndStoreJwt } from "@/lib/auth-client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -15,6 +16,7 @@ export function SignUpForm() {
   const router = useRouter();
   const [error, setError] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const {
     register,
@@ -67,7 +69,10 @@ export function SignUpForm() {
                 },
                 duration: 5000,
               });
-            } else if (errorMessage.toLowerCase().includes("invalid email")) {
+            } else if (
+              errorMessage.toLowerCase().includes("invalid email") &&
+              !errorMessage.toLowerCase().includes("password")
+            ) {
               setError("Please enter a valid email address.");
               toast.error("Invalid email");
             } else if (errorMessage.toLowerCase().includes("password")) {
@@ -113,12 +118,27 @@ export function SignUpForm() {
 
       <Input
         // label="Password"
-        type="password"
+        type={showPassword ? "text" : "password"}
         {...register("password")}
         // error={errors.password?.message}
         disabled={isLoading}
         placeholder="Minimum 8 characters"
       />
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="show-password-signup"
+          checked={showPassword}
+          onCheckedChange={(checked) => setShowPassword(!!checked)}
+          disabled={isLoading}
+        />
+        <label
+          htmlFor="show-password-signup"
+          className="text-sm font-medium text-muted-foreground cursor-pointer select-none"
+        >
+          Show password
+        </label>
+      </div>
 
       {error && (
         // T012: Use semantic error color variables instead of hardcoded red
