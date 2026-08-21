@@ -27,6 +27,22 @@ export function InteractiveAgent() {
     if (typeof window !== "undefined" && customElements.get("spline-viewer")) {
       setScriptLoaded(true);
     }
+
+    // Hide "Built with Spline" watermark logo inside shadowRoot
+    const hideSplineLogo = () => {
+      const viewer = document.querySelector("spline-viewer");
+      if (viewer && viewer.shadowRoot) {
+        const logo =
+          viewer.shadowRoot.querySelector("#logo") ||
+          viewer.shadowRoot.querySelector("a[href*='spline']");
+        if (logo) {
+          (logo as HTMLElement).style.display = "none";
+        }
+      }
+    };
+
+    const interval = setInterval(hideSplineLogo, 100);
+    return () => clearInterval(interval);
   }, []);
 
   return (
