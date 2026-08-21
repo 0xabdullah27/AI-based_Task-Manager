@@ -295,3 +295,51 @@ class TestCheckpoint5ErrorHandlingAndFeedback:
         data = res.json()
         assert "conversations" in data
         assert "total" in data
+
+
+class TestCheckpoint6TemporalReasoningAndQueries:
+    """Checkpoint 6: Temporal Reasoning, Date Resolution, and Query Lookup."""
+
+    @pytest.mark.asyncio
+    async def test_query_existing_task_resolves_and_shows_date(
+        self, async_client: httpx.AsyncClient, session: Session, auth_headers: dict
+    ):
+        """Verify asking 'when the meeting is about 17 rules' finds the existing task and returns its details without asking clarification."""
+        task = Task(
+            title="Meeting about 17 rules of Pakistan",
+            description="Due: September 6, 2026. Topic: 17 rules of Pakistan.",
+            user_id="test-user-id",
+            completed=False,
+            priority=Priority.MEDIUM,
+        )
+        session.add(task)
+        session.commit()
+
+        res = await async_client.post(
+            "/api/chat",
+            json={"message": "when the meeting is about 17 rules"},
+            headers=auth_headers,
+        )
+        assert res.status_code == 200
+        answer = res.json()["response"]
+        assert len(answer) > 0
+        assert "17 rules" in answer.lower() or "september" in answer.lower() or "meeting" in answer.lower()
+        # Should not ask clarifying questions like "When is the meeting?"
+        assert "could you clarify" not in answer.lower()
+
+    @pytest.mark.asyncio
+    async def test_relative_date_resolution_on_creation(
+        self, async_client: httpx.AsyncClient, session: Session, auth_headers: dict
+    ):
+        """Verify creating task with relative date resolves to calendar date."""
+        res = await async_client.post(
+            "/api/chat",
+            json={"message": "Schedule a meeting about architecture after 15 days"},
+            headers=auth_headers,
+        )
+        assert res.status_code == 200
+        session.expire_all()
+        tasks = session.exec(select(Task)).all()
+        arch_task = next((t for t in tasks if "architecture" in t.title.lower()), None)
+        assert arch_task is not None
+
