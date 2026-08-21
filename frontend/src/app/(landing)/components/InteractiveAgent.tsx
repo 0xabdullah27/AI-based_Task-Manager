@@ -60,7 +60,7 @@ export function InteractiveAgent() {
         )}
 
         <spline-viewer
-          url="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
+          url="https://prod.spline.design/fhRFWr5h6pUAtLxO/scene.splinecode"
           class="w-full h-full rounded-3xl"
         />
       </div>
