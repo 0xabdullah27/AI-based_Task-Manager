@@ -1,4 +1,4 @@
-import { LayoutDashboard, CheckSquare, Flag, Tag, MessageSquare, Settings } from "lucide-react";
+import { LayoutDashboard, CheckSquare, PlusCircle, Flag, Tag, MessageSquare, Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface NavigationSection {
@@ -21,6 +21,12 @@ export const navigationSections: NavigationSection[] = [
     label: "All Todos",
     icon: CheckSquare,
     href: "/dashboard/todos",
+  },
+  {
+    id: "create-task",
+    label: "Create Task",
+    icon: PlusCircle,
+    href: "/dashboard/create-task",
   },
   {
     id: "priority",

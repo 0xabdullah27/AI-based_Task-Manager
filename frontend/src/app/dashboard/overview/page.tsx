@@ -1,31 +1,63 @@
 "use client";
 
+import { useState } from "react";
 import { useTasks } from "@/hooks/useTasks";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { StatCard } from "../components/StatCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart3, CheckCircle2, Clock, Zap } from "lucide-react";
+import { BarChart3, CheckCircle2, Clock, Zap, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/Dialog";
+import { TaskForm } from "@/components/tasks/TaskForm";
+import type { TaskCreateInput } from "@/lib/validations/task";
+import { toast } from "sonner";
 import Link from "next/link";
 
 export default function OverviewPage() {
-  const { tasks, isLoading } = useTasks();
+  const { tasks, isLoading, createTask } = useTasks();
   const stats = useDashboardStats(tasks);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
 
   const completionPercentage = stats.total > 0
     ? Math.round((stats.completed / stats.total) * 100)
     : 0;
 
+  const handleCreateTask = async (data: TaskCreateInput) => {
+    try {
+      await createTask(data);
+      setFormDialogOpen(false);
+      toast.success("Task created successfully");
+    } catch (error) {
+      toast.error("Failed to create task");
+    }
+  };
+
   return (
     <div className="space-y-8">
-      {/* Page Header - T063: Use semantic theme variables */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">
-          Dashboard Overview
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Welcome back! Here&apos;s your task summary for today.
-        </p>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Dashboard Overview
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            Welcome back! Here&apos;s your task summary for today.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setFormDialogOpen(true)}
+            className="bg-primary cursor-pointer text-primary-foreground"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Task
+          </Button>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -73,19 +105,21 @@ export default function OverviewPage() {
 
       {/* Empty State */}
       {!isLoading && stats.total === 0 && (
-        <div className="text-center py-12 rounded-lg">
-          <BarChart3 className="h-12 w-12  mx-auto mb-4" />
-          <h3 className="text-lg font-semibold  mb-2">
+        <div className="text-center py-12 rounded-lg bg-card border border-border">
+          <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             No tasks yet
           </h3>
           <p className="text-muted-foreground mb-6">
             Create your first task to get started
           </p>
-          <Link href="/dashboard/todos">
-            <Button className="bg-primary hover:bg-primary/80 text-primary-foreground cursor-pointer">
-              Create Task
-            </Button>
-          </Link>
+          <Button
+            onClick={() => setFormDialogOpen(true)}
+            className="bg-primary hover:bg-primary/80 text-primary-foreground cursor-pointer"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Task
+          </Button>
         </div>
       )}
 
@@ -124,6 +158,21 @@ export default function OverviewPage() {
           </Link>
         </div>
       )}
+
+      {/* Quick Add Task Dialog */}
+      <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create New Task</DialogTitle>
+          </DialogHeader>
+          <TaskForm
+            onSubmit={handleCreateTask}
+            onCancel={() => setFormDialogOpen(false)}
+            isLoading={isLoading}
+            mode="create"
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
