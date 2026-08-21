@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { ChatHeader } from "./ChatHeader";
 import { ChatSidebar } from "./ChatSidebar";
 import { useChatContext } from "@/providers/chat-provider";
+import { ChatMessageContent } from "./ChatMessageContent";
 
 export function ChatInterface() {
   const {
@@ -109,13 +110,13 @@ export function ChatInterface() {
                   )}
 
                   <div
-                    className={`px-4 py-3 rounded-2xl max-w-[80%] whitespace-pre-wrap ${
+                    className={`px-4 py-3 rounded-2xl max-w-[80%] ${
                       m.role === "user"
                         ? "bg-primary text-primary-foreground rounded-br-sm"
                         : "bg-muted text-foreground rounded-bl-sm border"
                     }`}
                   >
-                    {m.content}
+                    <ChatMessageContent content={m.content} role={m.role} />
                   </div>
 
                   {m.role === "user" && (
