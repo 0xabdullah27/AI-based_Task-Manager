@@ -16,6 +16,7 @@ export function SignInForm() {
   const router = useRouter();
   const [error, setError] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isRedirecting, setIsRedirecting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
 
   const {
@@ -26,12 +27,14 @@ export function SignInForm() {
     resolver: zodResolver(signInSchema),
   });
 
+  const isPending = isLoading || isRedirecting;
+
   const onSubmit = async (data: SignInInput) => {
     try {
       setIsLoading(true);
       setError("");
 
-      const result = await signIn.email(
+      await signIn.email(
         {
           email: data.email,
           password: data.password,
@@ -41,9 +44,12 @@ export function SignInForm() {
             // Fetch and store JWT for API calls
             await fetchAndStoreJwt();
             toast.success("Signed in successfully");
+            setIsRedirecting(true);
+            setIsLoading(false);
             router.push("/dashboard");
           },
           onError: (ctx) => {
+            setIsLoading(false);
             const errorMessage = ctx.error.message || "Failed to sign in";
             const statusCode = ctx.error.status;
             const errorCode = (ctx.error as { code?: string })?.code;
@@ -99,11 +105,10 @@ export function SignInForm() {
         }
       );
     } catch (err) {
+      setIsLoading(false);
       const errorMessage = err instanceof Error ? err.message : "Failed to sign in";
       setError(errorMessage);
       toast.error("An unexpected error occurred");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -115,7 +120,7 @@ export function SignInForm() {
         type="email"
         {...register("email")}
         // error={errors.email?.message}
-        disabled={isLoading}
+        disabled={isPending}
       />
 
       <Input
@@ -124,7 +129,7 @@ export function SignInForm() {
         type={showPassword ? "text" : "password"}
         {...register("password")}
         // error={errors.password?.message}
-        disabled={isLoading}
+        disabled={isPending}
       />
 
       <div className="flex items-center space-x-2">
@@ -132,7 +137,7 @@ export function SignInForm() {
           id="show-password-signin"
           checked={showPassword}
           onCheckedChange={(checked) => setShowPassword(!!checked)}
-          disabled={isLoading}
+          disabled={isPending}
         />
         <label
           htmlFor="show-password-signin"
@@ -156,8 +161,8 @@ export function SignInForm() {
         </div>
       )}
 
-      <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
-        {isLoading ? "Signing in..." : "Sign in"}
+      <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
+        {isRedirecting ? "Redirecting to dashboard..." : isLoading ? "Signing in..." : "Sign in"}
       </Button>
 
       <p className="text-center text-sm" style={{ color: "var(--foreground)" }}>

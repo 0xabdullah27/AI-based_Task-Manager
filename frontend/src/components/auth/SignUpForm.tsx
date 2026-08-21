@@ -16,6 +16,7 @@ export function SignUpForm() {
   const router = useRouter();
   const [error, setError] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isRedirecting, setIsRedirecting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
 
   const {
@@ -27,12 +28,14 @@ export function SignUpForm() {
     mode: "onBlur", // Validate on blur to show errors earlier
   });
 
+  const isPending = isLoading || isRedirecting;
+
   const onSubmit = async (data: SignUpInput) => {
     try {
       setIsLoading(true);
       setError("");
 
-      const result = await signUp.email(
+      await signUp.email(
         {
           email: data.email,
           password: data.password,
@@ -43,9 +46,12 @@ export function SignUpForm() {
             // Fetch and store JWT for API calls
             await fetchAndStoreJwt();
             toast.success("Account created successfully");
+            setIsRedirecting(true);
+            setIsLoading(false);
             router.push("/dashboard");
           },
           onError: (ctx) => {
+            setIsLoading(false);
             const errorMessage = ctx.error.message || "Failed to create account";
             const statusCode = ctx.error.status;
             const errorCode = (ctx.error as { code?: string })?.code;
@@ -88,11 +94,10 @@ export function SignUpForm() {
         }
       );
     } catch (err) {
+      setIsLoading(false);
       const errorMessage = err instanceof Error ? err.message : "Failed to create account";
       setError(errorMessage);
       toast.error("An unexpected error occurred");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -104,7 +109,7 @@ export function SignUpForm() {
         type="text"
         {...register("name")}
         // error={errors.name?.message}
-        disabled={isLoading}
+        disabled={isPending}
       />
 
       <Input
@@ -113,7 +118,7 @@ export function SignUpForm() {
         type="email"
         {...register("email")}
         // error={errors.email?.message}
-        disabled={isLoading}
+        disabled={isPending}
       />
 
       <Input
@@ -121,7 +126,7 @@ export function SignUpForm() {
         type={showPassword ? "text" : "password"}
         {...register("password")}
         // error={errors.password?.message}
-        disabled={isLoading}
+        disabled={isPending}
         placeholder="Minimum 8 characters"
       />
 
@@ -130,7 +135,7 @@ export function SignUpForm() {
           id="show-password-signup"
           checked={showPassword}
           onCheckedChange={(checked) => setShowPassword(!!checked)}
-          disabled={isLoading}
+          disabled={isPending}
         />
         <label
           htmlFor="show-password-signup"
@@ -154,8 +159,8 @@ export function SignUpForm() {
         </div>
       )}
 
-      <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
-        {isLoading ? "Creating account..." : "Create account"}
+      <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
+        {isRedirecting ? "Redirecting to dashboard..." : isLoading ? "Creating account..." : "Create account"}
       </Button>
 
       <p className="text-center text-sm" style={{ color: "var(--foreground)" }}>
