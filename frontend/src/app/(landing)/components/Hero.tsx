@@ -2,45 +2,84 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { Bot } from "lucide-react";
+import { InteractiveAgent } from "./InteractiveAgent";
+import { Sparkles, ArrowRight, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-primary/40 to-background text-foreground px-4 py-20">
-      <div className="max-w-4xl text-center space-y-8">
-        {/* Illustration/Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-primary/20 p-6 rounded-full">
-            <Bot className="w-24 h-24 text-primary" />
+    <section className="relative min-h-[90vh] flex items-center justify-center bg-background text-foreground px-4 py-16 overflow-hidden">
+      {/* Background Gradient Mesh & Light Effects */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-primary/20 via-chart-4/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-chart-2/10 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+
+      <div className="relative max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        {/* Left Side: Headline & CTAs (7 columns on desktop) */}
+        <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-xs font-semibold text-primary">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Next-Gen AI Task Management</span>
+          </div>
+
+          {/* Main Title */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.15]">
+            Master Your Workflow with{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-chart-4 to-chart-2">
+              Intelligent AI
+            </span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
+            Organize tasks, manage priorities, and chat in natural language with your personal AI agent. Effortless productivity built for modern teams.
+          </p>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center pt-2">
+            <Link href="/sign-up">
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-base font-semibold shadow-lg shadow-primary/25 cursor-pointer rounded-xl"
+              >
+                <span>Get Started Free</span>
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+
+            <Link href="/sign-in">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-border hover:bg-muted text-foreground px-8 py-6 text-base font-semibold cursor-pointer rounded-xl"
+              >
+                Sign In to Dashboard
+              </Button>
+            </Link>
+          </div>
+
+          {/* Trust Badges */}
+          <div className="pt-6 border-t border-border/60 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-muted-foreground font-medium">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-success" />
+              <span>Real-time AI Chat</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Zap className="w-4 h-4 text-chart-4" />
+              <span>Instant Task Sync</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-primary" />
+              <span>Secure Authentication</span>
+            </div>
           </div>
         </div>
 
-        {/* Headline */}
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight">
-          Organize Your Tasks with <span className="text-primary">Ease</span>
-        </h1>
-
-        {/* Description */}
-        <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          A modern, intuitive todo application designed to help you stay organized and focused on what matters most.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
-          <Link href="/sign-up">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8">
-              Get Started
-            </Button>
-          </Link>
-          <Link href="/sign-in">
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-primary text-primary hover:bg-primary/10 px-8"
-            >
-              Sign In
-            </Button>
-          </Link>
+        {/* Right Side: Interactive AI Mascot Agent (5 columns on desktop) */}
+        <div className="lg:col-span-5 flex justify-center">
+          <InteractiveAgent />
         </div>
       </div>
     </section>
