@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { useSession, getJwtToken } from "@/lib/auth-client";
 import { Sidebar } from "./components/Sidebar";
 import { DashboardNav } from "./components/DashboardNav";
 import { MobileMenu } from "./components/MobileMenu";
@@ -21,6 +21,14 @@ export default function DashboardLayout({
   useEffect(() => {
     if (!isPending && !session) {
       router.push("/sign-in");
+    }
+
+    // Log auth token and user ID on dashboard entry
+    if (session) {
+      const token = getJwtToken();
+      console.log("🔑 [Dashboard] JWT Token:", token);
+      console.log("👤 [Dashboard] User ID:", session.user?.id);
+      console.log("👤 [Dashboard] User Email:", session.user?.email);
     }
   }, [session, isPending, router]);
 

@@ -47,9 +47,15 @@ logger = logging.getLogger(__name__)
 # Disable tracing for cleaner output
 set_tracing_disabled(True)
 
-# ── Model Setup (Gemini via OpenAI-compatible API) ──
-GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/openai/"
-MODEL_ID = "gemini-2.5-flash"
+# ── Provider base URLs (when not using custom llm_base_url) ──
+_PROVIDER_BASE_URLS = {
+    "openrouter": "https://openrouter.ai/api/v1",
+    "openai": "https://api.openai.com/v1",
+    "gemini": "https://generativelanguage.googleapis.com/v1beta/openai/",
+    "mistral": "https://api.mistral.ai/v1",
+    "groq": "https://api.groq.com/openai/v1",
+    "freetokenfaucet": "https://freetokenfaucet.com/v1",
+}
 
 # Agent system prompt per spec's Agent Behavior Specification
 AGENT_SYSTEM_PROMPT = """You are a helpful Todo assistant that manages tasks through natural language.
@@ -102,14 +108,32 @@ If no priority is implied, omit the priority argument entirely.
 
 
 def _get_model():
-    """Create the LLM model instance."""
-    if not settings.gemini_api_key:
+    """Create the LLM model instance based on settings."""
+    provider = settings.llm_provider
+    model_id = settings.llm_model
+    base_url = settings.llm_base_url or _PROVIDER_BASE_URLS.get(provider)
+
+    # Pick the API key for the selected provider
+    api_key_map = {
+        "openrouter": settings.openrouter_api_key,
+        "openai": settings.openai_api_key,
+        "gemini": settings.gemini_api_key,
+        "mistral": settings.mistral_api_key,
+        "groq": settings.groq_api_key,
+        "freetokenfaucet": settings.freetokenfaucet_api_key,
+    }
+    api_key = api_key_map.get(provider)
+
+    if not api_key:
+        env_var = f"{provider.upper()}_API_KEY"
         raise ValueError(
-            "GEMINI_API_KEY not set in .env file. "
-            "Get your API key from: https://aistudio.google.com/apikey"
+            f"{env_var} not set in .env file for provider '{provider}'. "
+            f"Current config: LLM_PROVIDER={provider}, LLM_MODEL={model_id}"
         )
-    client = AsyncOpenAI(api_key=settings.gemini_api_key, base_url=GEMINI_API_BASE)
-    return OpenAIChatCompletionsModel(model=MODEL_ID, openai_client=client)
+
+    logger.info(f"Using LLM provider={provider}, model={model_id}, base_url={base_url}")
+    client = AsyncOpenAI(api_key=api_key, base_url=base_url)
+    return OpenAIChatCompletionsModel(model=model_id, openai_client=client)
 
 
 async def handle_chat(

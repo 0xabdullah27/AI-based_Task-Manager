@@ -37,9 +37,13 @@ class Settings(BaseSettings):
     openrouter_api_key: Optional[str] = None
     openai_api_key: Optional[str] = None
     gemini_api_key: Optional[str] = None
+    mistral_api_key: Optional[str] = None
+    groq_api_key: Optional[str] = None
+    freetokenfaucet_api_key: Optional[str] = None
     
-    llm_provider: Literal["openrouter", "openai", "gemini"] = "openrouter"
-    llm_model: str = "openai/gpt-4o-mini"
+    llm_provider: Literal["openrouter", "openai", "gemini", "mistral", "groq", "freetokenfaucet"] = "mistral"
+    llm_model: str = "mistral-medium-latest"
+    llm_base_url: Optional[str] = None
 
     jwt_token: Optional[str] = ""
 
