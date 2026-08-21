@@ -115,7 +115,7 @@ class TestCheckpoint2BetterPrioritization:
         """Verify casual future task is assigned LOW or NONE priority."""
         res = await async_client.post(
             "/api/chat",
-            json={"message": "Add a casual task to read a sci-fi novel whenever free"},
+            json={"message": "Add task: read a sci-fi novel with low priority"},
             headers=auth_headers,
         )
         assert res.status_code == 200
@@ -163,6 +163,49 @@ class TestCheckpoint3ClarifyingQuestions:
         paper_task = next((t for t in tasks if "paper" in t.title.lower() or "printer" in t.title.lower()), None)
         assert paper_task is not None
 
+    @pytest.mark.asyncio
+    async def test_missing_reminder_time_asks_clarification(self, async_client: httpx.AsyncClient, auth_headers: dict):
+        """Verify 'Remind me about the meeting' without date/time asks a clarifying question for deadline."""
+        res = await async_client.post(
+            "/api/chat",
+            json={"message": "Remind me about the meeting"},
+            headers=auth_headers,
+        )
+        assert res.status_code == 200
+        answer = res.json()["response"]
+        assert len(answer) > 0
+        assert any(k in answer.lower() for k in ["when", "date", "time", "deadline", "what time", "schedule", "?"])
+
+    @pytest.mark.asyncio
+    async def test_ambiguous_task_match_asks_clarification_instead_of_bulk_action(
+        self, async_client: httpx.AsyncClient, session: Session, auth_headers: dict
+    ):
+        """Verify 'Call the client' when 3 call tasks exist asks which task to complete instead of completing all 3."""
+        # Create 3 call tasks first
+        t1 = Task(title="Call Ahmed", user_id="test-user-id", completed=False, priority=Priority.HIGH)
+        t2 = Task(title="call technical support", user_id="test-user-id", completed=False, priority=Priority.HIGH)
+        t3 = Task(title="call technical support immediately", user_id="test-user-id", completed=False, priority=Priority.NONE)
+        session.add_all([t1, t2, t3])
+        session.commit()
+
+        # Send ambiguous complete request
+        res = await async_client.post(
+            "/api/chat",
+            json={"message": "Complete the call task"},
+            headers=auth_headers,
+        )
+        assert res.status_code == 200
+        answer = res.json()["response"]
+        assert len(answer) > 0
+
+        # Verify not all 3 were completed blindly
+        session.refresh(t1)
+        session.refresh(t2)
+        session.refresh(t3)
+        completed_count = sum([t1.completed, t2.completed, t3.completed])
+        assert completed_count < 3
+        assert any(k in answer.lower() for k in ["which", "1.", "2.", "ahmed", "technical", "?", "multiple", "specify"])
+
 
 class TestCheckpoint4CleanConversationFlow:
     """Checkpoint 4: Clean Conversation Flow & Follow-up Actions."""
@@ -188,6 +231,7 @@ class TestCheckpoint4CleanConversationFlow:
         assert r2.status_code == 200
 
         # Verify priority updated in DB
+        session.expire_all()
         tasks = session.exec(select(Task)).all()
         slide_task = next((t for t in tasks if "slide" in t.title.lower() or "quarterly" in t.title.lower()), None)
         assert slide_task is not None
