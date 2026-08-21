@@ -9,17 +9,22 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { TaskCreateInput } from "@/lib/validations/task";
 
+import { useState } from "react";
+
 export default function CreateTaskPage() {
   const router = useRouter();
   const { createTask, isLoading } = useTasks();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const handleCreateTask = async (data: TaskCreateInput) => {
     try {
       await createTask(data);
       toast.success("Task created successfully");
+      setIsRedirecting(true);
       router.push("/dashboard/todos");
     } catch (error) {
       toast.error("Failed to create task");
+      setIsRedirecting(false);
     }
   };
 
@@ -30,6 +35,7 @@ export default function CreateTaskPage() {
           variant="outline"
           size="sm"
           onClick={() => router.back()}
+          disabled={isLoading || isRedirecting}
           className="cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -51,7 +57,7 @@ export default function CreateTaskPage() {
           <TaskForm
             onSubmit={handleCreateTask}
             onCancel={() => router.back()}
-            isLoading={isLoading}
+            isLoading={isLoading || isRedirecting}
             mode="create"
           />
         </CardContent>
