@@ -58,52 +58,38 @@ _PROVIDER_BASE_URLS = {
 }
 
 # Agent system prompt per spec's Agent Behavior Specification
-AGENT_SYSTEM_PROMPT = """You are a helpful Todo assistant that manages tasks through natural language.
+AGENT_SYSTEM_PROMPT = """You are an intelligent, proactive AI Todo Assistant that helps users manage their tasks effortlessly using natural language.
 
-You have access to tools for task management. Here are your behaviors:
+You have access to tools: `add_task`, `list_tasks`, `complete_task`, `delete_task`, and `update_task`.
 
-**Task Creation**: When user mentions adding/creating/remembering something, use the `add_task` tool.
-**Task Listing**: When user asks to see/show/list tasks, use the `list_tasks` tool with appropriate filter.
-**Task Completion**: When user says done/complete/finished, use the `complete_task` tool.
-**Task Deletion**: When user says delete/remove/cancel, use the `delete_task` tool.
-**Task Update**: When user says change/update/rename, use the `update_task` tool.
+### CORE BEHAVIORS & RULES
 
-IMPORTANT RULES:
-- Your user's identity is handled automatically — do NOT ask for or pass a user_id.
-- Always confirm actions with a friendly response.
-- Gracefully handle errors (e.g., task not found).
-- When deleting a task by name, use `list_tasks` first to find the task ID, then `delete_task`.
-- Be conversational and helpful.
+1. **CRITICAL TOOL EXECUTION RULE**:
+   After you execute any tool (such as `add_task`, `list_tasks`, `complete_task`, `delete_task`, or `update_task`), your next response MUST be a plain text answer to the user summarizing the result. You MUST NOT call any tool a second time for the same request.
 
-Task Creation Rules
+2. **Intelligent Priority Auto-Detection**:
+   Analyze the user's intent, urgency, and wording to automatically set `priority`:
+   - **"high"**: Expressions of urgency, deadlines, or critical importance (e.g., "ASAP", "as soon as possible", "urgent", "critical", "immediately", "must do now", "high priority", "due today", "emergency").
+   - **"medium"**: Expressions of importance or standard work items (e.g., "important", "needed soon", "should do", "medium priority", "work item").
+   - **"low"**: Casual, non-urgent, or future items (e.g., "low priority", "someday", "when free", "whenever", "casual", "minor", "later").
+   - If priority is not explicitly mentioned or implied, default to `null` (or omit priority argument).
 
-Whenever the user expresses an intention, obligation, reminder, or future work,
-create a task.
+3. **Bulk & Multi-Task Creation**:
+   If the user lists multiple distinct tasks in a single message (e.g., "Add buy groceries, finish report ASAP, and call John when free"), execute `add_task` ONCE per task, then summarize the created tasks for the user.
 
-Infer priority from the user's wording:
+4. **Ambiguity & Clarifying Questions**:
+   - If the user asks to modify, complete, or delete a task without specifying WHICH task, call `list_tasks` first to see their existing tasks.
+   - If there are multiple matching or ambiguous tasks, list the candidate tasks clearly and ask a friendly clarifying question (e.g., *"Which task would you like to update? Here are your matching tasks..."*).
+   - Never guess a task ID blindly. Always retrieve tasks with `list_tasks` first when referencing by title.
 
-- "as soon as possible"
-- "ASAP"
-- "urgent"
-- "immediately"
+5. **Multi-Step Action Execution**:
+   - When completing, deleting, or updating a task by title or keyword (e.g., "Delete the bike task"):
+     1. Call `list_tasks` to search for matching tasks and obtain the task ID.
+     2. Call `delete_task`, `complete_task`, or `update_task` using the retrieved `task_id`.
 
-→ priority = "high"
-
-- "important"
-
-→ priority = "medium"
-
-Otherwise
-
-→ priority = null
-
-Only use these values:
-
-- high
-- medium
-- low
-
-If no priority is implied, omit the priority argument entirely.
+6. **Friendly Confirmation & Clean Markdown**:
+   - Confirm all created/updated/deleted tasks with friendly, clear responses.
+   - User identity is handled automatically — do NOT ask for or pass a `user_id`.
 """
 
 
@@ -171,17 +157,14 @@ async def handle_chat(
     )
     logger.debug(f"Stored user message: {message[:50]}...")
 
-    # 4. Build message array for agent
-    # user_id and session are injected into tools via context — no prompt hack
-    messages = []
-    for msg in history:
-        messages.append({"role": msg["role"], "content": msg["content"]})
-    messages.append({"role": "user", "content": message})
+    # 4. Build prompt for agent (including recent conversation history context if available)
+    if history:
+        history_text = "\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in history[-6:]])
+        input_for_agent = f"Conversation History:\n{history_text}\n\nCurrent User Request: {message}"
+    else:
+        input_for_agent = message
 
-    # Build the input string for Runner.run
-    # We combine history and new message into a single prompt
-    input_for_agent = messages
-    logger.debug(f"Sending {len(messages)} messages to AI agent")
+    logger.debug(f"Sending prompt to AI agent: {input_for_agent[:80]}...")
 
     # 5. Run agent with SDK function tools (shared session via context)
     model = _get_model()
@@ -191,18 +174,18 @@ async def handle_chat(
 
     try:
         logger.info("Running AI agent with SDK function tools")
-        # agent = Agent(
-        #     name="Todo Assistant",
-        #     instructions=AGENT_SYSTEM_PROMPT,
-        #     tools=[add_task_tool, list_tasks_tool, complete_task_tool, delete_task_tool, update_task_tool],
-        #     model=model,
-        # )
+        agent = Agent(
+            name="Todo Assistant",
+            instructions=AGENT_SYSTEM_PROMPT,
+            tools=[add_task_tool, list_tasks_tool, complete_task_tool, delete_task_tool, update_task_tool],
+            model=model,
+        )
 
-        # result = await Runner.run(agent, input=input_for_agent, context=context, max_turns=10)
-        # response_text = (
-        #     result.final_output or "I'm sorry, I couldn't process that request."
-        # )
-        response_text = "This is a placeholder response. The agent execution is currently disabled for testing."
+        result = await Runner.run(agent, input=input_for_agent, context=context, max_turns=10)
+        response_text = (
+            result.final_output or "I'm sorry, I couldn't process that request."
+        )
+        # response_text = "This is a placeholder response. The agent execution is currently disabled for testing."
         logger.info(f"AI agent completed. Response length: {len(response_text)} chars")
 
     except Exception as e:
@@ -267,15 +250,14 @@ async def handle_chat_stream(
     )
     logger.debug(f"Stream: Stored user message: {message[:50]}...")
 
-    # 4. Build message array for agent
-    # user_id and session are injected into tools via context — no prompt hack
-    messages = []
-    for msg in history:
-        messages.append({"role": msg["role"], "content": msg["content"]})
-    messages.append({"role": "user", "content": message})
+    # 4. Build prompt for agent
+    if history:
+        history_text = "\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in history[-6:]])
+        input_for_agent = f"Conversation History:\n{history_text}\n\nCurrent User Request: {message}"
+    else:
+        input_for_agent = message
 
-    input_for_agent = messages
-    logger.debug(f"Stream: Sending {len(messages)} messages to AI agent")
+    logger.debug(f"Stream: Sending prompt to AI agent: {input_for_agent[:80]}...")
 
     # 5. Run agent with SDK function tools and stream response
     model = _get_model()
@@ -298,7 +280,7 @@ async def handle_chat_stream(
             agent,
             input=input_for_agent,
             context=context,
-            max_turns=10,
+            max_turns=5,
         )
 
         # Stream the response events

@@ -41,9 +41,15 @@ def _parse_priority(priority: Optional[str]) -> Priority:
     """Parse a priority string into a Priority enum, defaulting to NONE."""
     if not priority:
         return Priority.NONE
-    upper = priority.upper()
-    if upper in ("NONE", "LOW", "MEDIUM", "HIGH"):
-        return Priority(upper)
+    upper = priority.upper().strip()
+    if upper in ("HIGH", "URGENT", "ASAP", "CRITICAL", "EMERGENCY"):
+        return Priority.HIGH
+    elif upper in ("MEDIUM", "NORMAL", "IMPORTANT", "MODERATE"):
+        return Priority.MEDIUM
+    elif upper in ("LOW", "MINOR", "CASUAL", "LATER"):
+        return Priority.LOW
+    elif upper in ("NONE", "NULL"):
+        return Priority.NONE
     return Priority.NONE
 
 
@@ -51,7 +57,7 @@ async def add_task(
     ctx: RunContextWrapper[AgentContext],
     title: str,
     description: Optional[str] = None,
-    priority: Literal["low", "medium", "high"] | None = None,
+    priority: Optional[str] = None,
     tags: Optional[List[str]] = None,
 ) -> dict:
     print("========== add_task ==========")
@@ -73,6 +79,8 @@ async def add_task(
         leave this argument empty.
 
         tags: List of tags to attach (optional).
+
+    IMPORTANT: Call this function EXACTLY ONCE per task creation request. After receiving the return value, do NOT call add_task again for the same task. Respond directly to the user.
     """
     try:
         task_data = TaskCreate(
