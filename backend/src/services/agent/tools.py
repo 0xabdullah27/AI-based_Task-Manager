@@ -88,7 +88,13 @@ async def add_task(
         task = task_service.create_task(
             ctx.context.session, task_data=task_data, user_id=ctx.context.user_id
         )
-        return {"task_id": task.id, "status": "created", "title": task.title}
+        return {
+            "task_id": task.id,
+            "status": "created",
+            "title": task.title,
+            "priority": task.priority.value if hasattr(task.priority, "value") else str(task.priority),
+            "message": f"Task '{task.title}' created successfully.",
+        }
     except Exception as e:
         return {"error": str(e)}
 
