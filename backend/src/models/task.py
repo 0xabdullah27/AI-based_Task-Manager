@@ -25,7 +25,7 @@ class Task(SQLModel, table=True):
         title (str): Concise title/heading of the task (1-200 characters).
         description (Optional[str]): Detailed task description or notes (up to 2000 characters).
         completed (bool): Flag indicating whether the task is finished (default False).
-        priority (Priority): Priority level enum (NONE, LOW, MEDIUM, HIGH).
+        priority (Priority): Priority level enum (LOW, MEDIUM, HIGH).
         parent_id (Optional[str]): Foreign key to the parent task (NULL for root tasks).
         position (Optional[int]): Step ordering index among sibling subtasks (NULL for root tasks).
         created_at (datetime): UTC timestamp when the task was created.
