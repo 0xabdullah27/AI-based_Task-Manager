@@ -90,5 +90,5 @@ def get_user_id_from_token(token: str) -> str:
 
 async def get_current_user() -> str:
     """Dependency to get current authenticated user ID """
-    return "yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI"
-    # return "4TCURhyR1VQLI8cbbKeDyRJMwDL6W9Yu"
+    # return "yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI"
+    return "ogHc9deXwO5zvmgT9u4DXRjaU2NdGskc"
