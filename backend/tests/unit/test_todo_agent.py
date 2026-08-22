@@ -35,6 +35,9 @@ def _make_task(task_id="1", title="Buy milk", completed=False, priority="low", t
     task.priority = MagicMock()
     task.priority.value = priority
     task.tags = [MagicMock(name=name) for name in (tags or [])]
+    task.parent_id = None
+    task.position = None
+    task.subtasks = []
     return task
 
 
@@ -45,7 +48,13 @@ class TestAddTaskTool:
         with patch("src.services.agent.tools.task_service.create_task", return_value=task) as mock_create:
             wrapper = _make_wrapper(user_id="u-1", session="the-session")
             result = await add_task(wrapper, title="Buy milk", priority="high")
-        assert result == {"task_id": "1", "status": "created", "title": "Buy milk"}
+        assert result == {
+            "task_id": "1",
+            "status": "created",
+            "title": "Buy milk",
+            "priority": "low",
+            "message": "Task 'Buy milk' created successfully.",
+        }
         mock_create.assert_called_once()
         args, kwargs = mock_create.call_args
         assert args[0] == "the-session"

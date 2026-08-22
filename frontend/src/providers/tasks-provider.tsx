@@ -62,13 +62,20 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const loadedForRef = useRef<string | null>(null);
+  const lastParamsRef = useRef<FetchTasksParams | undefined>(undefined);
+  const tasksRef = useRef<Task[]>([]);
   const { data: session } = useSession();
   const userId = session?.user?.id ?? null;
+
+  useEffect(() => {
+    tasksRef.current = tasks;
+  }, [tasks]);
 
   const fetchTasks = useCallback(async (params?: FetchTasksParams) => {
     try {
       setIsLoading(true);
       setError(null);
+      lastParamsRef.current = params;
 
       const queryParams = new URLSearchParams();
       if (params?.search) queryParams.append("search", params.search);
@@ -114,8 +121,12 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       setError(null);
       const response = await api.post<Task>("/api/todos", data);
-      setTasks((prev) => [response.data, ...prev]);
-      setTotal((prev) => prev + 1);
+      if (response.data.parent_id) {
+        await fetchTasks(lastParamsRef.current);
+      } else {
+        setTasks((prev) => [response.data, ...prev]);
+        setTotal((prev) => prev + 1);
+      }
       return response.data;
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Failed to create task");
@@ -124,16 +135,20 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [fetchTasks]);
 
   const updateTask = useCallback(async (id: string, data: TaskUpdateInput): Promise<Task> => {
     try {
       setIsLoading(true);
       setError(null);
       const response = await api.patch<Task>(`/api/todos/${id}`, data);
-      setTasks((prev) =>
-        prev.map((task) => (task.id === id ? response.data : task))
-      );
+      if (response.data.parent_id || response.data.subtasks.length > 0 || data.parent_id || data.position !== undefined) {
+        await fetchTasks(lastParamsRef.current);
+      } else {
+        setTasks((prev) =>
+          prev.map((task) => (task.id === id ? response.data : task))
+        );
+      }
       return response.data;
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Failed to update task");
@@ -142,15 +157,20 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [fetchTasks]);
 
   const deleteTask = useCallback(async (id: string): Promise<void> => {
     try {
       setIsLoading(true);
       setError(null);
+      const target = tasksRef.current.find((task) => task.id === id);
       await api.delete(`/api/todos/${id}`);
-      setTasks((prev) => prev.filter((task) => task.id !== id));
-      setTotal((prev) => Math.max(0, prev - 1));
+      if ((target?.subtasks.length ?? 0) > 0 || target?.parent_id) {
+        await fetchTasks(lastParamsRef.current);
+      } else {
+        setTasks((prev) => prev.filter((task) => task.id !== id));
+        setTotal((prev) => Math.max(0, prev - 1));
+      }
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Failed to delete task");
       setError(error);
@@ -158,16 +178,20 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [fetchTasks]);
 
   const toggleTask = useCallback(async (id: string): Promise<Task> => {
     try {
       setIsLoading(true);
       setError(null);
       const response = await api.post<Task>(`/api/todos/${id}/toggle`);
-      setTasks((prev) =>
-        prev.map((task) => (task.id === id ? response.data : task))
-      );
+      if (response.data.parent_id || response.data.subtasks.length > 0) {
+        await fetchTasks(lastParamsRef.current);
+      } else {
+        setTasks((prev) =>
+          prev.map((task) => (task.id === id ? response.data : task))
+        );
+      }
       return response.data;
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Failed to toggle task");
@@ -176,7 +200,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [fetchTasks]);
 
   const value = {
     tasks,

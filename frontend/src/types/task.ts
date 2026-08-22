@@ -14,6 +14,9 @@ export interface Task {
   completed: boolean;
   priority: Priority;
   tags: string[];
+  parent_id: string | null;
+  position: number | null;
+  subtasks: Task[];
   created_at: string;
   updated_at: string | null;
 }
@@ -23,6 +26,7 @@ export interface TaskCreateInput {
   description?: string | null;
   priority?: Priority;
   tags?: string[];
+  parent_id?: string | null;
 }
 
 export interface TaskUpdateInput {
@@ -31,6 +35,8 @@ export interface TaskUpdateInput {
   completed?: boolean;
   priority?: Priority;
   tags?: string[];
+  parent_id?: string | null;
+  position?: number;
 }
 
 export interface TaskListResponse {

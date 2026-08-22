@@ -133,6 +133,7 @@ export const taskCreateSchema = z.object({
     .nullable(),
   priority: prioritySchema.default("none"),
   tags: tagsArraySchema.default([]),
+  parent_id: z.string().uuid().nullable().optional(),
 });
 
 export type TaskCreateInput = z.infer<typeof taskCreateSchema>;
@@ -154,6 +155,8 @@ export const taskUpdateSchema = z.object({
   completed: z.boolean().optional(),
   priority: prioritySchema.optional(),
   tags: tagsArraySchema.optional(),
+  parent_id: z.string().uuid().nullable().optional(),
+  position: z.number().int().min(1).optional(),
 });
 
 export type TaskUpdateInput = z.infer<typeof taskUpdateSchema>;
@@ -161,19 +164,37 @@ export type TaskUpdateInput = z.infer<typeof taskUpdateSchema>;
 /**
  * Task response schema (from API)
  */
-export const taskReadSchema = z.object({
-  id: z.string().uuid(),
-  user_id: z.string().uuid(),
-  title: z.string(),
-  description: z.string().nullable(),
-  completed: z.boolean(),
-  priority: prioritySchema,
-  tags: z.array(z.string()),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime().nullable(),
-});
+export interface TaskRead {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  completed: boolean;
+  priority: Priority;
+  tags: string[];
+  parent_id: string | null;
+  position: number | null;
+  subtasks: TaskRead[];
+  created_at: string;
+  updated_at: string | null;
+}
 
-export type TaskRead = z.infer<typeof taskReadSchema>;
+export const taskReadSchema: z.ZodType<TaskRead> = z.lazy(() =>
+  z.object({
+    id: z.string().uuid(),
+    user_id: z.string().uuid(),
+    title: z.string(),
+    description: z.string().nullable(),
+    completed: z.boolean(),
+    priority: prioritySchema,
+    tags: z.array(z.string()),
+    parent_id: z.string().uuid().nullable(),
+    position: z.number().int().nullable(),
+    subtasks: z.array(taskReadSchema),
+    created_at: z.string().datetime(),
+    updated_at: z.string().datetime().nullable(),
+  })
+);
 
 /**
  * Task list response schema

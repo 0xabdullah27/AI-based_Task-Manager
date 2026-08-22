@@ -60,6 +60,7 @@ async def add_task(
     description: Optional[str] = None,
     priority: Optional[str] = None,
     tags: Optional[List[str]] = None,
+    parent_task_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Create a new todo task for the current user.
 
@@ -70,9 +71,13 @@ async def add_task(
         priority (Optional[str]): Urgency level. Allowed values: "high", "medium", "low".
             Do not pass any other value. If no urgency is expressed, leave empty.
         tags (Optional[List[str]]): Optional list of category tag names (e.g., ["work", "urgent"]).
+        parent_task_id (Optional[str]): Optional UUID of an existing parent task. When provided,
+            the new task is created as a subtask (step) under that parent. Use list_tasks first
+            to find the parent's ID. A subtask cannot itself have subtasks.
 
     Returns:
-        Dict[str, Any]: Dictionary containing 'task_id', 'status', and 'title', or 'error' on failure.
+        Dict[str, Any]: Dictionary containing 'task_id', 'status', 'title', and 'position'
+        (for subtasks), or 'error' on failure.
 
     IMPORTANT: Call this function EXACTLY ONCE per task creation request.
     After receiving the return value, do NOT call add_task again for the same task.
@@ -84,17 +89,26 @@ async def add_task(
             priority=_parse_priority(priority),
             tags=tags or [],
             completed=False,
+            parent_id=parent_task_id,
         )
         task = task_service.create_task(
             ctx.context.session, task_data=task_data, user_id=ctx.context.user_id
         )
-        return {
+        result: Dict[str, Any] = {
             "task_id": task.id,
             "status": "created",
             "title": task.title,
             "priority": task.priority.value if hasattr(task.priority, "value") else str(task.priority),
-            "message": f"Task '{task.title}' created successfully.",
+            "message": (
+                f"Subtask '{task.title}' created successfully under parent task."
+                if task.parent_id
+                else f"Task '{task.title}' created successfully."
+            ),
         }
+        if task.parent_id:
+            result["parent_id"] = task.parent_id
+            result["position"] = task.position
+        return result
     except Exception as e:
         return {"error": str(e)}
 
@@ -141,6 +155,23 @@ async def list_tasks(
                 "completed": t.completed,
                 "priority": t.priority.value if hasattr(t.priority, "value") else str(t.priority),
                 "tags": [tag.name for tag in t.tags] if t.tags else [],
+                "subtasks": [
+                    {
+                        "id": s.id,
+                        "title": s.title,
+                        "completed": s.completed,
+                        "position": s.position,
+                    }
+                    for s in sorted(
+                        (t.subtasks or []),
+                        key=lambda s: (s.position is None, s.position if s.position is not None else 0),
+                    )
+                ],
+                "subtask_progress": (
+                    f"{sum(1 for s in (t.subtasks or []) if s.completed)}/{len(t.subtasks or [])} done"
+                    if t.subtasks
+                    else None
+                ),
             }
             for t in tasks
         ]
@@ -177,6 +208,8 @@ async def delete_task(
 ) -> Dict[str, Any]:
     """Permanently delete a task from the user's task list.
 
+    If the task is a parent with subtasks, ALL of its subtasks are deleted as well.
+
     Args:
         ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
         task_id (str): Unique UUID string of the target task to delete (required).
@@ -200,8 +233,10 @@ async def update_task(
     description: Optional[str] = None,
     priority: Optional[str] = None,
     tags: Optional[List[str]] = None,
+    parent_task_id: Optional[str] = None,
+    position: Optional[int] = None,
 ) -> Dict[str, Any]:
-    """Update a task's title, description, priority, or tags.
+    """Update a task's title, description, priority, tags, step order, or parent.
 
     Args:
         ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
@@ -210,6 +245,9 @@ async def update_task(
         description (Optional[str]): Updated task description string (optional).
         priority (Optional[str]): Updated priority level: "high", "medium", "low", "none" (optional).
         tags (Optional[List[str]]): Updated list of tag names (optional).
+        parent_task_id (Optional[str]): UUID of an existing root task to move this task under,
+            turning it into a subtask (optional). One nesting level only.
+        position (Optional[int]): New 1-based step ordering position among sibling subtasks (optional).
 
     Returns:
         Dict[str, Any]: Dictionary containing 'task_id', 'status' ("updated"), and 'title'.
@@ -221,6 +259,8 @@ async def update_task(
             description=description,
             priority=priority_val,
             tags=tags,
+            parent_id=parent_task_id,
+            position=position,
         )
         task = task_service.update_task(
             ctx.context.session, task_id, task_data=task_data, user_id=ctx.context.user_id

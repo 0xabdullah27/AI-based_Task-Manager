@@ -44,7 +44,7 @@ class TaskRepository:
         return session.exec(statement).first()
 
     def find_by_id_with_tags(self, session: Session, task_id: str, user_id: str) -> Optional[Task]:
-        """Find a single task record by ID with eager-loaded associated tags.
+        """Find a single task record by ID with eagerly-loaded tags and nested subtasks.
 
         Args:
             session (Session): Active database session.
@@ -52,14 +52,65 @@ class TaskRepository:
             user_id (str): Unique ID of the owning user for security scoping.
 
         Returns:
-            Optional[Task]: Matched Task instance with loaded tags relationship, or None.
+            Optional[Task]: Task instance with loaded tags and subtasks relationships, or None.
         """
         statement = (
             select(Task)
             .where(Task.id == task_id, Task.user_id == user_id)
-            .options(selectinload(Task.tags))
+            .options(
+                selectinload(Task.tags),
+                selectinload(Task.subtasks).selectinload(Task.tags),
+            )
         )
         return session.exec(statement).first()
+
+    def find_subtasks(self, session: Session, parent_id: str, user_id: str) -> List[Task]:
+        """Find all direct child tasks of a parent, ordered by step position.
+
+        Args:
+            session (Session): Active database session.
+            parent_id (str): UUID of the parent task.
+            user_id (str): Owner user ID for security scoping.
+
+        Returns:
+            List[Task]: Child tasks sorted by position ascending.
+        """
+        statement = (
+            select(Task)
+            .where(Task.parent_id == parent_id, Task.user_id == user_id)
+            .order_by(Task.position.asc(), Task.created_at.asc())
+        )
+        return list(session.exec(statement).all())
+
+    def next_position(self, session: Session, parent_id: str) -> int:
+        """Compute the next step position for a new subtask under a parent.
+
+        Args:
+            session (Session): Active database session.
+            parent_id (str): UUID of the parent task.
+
+        Returns:
+            int: Next 1-based position (max existing position + 1, or 1 if none).
+        """
+        statement = (
+            select(func.max(Task.position))
+            .where(Task.parent_id == parent_id)
+        )
+        max_pos = session.exec(statement).one()
+        return (max_pos or 0) + 1
+
+    def delete_task_tag_links_for_tasks(self, session: Session, task_ids: List[str]) -> None:
+        """Remove TaskTag join records for multiple tasks (used before cascading deletes).
+
+        Args:
+            session (Session): Active database session.
+            task_ids (List[str]): UUIDs of tasks whose tag links should be removed.
+        """
+        if not task_ids:
+            return
+        statement = select(TaskTag).where(TaskTag.task_id.in_(task_ids))
+        for task_tag in session.exec(statement).all():
+            session.delete(task_tag)
 
     def count_total(self, session: Session, user_id: str) -> int:
         """Count the total number of task records owned by a user.
@@ -98,7 +149,10 @@ class TaskRepository:
         Returns:
             int: Total count of tasks matching all applied filters.
         """
-        query = select(func.count(Task.id)).where(Task.user_id == user_id)
+        query = select(func.count(Task.id)).where(
+            Task.user_id == user_id,
+            Task.parent_id.is_(None),
+        )
 
         if search:
             search_term = f"%{search}%"
@@ -153,12 +207,16 @@ class TaskRepository:
             limit (int): Maximum number of task records to return. Defaults to 100.
 
         Returns:
-            List[Task]: List of Task model instances matching query criteria with eager-loaded tags.
+            List[Task]: List of root Task instances (parent_id IS NULL) matching criteria with eager-loaded tags and subtasks.
         """
         statement = (
             select(Task)
             .where(Task.user_id == user_id)
-            .options(selectinload(Task.tags))
+            .where(Task.parent_id.is_(None))
+            .options(
+                selectinload(Task.tags),
+                selectinload(Task.subtasks).selectinload(Task.tags),
+            )
         )
 
         if search:

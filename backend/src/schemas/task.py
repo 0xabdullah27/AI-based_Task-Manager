@@ -76,6 +76,7 @@ class TaskCreate(BaseModel):
     completed: bool = Field(default=False, description="Completion status flag")
     priority: Priority = Field(default=Priority.NONE, description="Task priority level")
     tags: list[str] = Field(default_factory=list, max_length=20, description="List of tag names")
+    parent_id: Optional[str] = Field(None, description="ID of the parent task; set to create a subtask")
 
     @field_validator('tags')
     @classmethod
@@ -121,6 +122,8 @@ class TaskUpdate(BaseModel):
     completed: Optional[bool] = Field(None, description="Updated completion status")
     priority: Optional[Priority] = Field(None, description="Updated priority level")
     tags: Optional[list[str]] = Field(None, max_length=20, description="Updated tag list")
+    parent_id: Optional[str] = Field(None, description="Reparent task under this parent ID (one level only)")
+    position: Optional[int] = Field(None, ge=1, description="New step ordering position among sibling subtasks")
 
     @field_validator('tags')
     @classmethod
@@ -161,7 +164,10 @@ class TaskRead(BaseModel):
         description (Optional[str]): Task description.
         completed (bool): Completion status flag.
         priority (Priority): Task priority.
+        parent_id (Optional[str]): Parent task ID if this task is a subtask.
+        position (Optional[int]): Step ordering index among sibling subtasks.
         tags (list[str]): List of tag name strings attached to this task.
+        subtasks (list[TaskRead]): Child tasks ordered by step position.
         created_at (datetime): UTC creation timestamp.
         updated_at (Optional[datetime]): UTC last updated timestamp.
     """
@@ -173,7 +179,10 @@ class TaskRead(BaseModel):
     description: Optional[str]
     completed: bool
     priority: Priority
+    parent_id: Optional[str] = None
+    position: Optional[int] = None
     tags: list[str] = Field(default_factory=list)
+    subtasks: list["TaskRead"] = Field(default_factory=list)
     created_at: datetime
     updated_at: Optional[datetime]
 
@@ -195,6 +204,24 @@ class TaskRead(BaseModel):
         if isinstance(tags, list):
             return [t.name if hasattr(t, 'name') else str(t) for t in tags]
         return []
+
+    @field_validator('subtasks', mode='before')
+    @classmethod
+    def serialize_subtasks(cls, subtasks: Any) -> list[Any]:
+        """Normalize the subtasks relationship for nested serialization.
+
+        Args:
+            subtasks (Any): List of Task model instances, dicts, or empty collection.
+
+        Returns:
+            list[Any]: Iterable payload for recursive TaskRead validation.
+        """
+        if not subtasks:
+            return []
+        return list(subtasks)
+
+
+TaskRead.model_rebuild()
 
 
 class TaskListResponse(BaseModel):
