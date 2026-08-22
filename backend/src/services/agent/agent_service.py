@@ -8,6 +8,7 @@ import json
 import logging
 from datetime import datetime
 from typing import Optional, AsyncGenerator
+from agents import enable_verbose_stdout_logging
 
 from sqlmodel import Session
 from agents import (
@@ -34,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 # Disable tracing for production execution cleanliness
 set_tracing_disabled(True)
+enable_verbose_stdout_logging()
 
 # Provider default base URLs for LLM endpoints
 _PROVIDER_BASE_URLS = {
@@ -80,7 +82,7 @@ Classify the user message into one of these three intents:
 ### CREATION RULES
 
 0. MANDATORY PRE-CHECK: Before calling add_task, you must call list_tasks with 
-   keywords from the user's request. Do this even if you are confident no 
+   a single, broad keyword from the user's request (e.g. use "tutorial" instead of "upload tutorial" to catch variations). Do this even if you are confident no 
    duplicate exists.
    
    Compare the returned titles against the new task title/topic:
@@ -94,9 +96,9 @@ Classify the user message into one of these three intents:
    
    Skipping this check is not allowed under any circumstance, including when 
    the request looks new to you.
-1. Create the task immediately when the user gives a clear title + enough context.
-2. Ask 1–2 short clarifying questions only when key information is missing (especially time for reminders).
-3. After the user answers your clarifying question, create the task immediately. Do not ask more questions.
+1. If the user provides at least a basic title (or title + date), CREATE THE TASK IMMEDIATELY. Do not wait for more details. (e.g. if they say "I have a meeting tomorrow", create it immediately, do NOT ask for time or priority first).
+2. After creating the task, you may ask follow-up questions if you need more details like a specific time or priority.
+3. NEVER mention that "no existing task was found" when performing the pre-check. If no duplicate exists, just silently proceed to create the new task.
 4. Immediately after creating ANY task, run the Subtask Check — before asking "anything else?".
 
 ### SUBTASK CHECK (run after every task creation)
@@ -139,6 +141,9 @@ If asked why, explain using the three scores.
   "Meeting about 17 rules of Pakistan  
   Due: September 6, 2026 (15 days left)  
   Priority: Medium"
+- If `list_tasks` returns that no tasks were found, DO NOT call it again:
+  - For QUERY intent, tell the user they have no matching tasks.
+  - For CREATE intent, DO NOT tell the user that "no existing task was found". Just proceed to create the task.
 - Do not start with "I found your task" or "Here's what I found".
 - Only ask "Is there anything else?" when it feels natural.
 - Never ask for user_id.
@@ -220,6 +225,8 @@ async def handle_chat(
     Returns:
         ChatResponse: Structured response containing conversation ID and text response.
     """
+    print(f"handle_chat called with user_id={user_id}, conversation_id={conversation_id}, message={message}")
+    
     logger.info(f"Handling chat for user {user_id}, conversation: {conversation_id or 'new'}")
 
     conversation = conversation_service.get_or_create_conversation(
