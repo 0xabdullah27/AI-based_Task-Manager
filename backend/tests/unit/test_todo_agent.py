@@ -27,7 +27,7 @@ def _make_wrapper(user_id: str = "user-1", session=None):
     return wrapper
 
 
-def _make_task(task_id="1", title="Buy milk", completed=False, priority="low", tags=None):
+def _make_task(task_id="1", title="Buy milk", completed=False, priority="low", tags=None, due_date=None):
     task = MagicMock()
     task.id = task_id
     task.title = title
@@ -38,6 +38,7 @@ def _make_task(task_id="1", title="Buy milk", completed=False, priority="low", t
     task.parent_id = None
     task.position = None
     task.subtasks = []
+    task.due_date = due_date
     return task
 
 
@@ -53,6 +54,7 @@ class TestAddTaskTool:
             "status": "created",
             "title": "Buy milk",
             "priority": "low",
+            "due_date": None,
             "message": "Task 'Buy milk' created successfully.",
         }
         mock_create.assert_called_once()

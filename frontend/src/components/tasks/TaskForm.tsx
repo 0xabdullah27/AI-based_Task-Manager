@@ -167,6 +167,37 @@ export function TaskForm({
       </div>
 
       <div>
+        <label htmlFor="due_date" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
+          Due Date (Optional)
+        </label>
+        <input
+          {...register("due_date")}
+          id="due_date"
+          type="datetime-local"
+          disabled={isLoading}
+          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition"
+          style={{
+            backgroundColor: "var(--input-bg)",
+            borderColor: "var(--input-border)",
+            color: "var(--input-text)",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "var(--primary)";
+            e.currentTarget.style.boxShadow = "0 0 0 1px var(--primary)";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "var(--input-border)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        />
+        {errors.due_date && (
+          <p className="mt-1 text-sm" style={{ color: "var(--error-text)" }}>
+            {errors.due_date.message}
+          </p>
+        )}
+      </div>
+
+      <div>
         {/* T043: Form label styling */}
         <label htmlFor="tags" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
           Tags (Optional)

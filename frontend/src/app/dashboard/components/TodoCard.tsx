@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CheckCircle2, Circle, MoreVertical, Trash2, Edit } from "lucide-react";
+import { CheckCircle2, Circle, MoreVertical, Trash2, Edit, Calendar } from "lucide-react";
 import { getPriorityConfig } from "@/lib/priority-colors";
 import type { Todo } from "@/types/task";
 
@@ -113,6 +113,23 @@ export function TodoCard({ todo, onToggle, onEdit, onDelete }: TodoCardProps) {
               >
                 {priorityConfig.label}
               </Badge>
+              {todo.due_date && (
+                <Badge
+                  variant="outline"
+                  className="flex items-center gap-1 transition"
+                  style={{
+                    borderColor: "var(--border)",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  <Calendar className="w-3 h-3" />
+                  {new Date(todo.due_date).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </Badge>
+              )}
               {/* T034: Update tag styling while maintaining priority-based coloring */}
               {todo.tags && todo.tags.length > 0 && (
                 <>

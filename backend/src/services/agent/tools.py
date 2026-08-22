@@ -68,6 +68,22 @@ def _normalize_priority_filter(priority: Optional[str]) -> Optional[str]:
     return value
 
 
+from datetime import datetime
+
+
+def _parse_datetime(due_date_str: Optional[str]) -> Optional[datetime]:
+    """Parse string date (ISO format YYYY-MM-DDTHH:MM:SS or YYYY-MM-DD) into datetime object."""
+    if not due_date_str:
+        return None
+    try:
+        return datetime.fromisoformat(due_date_str.strip())
+    except Exception:
+        try:
+            return datetime.strptime(due_date_str.strip(), "%Y-%m-%d")
+        except Exception:
+            return None
+
+
 async def add_task(
     ctx: RunContextWrapper[AgentContext],
     title: str,
@@ -75,6 +91,7 @@ async def add_task(
     priority: Optional[str] = None,
     tags: Optional[List[str]] = None,
     parent_task_id: Optional[str] = None,
+    due_date: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Create a new todo task for the current user.
 
@@ -89,6 +106,8 @@ async def add_task(
         parent_task_id (Optional[str]): Optional UUID of an existing parent task. When provided,
             the new task is created as a subtask (step) under that parent. Use list_tasks first
             to find the parent's ID. A subtask cannot itself have subtasks.
+        due_date (Optional[str]): Optional due date string (e.g. ISO format "2026-09-06T18:00:00"
+            or "2026-09-06"). Never place due date text into description; always pass it here.
 
     Returns:
         Dict[str, Any]: Dictionary containing 'task_id', 'status', 'title', and 'position'
@@ -105,6 +124,7 @@ async def add_task(
             tags=tags or [],
             completed=False,
             parent_id=parent_task_id,
+            due_date=_parse_datetime(due_date),
         )
         task = task_service.create_task(
             ctx.context.session, task_data=task_data, user_id=ctx.context.user_id
@@ -114,6 +134,7 @@ async def add_task(
             "status": "created",
             "title": task.title,
             "priority": task.priority.value if hasattr(task.priority, "value") else str(task.priority),
+            "due_date": task.due_date.isoformat() if task.due_date else None,
             "message": (
                 f"Subtask '{task.title}' created successfully under parent task."
                 if task.parent_id
@@ -174,6 +195,7 @@ async def list_tasks(
                 "description": t.description,
                 "completed": t.completed,
                 "priority": t.priority.value if hasattr(t.priority, "value") else str(t.priority),
+                "due_date": t.due_date.isoformat() if t.due_date else None,
                 "tags": [tag.name for tag in t.tags] if t.tags else [],
                 "subtasks": [
                     {
@@ -181,6 +203,7 @@ async def list_tasks(
                         "title": s.title,
                         "completed": s.completed,
                         "position": s.position,
+                        "due_date": s.due_date.isoformat() if s.due_date else None,
                     }
                     for s in sorted(
                         (t.subtasks or []),
@@ -255,8 +278,9 @@ async def update_task(
     tags: Optional[List[str]] = None,
     parent_task_id: Optional[str] = None,
     position: Optional[int] = None,
+    due_date: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Update a task's title, description, priority, tags, step order, or parent.
+    """Update a task's title, description, priority, tags, step order, parent, or due date.
 
     Args:
         ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
@@ -269,12 +293,15 @@ async def update_task(
         parent_task_id (Optional[str]): UUID of an existing root task to move this task under,
             turning it into a subtask (optional). One nesting level only.
         position (Optional[int]): New 1-based step ordering position among sibling subtasks (optional).
+        due_date (Optional[str]): Updated due date ISO string (e.g. "2026-09-06T18:00:00" or "2026-09-06").
+            Never place due date text into description; pass it here.
 
     Returns:
         Dict[str, Any]: Dictionary containing 'task_id', 'status' ("updated"), and 'title'.
     """
     try:
         priority_val = _parse_priority(priority) if priority else None
+        due_date_val = _parse_datetime(due_date) if due_date is not None else None
         task_data = TaskUpdate(
             title=title,
             description=description,
@@ -282,6 +309,7 @@ async def update_task(
             tags=tags,
             parent_id=parent_task_id,
             position=position,
+            due_date=due_date_val,
         )
         task = task_service.update_task(
             ctx.context.session, task_id, task_data=task_data, user_id=ctx.context.user_id

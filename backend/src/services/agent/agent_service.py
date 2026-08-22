@@ -122,9 +122,10 @@ If the task is not complex (e.g. "Buy milk"), skip straight to asking "Is there 
 
 ### DATE HANDLING
 
-- Always convert relative dates ("tomorrow", "next Friday", "after 15 days") into actual calendar dates.
-- Store dates in description as: `Due: September 6, 2026`
-- When showing any task that has a due date, always display:
+- Always convert relative dates ("tomorrow", "next Friday", "after 15 days") into actual calendar dates in ISO format (e.g. `2026-09-06T18:00:00` or `2026-09-06`).
+- CRITICAL: Save the extracted date into the `due_date` tool parameter in `add_task` or `update_task`. NEVER save date/time details inside the `description` string.
+- For subtasks, `due_date` is optional—only provide it if the user explicitly specifies a deadline for that subtask step.
+- When displaying any task that has a `due_date`, format it clearly:
   `Due: September 6, 2026 (15 days left)` or `(tomorrow)` / `(due today!)` / `(overdue by X days)`
 - If the user mentions a clearly past date, do not create the task. Inform them and ask for clarification.
 

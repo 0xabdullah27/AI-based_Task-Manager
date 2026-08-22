@@ -33,6 +33,22 @@ def _parse_priority(priority_str: Optional[str]) -> Priority:
     return Priority.LOW
 
 
+from datetime import datetime
+
+
+def _parse_datetime(due_date_str: Optional[str]) -> Optional[datetime]:
+    """Parse string date (ISO format YYYY-MM-DDTHH:MM:SS or YYYY-MM-DD) into datetime object."""
+    if not due_date_str:
+        return None
+    try:
+        return datetime.fromisoformat(due_date_str.strip())
+    except Exception:
+        try:
+            return datetime.strptime(due_date_str.strip(), "%Y-%m-%d")
+        except Exception:
+            return None
+
+
 def add_task(
     session: Session,
     user_id: str,
@@ -40,6 +56,7 @@ def add_task(
     description: Optional[str] = None,
     priority: Optional[str] = None,
     tags: Optional[List[str]] = None,
+    due_date: Optional[str] = None,
 ) -> dict:
     """Create a new task.
 
@@ -50,6 +67,7 @@ def add_task(
         description: Task description (optional).
         priority: Priority level: low, medium, high (optional; defaults to low).
         tags: List of tags to attach (optional).
+        due_date: Optional due date string (ISO format or YYYY-MM-DD).
 
     Returns:
         dict with task_id, status, title.
@@ -61,9 +79,15 @@ def add_task(
             priority=_parse_priority(priority),
             tags=tags or [],
             completed=False,
+            due_date=_parse_datetime(due_date),
         )
         task = task_service.create_task(session, task_data, user_id)
-        return {"task_id": task.id, "status": "created", "title": task.title}
+        return {
+            "task_id": task.id,
+            "status": "created",
+            "title": task.title,
+            "due_date": task.due_date.isoformat() if task.due_date else None,
+        }
     except Exception as e:
         return {"error": str(e)}
 
@@ -110,6 +134,7 @@ def list_tasks(
                 "description": t.description,
                 "completed": t.completed,
                 "priority": t.priority.value if hasattr(t.priority, "value") else str(t.priority),
+                "due_date": t.due_date.isoformat() if t.due_date else None,
                 "tags": [tag.name for tag in t.tags] if t.tags else [],
             }
             for t in tasks
@@ -166,8 +191,9 @@ def update_task(
     description: Optional[str] = None,
     priority: Optional[str] = None,
     tags: Optional[List[str]] = None,
+    due_date: Optional[str] = None,
 ) -> dict:
-    """Modify task title, description, priority, or tags.
+    """Modify task title, description, priority, tags, or due date.
 
     Args:
         session: DB session to use (shared across the request).
@@ -175,8 +201,9 @@ def update_task(
         task_id: ID of the task to update (required).
         title: New title (optional).
         description: New description (optional).
-        priority: New priority: none, low, medium, high (optional).
+        priority: New priority: low, medium, high (optional).
         tags: New tags list (optional).
+        due_date: New due date ISO string (optional).
 
     Returns:
         dict with task_id, status, title.
@@ -186,11 +213,14 @@ def update_task(
         if priority:
             priority_val = _parse_priority(priority)
 
+        due_date_val = _parse_datetime(due_date) if due_date is not None else None
+
         task_data = TaskUpdate(
             title=title,
             description=description,
             priority=priority_val,
             tags=tags,
+            due_date=due_date_val,
         )
         task = task_service.update_task(session, task_id, task_data, user_id)
         return {"task_id": task.id, "status": "updated", "title": task.title}

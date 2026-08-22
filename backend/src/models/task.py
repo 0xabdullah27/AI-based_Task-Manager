@@ -4,7 +4,7 @@ This module defines the database representation of a user task item,
 including priority levels, completion status, timestamps, and tag relationships.
 """
 from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy import Column, String, Boolean, Integer, Enum as SQLEnum, ForeignKey
+from sqlalchemy import Column, String, Boolean, Integer, Enum as SQLEnum, ForeignKey, DateTime
 from datetime import datetime
 from typing import Optional, List, TYPE_CHECKING
 
@@ -28,6 +28,7 @@ class Task(SQLModel, table=True):
         priority (Priority): Priority level enum (LOW, MEDIUM, HIGH).
         parent_id (Optional[str]): Foreign key to the parent task (NULL for root tasks).
         position (Optional[int]): Step ordering index among sibling subtasks (NULL for root tasks).
+        due_date (Optional[datetime]): UTC timestamp representing task due date (NULL if unspecified).
         created_at (datetime): UTC timestamp when the task was created.
         updated_at (Optional[datetime]): UTC timestamp when the task was last modified.
         tags (List[Tag]): Many-to-many relationship with Tag model via TaskTag link table.
@@ -75,6 +76,11 @@ class Task(SQLModel, table=True):
     position: Optional[int] = Field(
         default=None,
         sa_column=Column(Integer, nullable=True, index=True),
+    )
+
+    due_date: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True, index=True),
     )
 
     created_at: datetime = Field(default_factory=utc_now, index=True)

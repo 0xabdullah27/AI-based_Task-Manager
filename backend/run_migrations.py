@@ -26,12 +26,12 @@ def main() -> None:
 
         cols = conn.execute(text(
             "SELECT column_name, data_type FROM information_schema.columns "
-            "WHERE table_name='task' AND column_name IN ('parent_id','position') "
+            "WHERE table_name='task' AND column_name IN ('parent_id','position','due_date') "
             "ORDER BY column_name"
         )).fetchall()
         idxs = conn.execute(text(
             "SELECT indexname FROM pg_indexes WHERE tablename='task' "
-            "AND indexname IN ('ix_task_parent_id','ix_task_position') "
+            "AND indexname IN ('ix_task_parent_id','ix_task_position','ix_task_due_date') "
             "ORDER BY indexname"
         )).fetchall()
 
