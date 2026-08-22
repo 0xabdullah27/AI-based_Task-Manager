@@ -43,6 +43,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [isFetchingHistory, setIsFetchingHistory] = useState(false);
   const [cache, setCache] = useState<Record<string, ChatMessage[]>>({});
   const didInitRef = useRef(false);
+  const activeIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    activeIdRef.current = activeId;
+  }, [activeId]);
 
   useEffect(() => {
     if (didInitRef.current) return;
@@ -139,10 +144,29 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       setIsSending(true);
       try {
         const result = await chatApi.sendMessage(userMessage, activeId);
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: result.response },
-        ]);
+        
+        // Prevent frontend bleed: only update visible messages if the user is STILL on the same chat
+        if (activeIdRef.current === activeId) {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: result.response },
+          ]);
+        }
+        
+        // Update cache so the message isn't lost if they navigate away during thinking
+        const targetId = result.conversation_id;
+        setCache((prev) => {
+          const currentHistory = prev[activeId || ""] || [];
+          // Note: for a new thread, currentHistory is empty in cache, but user message was 
+          // added to UI state. So we manually construct the cache.
+          const appendedHistory = [
+            ...currentHistory,
+            // If new thread, add the user message to cache (it was missed). If existing, it's missed too unless we pushed it
+            ...(currentHistory.length === 0 || !activeId ? [{ role: "user" as const, content: userMessage }] : []),
+            { role: "assistant" as const, content: result.response }
+          ];
+          return { ...prev, [targetId]: appendedHistory };
+        });
 
         if (isNewThread && tempId) {
           setConversations((prev) =>
