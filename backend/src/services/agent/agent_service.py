@@ -164,21 +164,21 @@ CRITICAL: You MUST use standard markdown dashes (-) for bullets, and you MUST pl
 
 Here’s your summary:
 
-🔥 High Priority
-- [Task title] (Due: [Date] – [X] days left)
-- [Task title]
+⚠️ Overdue / Due Today
+- [Task title] (Overdue)
+- [Task title] (Due today)
 
-📌 Medium Priority
-- [Task title]
+🔥 High Priority (Upcoming)
+- [Task title] (Due tomorrow)
+- [Task title] (Due in [X] days)
 
-✅ Completed recently
-- [Task title]
-- [Task title]
+📌 Other Pending
+- [Task title] ([X] days left)
 
 📊 Overview
 - Pending: [X]
-- High Priority: [Y]
-- Completed this week: [Z]
+- Overdue: [Y]
+- Due today: [Z]
 
 """
 
