@@ -22,17 +22,16 @@ describe("TaskForm", () => {
     expect(prioritySelect).toBeInTheDocument();
 
     // Check that all priority options are present
-    expect(screen.getByRole("option", { name: "None" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Low" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Medium" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "High" })).toBeInTheDocument();
   });
 
-  it("defaults to 'none' priority", () => {
+  it("defaults to 'low' priority", () => {
     render(<TaskForm onSubmit={mockOnSubmit} />);
 
     const prioritySelect = screen.getByRole("combobox", { name: /priority/i });
-    expect(prioritySelect).toHaveValue("none");
+    expect(prioritySelect).toHaveValue("low");
   });
 
   it("allows selecting different priorities", () => {
@@ -76,20 +75,19 @@ describe("TaskForm", () => {
     expect(await screen.findByText(/title is required/i)).toBeInTheDocument();
   });
 
-  it("shows validation error for invalid priority", async () => {
+  it("submits with default priority when unspecified", async () => {
     render(<TaskForm onSubmit={mockOnSubmit} />);
 
     const titleInput = screen.getByRole("textbox", { name: /title/i });
     const submitButton = screen.getByRole("button", { name: /create task/i });
 
     fireEvent.change(titleInput, { target: { value: "Valid Title" } });
-    // Simulate invalid priority submission
     fireEvent.click(submitButton);
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         title: "Valid Title",
-        priority: "none", // Default value
+        priority: "low", // Default value
         tags: [],
       });
     });

@@ -46,6 +46,137 @@ import type { Todo } from "@/types/task";
 
 type FilterStatus = "all" | "active" | "completed";
 
+interface SubtasksSectionProps {
+  todo: Todo;
+  onToggleSubtask: (id: string) => void;
+}
+
+function SubtasksSection({ todo, onToggleSubtask }: SubtasksSectionProps) {
+  const [expanded, setExpanded] = useState(true);
+  const doneCount = todo.subtasks.filter((s) => s.completed).length;
+  const totalCount = todo.subtasks.length;
+
+  return (
+    <div className="mt-3 rounded-lg border border-border bg-muted/40">
+      <button
+        type="button"
+        onClick={() => setExpanded((prev) => !prev)}
+        className="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer"
+      >
+        <span
+          className={`inline-block transition-transform ${
+            expanded ? "rotate-90" : ""
+          }`}
+        >
+          ›
+        </span>
+        <span>
+          Steps ({doneCount}/{totalCount})
+        </span>
+      </button>
+      {expanded && (
+        <ol className="space-y-1 px-3 pb-3">
+          {todo.subtasks.map((subtask) => (
+            <li key={subtask.id} className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => onToggleSubtask(subtask.id)}
+                className="flex-shrink-0 cursor-pointer"
+                aria-label={`Toggle ${subtask.title}`}
+              >
+                {subtask.completed ? (
+                  <CheckCircle2 className="w-4 h-4 text-success" />
+                ) : (
+                  <Circle className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                )}
+              </button>
+              <span
+                className={`text-sm ${
+                  subtask.completed
+                    ? "line-through text-muted-foreground"
+                    : "text-foreground"
+                }`}
+              >
+                <span className="text-muted-foreground mr-1">
+                  {subtask.position ?? ""}.
+                </span>
+                {subtask.title}
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
+interface AddStepFormProps {
+  parentId: string;
+  onCreateStep: (parentId: string, title: string) => Promise<void>;
+}
+
+function AddStepForm({ parentId, onCreateStep }: AddStepFormProps) {
+  const [isAdding, setIsAdding] = useState(false);
+  const [stepTitle, setStepTitle] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    const trimmed = stepTitle.trim();
+    if (!trimmed || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onCreateStep(parentId, trimmed);
+      setStepTitle("");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!isAdding) {
+    return (
+      <button
+        type="button"
+        onClick={() => setIsAdding(true)}
+        className="mt-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground cursor-pointer"
+      >
+        <Plus className="w-3 h-3" />
+        Add step
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-2 flex gap-2">
+      <Input
+        value={stepTitle}
+        onChange={(e) => setStepTitle(e.target.value)}
+        placeholder="Step title..."
+        className="h-8 text-sm bg-muted border-border"
+        disabled={isSubmitting}
+      />
+      <Button
+        size="sm"
+        variant="secondary"
+        onClick={handleSubmit}
+        disabled={isSubmitting || stepTitle.trim().length === 0}
+      >
+        Add
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => {
+          setIsAdding(false);
+          setStepTitle("");
+        }}
+        disabled={isSubmitting}
+      >
+        Cancel
+      </Button>
+    </div>
+  );
+}
+
 export default function TodosPage() {
   const {
     tasks,
@@ -130,6 +261,15 @@ export default function TodosPage() {
     }
   };
 
+  const handleCreateStep = async (parentId: string, title: string) => {
+    try {
+      await createTask({ title, parent_id: parentId, priority: "low", tags: [] });
+      toast.success("Step added");
+    } catch (error) {
+      toast.error("Failed to add step");
+    }
+  };
+
   const openEditDialog = (todo: Todo) => {
     setEditingTodo(todo);
     setFormDialogOpen(true);
@@ -209,7 +349,7 @@ export default function TodosPage() {
 
       {/* Tasks List */}
       <div className="space-y-3">
-        {isLoading ? (
+        {isLoading && (!tasks || tasks.length === 0) ? (
           // Loading Skeleton
           <>
             {[1, 2, 3].map((i) => (
@@ -248,6 +388,9 @@ export default function TodosPage() {
           // Task Cards
           filteredTodos.map((todo) => {
             const priorityConfig = getPriorityConfig(todo.priority);
+            const hasSubtasks = todo.subtasks.length > 0;
+            const allSubtasksDone = todo.subtasks.every((s) => s.completed);
+            const subtasksPending = hasSubtasks && !allSubtasksDone;
             return (
               <Card
                 key={todo.id}
@@ -262,12 +405,24 @@ export default function TodosPage() {
                     {/* Checkbox */}
                     <button
                       onClick={() => handleToggleTodo(todo.id)}
-                      className="mt-1 flex-shrink-0"
+                      disabled={subtasksPending}
+                      title={
+                        subtasksPending
+                          ? "Complete all steps to complete this task"
+                          : undefined
+                      }
+                      className="mt-1 flex-shrink-0 cursor-pointer disabled:cursor-not-allowed"
                     >
                       {todo.completed ? (
                         <CheckCircle2 className="w-6 h-6 text-success" />
                       ) : (
-                        <Circle className="w-6 h-6 text-muted-foreground hover:text-foreground" />
+                        <Circle
+                          className={`w-6 h-6 ${
+                            subtasksPending
+                              ? "text-muted-foreground/50"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        />
                       )}
                     </button>
 
@@ -352,6 +507,20 @@ export default function TodosPage() {
                           </>
                         )}
                       </div>
+
+                      {/* Subtasks */}
+                      {hasSubtasks && (
+                        <SubtasksSection
+                          todo={todo}
+                          onToggleSubtask={handleToggleTodo}
+                        />
+                      )}
+                      {!todo.parent_id && (
+                        <AddStepForm
+                          parentId={todo.id}
+                          onCreateStep={handleCreateStep}
+                        />
+                      )}
                     </div>
                   </div>
                 </CardContent>

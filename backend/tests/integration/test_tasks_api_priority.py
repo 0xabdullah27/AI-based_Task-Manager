@@ -41,7 +41,7 @@ def test_create_task_invalid_priority(client: TestClient, auth_headers: dict):
 def test_get_todos_default_sort_by_priority(client: TestClient, auth_headers: dict):
     """Test GET /api/todos returns tasks sorted by priority by default"""
     # Create tasks with different priorities
-    priorities = ["low", "high", "none", "medium"]
+    priorities = ["low", "high", "medium"]
     for i, priority in enumerate(priorities):
         client.post(
             "/api/todos",
@@ -56,12 +56,11 @@ def test_get_todos_default_sort_by_priority(client: TestClient, auth_headers: di
     data = response.json()
     tasks = data["tasks"]
 
-    # Verify default sort order: high -> medium -> low -> none
-    assert len(tasks) == 4
+    # Verify default sort order: high -> medium -> low
+    assert len(tasks) == 3
     assert tasks[0]["priority"] == "high"
     assert tasks[1]["priority"] == "medium"
     assert tasks[2]["priority"] == "low"
-    assert tasks[3]["priority"] == "none"
 
 
 def test_update_task_priority(client: TestClient, auth_headers: dict):

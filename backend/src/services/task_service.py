@@ -4,7 +4,7 @@ from typing import List, Optional, Union, TYPE_CHECKING
 
 from src.models.task import Task
 from src.schemas.task import TaskCreate, TaskUpdate, TaskListResponse, StatusFilter, PriorityFilter, SortField, SortOrder
-from src.exceptions.base import TaskNotFoundError
+from src.exceptions.base import TaskNotFoundError, ValidationError
 from src.repositories.task_repo import TaskRepository
 from src.repositories.tag_repo import TagRepository
 from src.utils.helpers import utc_now
@@ -28,6 +28,26 @@ class TaskService:
         self._tag_repo = tag_repo
         self._tag_service = tag_service
 
+    @staticmethod
+    def _normalize_priority_filter(priority: Optional[Union[PriorityFilter, str]]) -> Optional[str]:
+        """Normalize a priority filter value into a concrete Priority string or None.
+
+        Rule: unspecified while fetching means "all tasks". None, "all", empty,
+        and the legacy "none" value all map to no filter.
+
+        Args:
+            priority (Optional[Union[PriorityFilter, str]]): Raw priority filter input.
+
+        Returns:
+            Optional[str]: "high"/"medium"/"low" to filter by, or None for no filtering.
+        """
+        if priority is None:
+            return None
+        value = priority.value if isinstance(priority, PriorityFilter) else str(priority).strip().lower()
+        if value in ("", "all", "none"):
+            return None
+        return value
+
     def create_task(self, session: Session, task_data: TaskCreate, user_id: str) -> Task:
         """Create a new task for a user and link optional tags.
 
@@ -45,7 +65,20 @@ class TaskService:
             description=task_data.description,
             completed=task_data.completed,
             priority=task_data.priority,
+            parent_id=None,
+            position=None,
         )
+
+        if task_data.parent_id:
+            parent = self.get_task(session, task_data.parent_id, user_id)
+            if parent.parent_id is not None:
+                raise ValidationError(
+                    "Subtasks can only be nested one level deep",
+                    field="parent_id",
+                )
+            task.parent_id = parent.id
+            task.position = self._task_repo.next_position(session, parent.id)
+
         self._task_repo.insert_task(session, task)
 
         if task_data.tags:
@@ -116,7 +149,7 @@ class TaskService:
             user_id (str): Authenticated user ID for data isolation.
             search (Optional[str]): Case-insensitive search text for title and description. Defaults to None.
             status (Optional[Union[StatusFilter, str]]): Completion status filter ('all', 'pending', 'completed'). Defaults to None.
-            priority (Optional[Union[PriorityFilter, str]]): Priority filter ('all', 'high', 'medium', 'low', 'none'). Defaults to None.
+            priority (Optional[Union[PriorityFilter, str]]): Priority filter ('all', 'high', 'medium', 'low'; None/unspecified means all). Defaults to None.
             tags (Optional[List[str]]): List of tag strings to filter tasks. Defaults to None.
             no_tags (bool): Flag to select tasks without tags. Defaults to False.
             sort_field (Union[SortField, str]): Field to sort by ('priority', 'title', 'created_at'). Defaults to "priority".
@@ -133,7 +166,7 @@ class TaskService:
             user_id=user_id,
             search=search,
             status=status,
-            priority=priority,
+            priority=self._normalize_priority_filter(priority),
             tags=tags,
             no_tags=no_tags,
             sort_field=sort_field,
@@ -163,7 +196,7 @@ class TaskService:
             user_id (str): Authenticated user ID.
             search (Optional[str]): Keyword search filter.
             status (Optional[Union[StatusFilter, str]]): Completion status filter.
-            priority (Optional[Union[PriorityFilter, str]]): Priority level filter.
+            priority (Optional[Union[PriorityFilter, str]]): Priority level filter (unspecified means all).
             tags (Optional[List[str]]): Tag names filter list.
             no_tags (bool): Flag for untagged tasks filter.
             sort_field (Union[SortField, str]): Primary sort field.
@@ -185,7 +218,7 @@ class TaskService:
             effective_order = "desc" if sort_field_val == "created_at" else "asc"
 
         status_val = status.value if isinstance(status, StatusFilter) else status
-        priority_val = priority.value if isinstance(priority, PriorityFilter) else priority
+        priority_val = self._normalize_priority_filter(priority)
 
         tasks = self.list_tasks(
             session=session,
@@ -233,6 +266,27 @@ class TaskService:
         """
         task = self.get_task(session, task_id, user_id)
 
+        if task_data.parent_id is not None:
+            if task_data.parent_id == task.id:
+                raise ValidationError("A task cannot be its own parent", field="parent_id")
+            parent = self.get_task(session, task_data.parent_id, user_id)
+            if parent.parent_id is not None:
+                raise ValidationError(
+                    "Subtasks can only be nested one level deep",
+                    field="parent_id",
+                )
+            if task.subtasks:
+                raise ValidationError(
+                    "A task that already has subtasks cannot become a subtask",
+                    field="parent_id",
+                )
+            task.parent_id = parent.id
+            if task_data.position is None:
+                task.position = self._task_repo.next_position(session, parent.id)
+
+        if task_data.position is not None:
+            task.position = task_data.position
+
         if task_data.title is not None:
             task.title = task_data.title
         if task_data.description is not None:
@@ -250,6 +304,11 @@ class TaskService:
 
         task.updated_at = utc_now()
         session.add(task)
+
+        if task.parent_id:
+            parent = self.get_task(session, task.parent_id, user_id)
+            self._sync_parent_completion(session, parent)
+
         session.commit()
         session.refresh(task)
         return task
@@ -266,11 +325,37 @@ class TaskService:
             TaskNotFoundError: If task does not exist or belong to user.
         """
         task = self.get_task(session, task_id, user_id)
+        children = self._task_repo.find_subtasks(session, task.id, user_id)
+        child_ids = [child.id for child in children]
+        self._task_repo.delete_task_tag_links_for_tasks(session, child_ids + [task.id])
+        for child in children:
+            self._task_repo.delete(session, child)
         self._task_repo.delete(session, task)
         session.commit()
 
+    def _sync_parent_completion(self, session: Session, parent: Task) -> None:
+        """Synchronize a parent's completed flag with the state of its subtasks.
+
+        Parent becomes completed when ALL subtasks are completed; reopens if any subtask is incomplete.
+
+        Args:
+            session (Session): Active database session transaction.
+            parent (Task): Parent Task instance to synchronize.
+        """
+        children = self._task_repo.find_subtasks(session, parent.id, parent.user_id)
+        if not children:
+            return
+        new_state = all(child.completed for child in children)
+        if parent.completed != new_state:
+            parent.completed = new_state
+            parent.updated_at = utc_now()
+            session.add(parent)
+
     def toggle_task_completion(self, session: Session, task_id: str, user_id: str) -> Task:
         """Toggle the completed boolean status of a task.
+
+        When a subtask is toggled, its parent's completion is synchronized:
+        all subtasks complete => parent completes; any incomplete => parent reopens.
 
         Args:
             session (Session): Active database session transaction.
@@ -287,6 +372,11 @@ class TaskService:
         task.completed = not task.completed
         task.updated_at = utc_now()
         session.add(task)
+
+        if task.parent_id:
+            parent = self.get_task(session, task.parent_id, user_id)
+            self._sync_parent_completion(session, parent)
+
         session.commit()
         session.refresh(task)
         return task

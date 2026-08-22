@@ -26,12 +26,6 @@ describe("PriorityBadge", () => {
     expect(screen.getByText("Low")).toBeInTheDocument();
   });
 
-  it("displays correct label for none priority", () => {
-    render(<PriorityBadge priority="none" />);
-    expect(screen.getByLabelText("Priority: None")).toBeInTheDocument();
-    expect(screen.getByText("None")).toBeInTheDocument();
-  });
-
   it("applies correct size classes for small size", () => {
     render(<PriorityBadge priority="high" size="sm" />);
     const badge = screen.getByLabelText("Priority: High");

@@ -63,12 +63,10 @@ def test_list_tasks_with_priority_filter(session: Session, mock_user_id: str):
     task1_data = TaskCreate(title="High priority", priority="high")
     task2_data = TaskCreate(title="Medium priority", priority="medium")
     task3_data = TaskCreate(title="Low priority", priority="low")
-    task4_data = TaskCreate(title="No priority", priority="none")
 
     create_task(session, task1_data, mock_user_id)
     create_task(session, task2_data, mock_user_id)
     create_task(session, task3_data, mock_user_id)
-    create_task(session, task4_data, mock_user_id)
 
     # Filter for high priority
     tasks = list_tasks(session, mock_user_id, priority="high")

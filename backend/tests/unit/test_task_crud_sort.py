@@ -91,31 +91,29 @@ def test_list_tasks_with_created_at_sort_asc(session: Session, mock_user_id: str
 
 
 def test_list_tasks_with_priority_sort(session: Session, mock_user_id: str):
-    """Test sorting tasks by priority (high to low to none)"""
+    """Test sorting tasks by priority (high to low)"""
     # Create tasks with different priorities
     task_data = [
         TaskCreate(title="Low priority", priority="low"),
         TaskCreate(title="High priority", priority="high"),
-        TaskCreate(title="None priority", priority="none"),
         TaskCreate(title="Medium priority", priority="medium"),
     ]
 
     for data in task_data:
         create_task(session, data, mock_user_id)
 
-    # Sort by priority (default: high to low to none)
+    # Sort by priority (default: high to low)
     tasks = list_tasks(session, mock_user_id, sort_field="priority", sort_order="asc")
-    assert len(tasks) == 4
+    assert len(tasks) == 3
 
-    # Check that the order is high -> medium -> low -> none
+    # Check that the order is high -> medium -> low
     priorities = [task.priority for task in tasks]
-    assert priorities == ["high", "medium", "low", "none"]
+    assert priorities == ["high", "medium", "low"]
 
     titles = [task.title for task in tasks]
     assert titles[0] == "High priority"
     assert titles[1] == "Medium priority"
     assert titles[2] == "Low priority"
-    assert titles[3] == "None priority"
 
 
 def test_list_tasks_default_sort_priority(session: Session, mock_user_id: str):
@@ -124,7 +122,7 @@ def test_list_tasks_default_sort_priority(session: Session, mock_user_id: str):
     task1 = TaskCreate(title="High priority first", priority="high")
     task2 = TaskCreate(title="Low priority second", priority="low")
     task3 = TaskCreate(title="High priority third", priority="high")
-    task4 = TaskCreate(title="None priority fourth", priority="none")
+    task4 = TaskCreate(title="Medium priority fourth", priority="medium")
 
     create_task(session, task1, mock_user_id)
     create_task(session, task2, mock_user_id)
@@ -135,10 +133,10 @@ def test_list_tasks_default_sort_priority(session: Session, mock_user_id: str):
     tasks = list_tasks(session, mock_user_id)
     assert len(tasks) == 4
 
-    # Should be sorted by priority first (high, medium, low, none)
+    # Should be sorted by priority first (high, medium, low)
     # Within same priority, should be sorted by created_at desc (newest first)
     priorities = [task.priority for task in tasks]
-    assert priorities == ["high", "high", "low", "none"]  # High priority tasks first
+    assert priorities == ["high", "high", "medium", "low"]  # High priority tasks first
 
     # The high priority tasks should be ordered by creation time (most recent first)
     high_priority_titles = [task.title for task in tasks if task.priority == "high"]

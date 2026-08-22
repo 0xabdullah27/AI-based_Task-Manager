@@ -38,7 +38,7 @@ export function TaskForm({
     watch,
   } = useForm<TaskCreateInput>({
     resolver: zodResolver(taskCreateSchema),
-    defaultValues,
+    defaultValues: { priority: "low", tags: [], ...defaultValues },
   });
 
   const { tags, isLoading: tagsLoading, fetchTags } = useTags();

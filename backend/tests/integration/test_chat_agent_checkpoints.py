@@ -51,7 +51,7 @@ class TestCheckpoint1ReliableTaskCreation:
         assert _parse_priority("important") == Priority.MEDIUM
         assert _parse_priority("low") == Priority.LOW
         assert _parse_priority("casual") == Priority.LOW
-        assert _parse_priority(None) == Priority.NONE
+        assert _parse_priority(None) == Priority.LOW
 
     @pytest.mark.asyncio
     async def test_create_task_via_chat_endpoint(self, async_client: httpx.AsyncClient, session: Session, auth_headers: dict):
@@ -112,7 +112,7 @@ class TestCheckpoint2BetterPrioritization:
 
     @pytest.mark.asyncio
     async def test_low_priority_task(self, async_client: httpx.AsyncClient, session: Session, auth_headers: dict):
-        """Verify casual future task is assigned LOW or NONE priority."""
+        """Verify casual future task is assigned LOW priority."""
         res = await async_client.post(
             "/api/chat",
             json={"message": "Add task: read a sci-fi novel with low priority"},
@@ -122,7 +122,7 @@ class TestCheckpoint2BetterPrioritization:
         tasks = session.exec(select(Task)).all()
         novel_task = next((t for t in tasks if "novel" in t.title.lower() or "read" in t.title.lower()), None)
         assert novel_task is not None
-        assert novel_task.priority in (Priority.LOW, Priority.NONE)
+        assert novel_task.priority in (Priority.LOW,)
 
 
 class TestCheckpoint3ClarifyingQuestions:
@@ -184,7 +184,7 @@ class TestCheckpoint3ClarifyingQuestions:
         # Create 3 call tasks first
         t1 = Task(title="Call Ahmed", user_id="test-user-id", completed=False, priority=Priority.HIGH)
         t2 = Task(title="call technical support", user_id="test-user-id", completed=False, priority=Priority.HIGH)
-        t3 = Task(title="call technical support immediately", user_id="test-user-id", completed=False, priority=Priority.NONE)
+        t3 = Task(title="call technical support immediately", user_id="test-user-id", completed=False, priority=Priority.LOW)
         session.add_all([t1, t2, t3])
         session.commit()
 

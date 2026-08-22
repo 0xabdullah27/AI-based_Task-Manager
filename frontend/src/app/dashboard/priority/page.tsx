@@ -12,7 +12,7 @@ export default function PriorityPage() {
   // T006: Fixed priority filtering logic to render all priority levels
   const renderPriorityContent = (
     todos: Todo[],
-    priority: "high" | "medium" | "low" | "none"
+    priority: "high" | "medium" | "low"
   ) => {
     if (todos.length === 0) {
       return (

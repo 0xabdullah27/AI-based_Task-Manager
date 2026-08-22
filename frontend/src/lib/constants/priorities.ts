@@ -38,12 +38,6 @@ export const PRIORITY_COLORS: Record<
     text: "var(--priority-low-text)",
     border: "var(--priority-low-bg)",
   },
-  none: {
-    badge: "var(--priority-none-bg) var(--priority-none-text)",
-    bg: "var(--priority-none-bg)",
-    text: "var(--priority-none-text)",
-    border: "var(--priority-none-bg)",
-  },
 };
 
 /**
@@ -53,7 +47,6 @@ export const PRIORITY_LABELS: Record<Priority, string> = {
   high: "High",
   medium: "Medium",
   low: "Low",
-  none: "None",
 };
 
 /**
@@ -63,5 +56,4 @@ export const PRIORITY_SORT_ORDER: Record<Priority, number> = {
   high: 0,
   medium: 1,
   low: 2,
-  none: 3,
 };

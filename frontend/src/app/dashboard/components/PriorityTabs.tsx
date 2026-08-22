@@ -9,7 +9,7 @@ interface PriorityTabsProps {
   isLoading: boolean;
   renderContent: (
     todos: Todo[],
-    priority: "high" | "medium" | "low" | "none"
+    priority: "high" | "medium" | "low"
   ) => React.ReactNode;
 }
 
@@ -18,8 +18,8 @@ export function PriorityTabs({
   isLoading,
   renderContent,
 }: PriorityTabsProps) {
-  // T007: Ensure all 4 priority levels are displayed in correct sort order (high → medium → low → none)
-  const priorities = ["high", "medium", "low", "none"] as const;
+  // Display all priority levels in sort order (high → medium → low)
+  const priorities = ["high", "medium", "low"] as const;
 
   const getCounts = () => {
     return Object.fromEntries(
@@ -34,7 +34,7 @@ export function PriorityTabs({
 
   return (
     <Tabs defaultValue="high" className="space-y-4">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-3">
         {priorities.map((priority) => (
           <TabsTrigger key={priority} value={priority} className="relative">
             <div className="flex items-center gap-2">

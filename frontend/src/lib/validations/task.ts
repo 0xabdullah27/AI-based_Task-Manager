@@ -16,8 +16,9 @@ import { z } from "zod";
 
 /**
  * Priority enum values
+ * Note: there is no "none" level — unspecified priority defaults to "low".
  */
-export const priorityValues = ["none", "low", "medium", "high"] as const;
+export const priorityValues = ["low", "medium", "high"] as const;
 export type Priority = (typeof priorityValues)[number];
 
 /**
@@ -32,16 +33,6 @@ export const prioritySchema = z.enum(priorityValues);
  * - Dark mode: Colors defined separately in globals.css .dark selector
  */
 export const PRIORITY_CONFIG = {
-  none: {
-    label: "None",
-    color: "gray",
-    sortOrder: 3,
-    badgeStyle: {
-      backgroundColor: "var(--priority-none-bg)",
-      color: "var(--priority-none-text)",
-      borderColor: "var(--priority-none-bg)",
-    },
-  },
   low: {
     label: "Low",
     color: "blue",
@@ -131,8 +122,9 @@ export const taskCreateSchema = z.object({
     .max(2000, "Description must be less than 2000 characters")
     .optional()
     .nullable(),
-  priority: prioritySchema.default("none"),
+  priority: prioritySchema.default("low"),
   tags: tagsArraySchema.default([]),
+  parent_id: z.string().uuid().nullable().optional(),
 });
 
 export type TaskCreateInput = z.infer<typeof taskCreateSchema>;
@@ -154,6 +146,8 @@ export const taskUpdateSchema = z.object({
   completed: z.boolean().optional(),
   priority: prioritySchema.optional(),
   tags: tagsArraySchema.optional(),
+  parent_id: z.string().uuid().nullable().optional(),
+  position: z.number().int().min(1).optional(),
 });
 
 export type TaskUpdateInput = z.infer<typeof taskUpdateSchema>;
@@ -161,19 +155,37 @@ export type TaskUpdateInput = z.infer<typeof taskUpdateSchema>;
 /**
  * Task response schema (from API)
  */
-export const taskReadSchema = z.object({
-  id: z.string().uuid(),
-  user_id: z.string().uuid(),
-  title: z.string(),
-  description: z.string().nullable(),
-  completed: z.boolean(),
-  priority: prioritySchema,
-  tags: z.array(z.string()),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime().nullable(),
-});
+export interface TaskRead {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  completed: boolean;
+  priority: Priority;
+  tags: string[];
+  parent_id: string | null;
+  position: number | null;
+  subtasks: TaskRead[];
+  created_at: string;
+  updated_at: string | null;
+}
 
-export type TaskRead = z.infer<typeof taskReadSchema>;
+export const taskReadSchema: z.ZodType<TaskRead> = z.lazy(() =>
+  z.object({
+    id: z.string().uuid(),
+    user_id: z.string().uuid(),
+    title: z.string(),
+    description: z.string().nullable(),
+    completed: z.boolean(),
+    priority: prioritySchema,
+    tags: z.array(z.string()),
+    parent_id: z.string().uuid().nullable(),
+    position: z.number().int().nullable(),
+    subtasks: z.array(taskReadSchema),
+    created_at: z.string().datetime(),
+    updated_at: z.string().datetime().nullable(),
+  })
+);
 
 /**
  * Task list response schema
@@ -205,7 +217,6 @@ export const priorityFilterValues = [
   "high",
   "medium",
   "low",
-  "none",
 ] as const;
 export type PriorityFilter = (typeof priorityFilterValues)[number];
 export const priorityFilterSchema = z.enum(priorityFilterValues);
@@ -259,7 +270,7 @@ export type TaskQueryParams = z.infer<typeof taskQueryParamsSchema>;
  * Default sort order per field
  */
 export const DEFAULT_SORT_ORDER: Record<SortField, SortOrder> = {
-  priority: "asc", // High first (0, 1, 2, 3)
+  priority: "asc", // High first (0, 1, 2)
   title: "asc", // A to Z
   created_at: "desc", // Newest first
 };
@@ -288,7 +299,6 @@ export const PRIORITY_FILTER_LABELS: Record<PriorityFilter, string> = {
   high: "High",
   medium: "Medium",
   low: "Low",
-  none: "None",
 };
 
 // ============================================

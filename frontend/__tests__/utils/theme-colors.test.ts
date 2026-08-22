@@ -86,8 +86,6 @@ describe("Theme Variables - Definition", () => {
       "--priority-medium-text",
       "--priority-low-bg",
       "--priority-low-text",
-      "--priority-none-bg",
-      "--priority-none-text",
     ],
     form: [
       "--error-bg",
@@ -186,12 +184,6 @@ describe("Theme Variables - WCAG AA Contrast Compliance", () => {
       text: "oklch(0.985 0 0)",
       minRatio: 4.5,
     },
-    {
-      name: "None priority badge (light mode)",
-      bg: "oklch(0.898 0.01 0)",
-      text: "oklch(0.141 0.005 285.823)",
-      minRatio: 4.5,
-    },
   ];
 
   test.each(priorityTests)(
@@ -284,7 +276,6 @@ describe("Theme Variables - Color Consistency", () => {
       getCSSVariableValue("--priority-high-text"),
       getCSSVariableValue("--priority-medium-text"),
       getCSSVariableValue("--priority-low-text"),
-      getCSSVariableValue("--priority-none-text"),
     ];
 
     priorityTexts.forEach((textColor) => {
@@ -324,7 +315,7 @@ describe("Theme Variables - Color Consistency", () => {
 describe("Theme Variables - Component Integration", () => {
   test("PRIORITY_CONFIG uses valid CSS variable references", () => {
     // This test ensures the component config object structure is valid
-    const expectedPriorityLevels = ["high", "medium", "low", "none"];
+    const expectedPriorityLevels = ["high", "medium", "low"];
 
     expectedPriorityLevels.forEach((level) => {
       // Test would verify PRIORITY_CONFIG[level] has badgeStyle with var() references
