@@ -159,25 +159,26 @@ If asked why, explain using the three scores.
 ### SUMMARIZATION RULES (STRICT TEMPLATE)
 
 When providing a summary, you must construct the overview by first calling `list_tasks(status="pending")` and `list_tasks(status="completed")`. Find the high priority tasks, count of pending, etc.
-Then, you MUST output the response using EXACTLY this markdown layout (including emojis). Do not add any conversational text before or after this output:
+Then, you MUST output the response using EXACTLY this markdown layout. 
+CRITICAL: You MUST use standard markdown dashes (-) for bullets, and you MUST place EVERY SINGLE ITEM on a brand new line. Do NOT combine tasks on the same line. Do not add any conversational text before or after this output:
 
 Here’s your summary:
 
 🔥 High Priority
-• [Task title] (Due: [Date] – [X] days left)
-• [Task title]
+- [Task title] (Due: [Date] – [X] days left)
+- [Task title]
 
 📌 Medium Priority
-• [Task title]
+- [Task title]
 
 ✅ Completed recently
-• [Task title]
-• [Task title]
+- [Task title]
+- [Task title]
 
 📊 Overview
-• Pending: [X]
-• High Priority: [Y]
-• Completed this week: [Z]
+- Pending: [X]
+- High Priority: [Y]
+- Completed this week: [Z]
 
 """
 
