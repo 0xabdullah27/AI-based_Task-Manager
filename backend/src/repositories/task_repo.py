@@ -2,7 +2,7 @@
 
 Contains pure SQLModel/SQLAlchemy database queries without higher-level business logic.
 """
-from sqlmodel import Session, select, case, func
+from sqlmodel import Session, select, case, func, and_, or_
 from sqlalchemy.orm import selectinload
 from typing import List, Optional, Union
 
@@ -155,10 +155,15 @@ class TaskRepository:
         )
 
         if search:
-            search_term = f"%{search}%"
-            query = query.where(
-                Task.title.ilike(search_term) | Task.description.ilike(search_term)
-            )
+            search_words = search.strip().split()
+            conditions = []
+            for word in search_words:
+                search_term = f"%{word}%"
+                conditions.append(
+                    or_(Task.title.ilike(search_term), Task.description.ilike(search_term))
+                )
+            if conditions:
+                query = query.where(and_(*conditions))
 
         if status and status != "all" and status != StatusFilter.ALL:
             if status == "pending" or status == StatusFilter.PENDING:
@@ -220,10 +225,15 @@ class TaskRepository:
         )
 
         if search:
-            search_term = f"%{search}%"
-            statement = statement.where(
-                Task.title.ilike(search_term) | Task.description.ilike(search_term)
-            )
+            search_words = search.strip().split()
+            conditions = []
+            for word in search_words:
+                search_term = f"%{word}%"
+                conditions.append(
+                    or_(Task.title.ilike(search_term), Task.description.ilike(search_term))
+                )
+            if conditions:
+                statement = statement.where(and_(*conditions))
 
         if status and status != "all" and status != StatusFilter.ALL:
             if status == "pending" or status == StatusFilter.PENDING:

@@ -82,7 +82,7 @@ Classify the user message into one of these three intents:
 ### CREATION RULES
 
 0. MANDATORY PRE-CHECK: Before calling add_task, you must call list_tasks with 
-   a single, broad keyword from the user's request (e.g. use "tutorial" instead of "upload tutorial" to catch variations). Do this even if you are confident no 
+   keywords from the user's request. You can provide multiple words (e.g., "youtube tutorial") because the database will intelligently search for them regardless of order. Do this even if you are confident no 
    duplicate exists.
    
    Compare the returned titles against the new task title/topic:
