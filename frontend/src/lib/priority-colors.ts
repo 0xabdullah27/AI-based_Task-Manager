@@ -41,20 +41,12 @@ export const priorityColors: Record<
     bgVar: "var(--priority-low-bg)",
     textVar: "var(--priority-low-text)",
   },
-  none: {
-    label: "None",
-    color: "secondary",
-    variant: "secondary",
-    // T060: Use CSS variables for dynamic theming
-    bgVar: "var(--priority-none-bg)",
-    textVar: "var(--priority-none-text)",
-  },
 };
 
 export function getPriorityConfig(
   priority: Todo["priority"]
 ): PriorityConfig {
-  return priorityColors[priority] || priorityColors.none;
+  return priorityColors[priority] || priorityColors.low;
 }
 
 export function getPriorityColor(priority: Todo["priority"]): string {

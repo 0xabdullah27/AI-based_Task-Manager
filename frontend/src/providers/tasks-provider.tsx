@@ -17,7 +17,7 @@ import { useSession } from "@/lib/auth-client";
 export interface FetchTasksParams {
   search?: string;
   status?: "all" | "pending" | "completed";
-  priority?: "all" | "high" | "medium" | "low" | "none";
+  priority?: "all" | "high" | "medium" | "low";
   tags?: string[];
   noTags?: boolean;
   sort?: "priority" | "title" | "created_at";

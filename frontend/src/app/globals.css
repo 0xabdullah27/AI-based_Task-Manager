@@ -118,9 +118,6 @@
   --priority-low-bg: oklch(0.45 0.14 255);
   --priority-low-text: oklch(0.98 0 0);
 
-  --priority-none-bg: oklch(0.3 0.03 255);
-  --priority-none-text: oklch(0.8 0.03 255);
-
   /* Form states */
   --error-bg: oklch(0.32 0.09 25);
   --error-border: oklch(0.6 0.22 25);
@@ -205,9 +202,6 @@
 
   --priority-low-bg: oklch(0.45 0.14 150);
   --priority-low-text: oklch(0.98 0 0);
-
-  --priority-none-bg: oklch(0.3 0.03 155);
-  --priority-none-text: oklch(0.8 0.03 155);
 
   /* Form states */
   --error-bg: oklch(0.32 0.09 25);

@@ -28,20 +28,18 @@ class PriorityFilter(str, Enum):
         HIGH ("high"): Return high-priority tasks only.
         MEDIUM ("medium"): Return medium-priority tasks only.
         LOW ("low"): Return low-priority tasks only.
-        NONE ("none"): Return tasks with no assigned priority.
     """
     ALL = "all"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
-    NONE = "none"
 
 
 class SortField(str, Enum):
     """Enumeration of task fields available for sorting query results.
 
     Values:
-        PRIORITY ("priority"): Sort tasks by priority level (HIGH > MEDIUM > LOW > NONE).
+        PRIORITY ("priority"): Sort tasks by priority level (HIGH > MEDIUM > LOW).
         TITLE ("title"): Sort tasks alphabetically by title.
         CREATED_AT ("created_at"): Sort tasks chronologically by creation timestamp.
     """
@@ -68,13 +66,13 @@ class TaskCreate(BaseModel):
         title (str): Required non-empty title (1-200 chars).
         description (Optional[str]): Optional details/notes (up to 2000 chars).
         completed (bool): Initial completion status (default False).
-        priority (Priority): Priority level (default Priority.NONE).
+        priority (Priority): Priority level (default Priority.LOW when unspecified).
         tags (list[str]): List of tag names to attach (max 20 tags).
     """
     title: str = Field(..., min_length=1, max_length=200, description="Task title (1-200 chars)")
     description: Optional[str] = Field(None, max_length=2000, description="Task description (max 2000 chars)")
     completed: bool = Field(default=False, description="Completion status flag")
-    priority: Priority = Field(default=Priority.NONE, description="Task priority level")
+    priority: Priority = Field(default=Priority.LOW, description="Task priority level (defaults to low when unspecified)")
     tags: list[str] = Field(default_factory=list, max_length=20, description="List of tag names")
     parent_id: Optional[str] = Field(None, description="ID of the parent task; set to create a subtask")
 

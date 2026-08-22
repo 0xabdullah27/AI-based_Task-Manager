@@ -198,7 +198,7 @@ class TaskRepository:
             user_id (str): ID of the user requesting tasks (enforces user isolation).
             search (Optional[str]): Case-insensitive search string matched against title and description. Defaults to None.
             status (Optional[Union[StatusFilter, str]]): Completion status filter ('all', 'pending', 'completed'). Defaults to None.
-            priority (Optional[Union[PriorityFilter, str]]): Priority level filter ('all', 'high', 'medium', 'low', 'none'). Defaults to None.
+            priority (Optional[Union[PriorityFilter, str]]): Priority level filter ('all', 'high', 'medium', 'low'). Defaults to None.
             tags (Optional[List[str]]): List of tag names to filter tasks by (matching any specified tag). Defaults to None.
             no_tags (bool): If True, filters for tasks having no attached tags. Defaults to False.
             sort_field (Union[SortField, str]): Field name to sort results by ('priority', 'title', 'created_at'). Defaults to SortField.PRIORITY.
@@ -248,8 +248,7 @@ class TaskRepository:
                 (Task.priority == Priority.HIGH, 0),
                 (Task.priority == Priority.MEDIUM, 1),
                 (Task.priority == Priority.LOW, 2),
-                (Task.priority == Priority.NONE, 3),
-                else_=4,
+                else_=3,
             )
             if sort_order == "desc" or sort_order == SortOrder.DESC:
                 statement = statement.order_by(priority_order.desc(), Task.created_at.desc())

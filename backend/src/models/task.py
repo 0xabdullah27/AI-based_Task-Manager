@@ -53,12 +53,12 @@ class Task(SQLModel, table=True):
     )
 
     priority: Priority = Field(
-        default=Priority.NONE,
+        default=Priority.LOW,
         sa_column=Column(
             SQLEnum(Priority, native_enum=False, values_callable=lambda x: [e.value for e in x]),
             nullable=False,
             index=True,
-            server_default="none"
+            server_default="low"
         )
     )
 

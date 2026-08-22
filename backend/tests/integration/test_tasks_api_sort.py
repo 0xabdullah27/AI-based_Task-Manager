@@ -69,37 +69,36 @@ def test_api_sort_by_priority(client, auth_headers):
     # Create tasks with different priorities
     client.post("/api/todos", json={"title": "Low priority", "priority": "low"}, headers=auth_headers)
     client.post("/api/todos", json={"title": "High priority", "priority": "high"}, headers=auth_headers)
-    client.post("/api/todos", json={"title": "None priority", "priority": "none"}, headers=auth_headers)
     client.post("/api/todos", json={"title": "Medium priority", "priority": "medium"}, headers=auth_headers)
 
-    # Sort by priority ascending (high to low to none)
+    # Sort by priority ascending (high to low)
     response = client.get("/api/todos?sort=priority&order=asc", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
     priorities = [task["priority"] for task in data["tasks"]]
-    assert priorities == ["high", "medium", "low", "none"]
+    assert priorities == ["high", "medium", "low"]
 
     titles = [task["title"] for task in data["tasks"]]
     assert titles[0] == "High priority"
     assert titles[1] == "Medium priority"
     assert titles[2] == "Low priority"
-    assert titles[3] == "None priority"
 
 
 def test_api_sort_default_priority(client, auth_headers):
-    """Test that default sort is by priority (high to low to none)"""
-    # Create tasks with different priorities
+    """Test that default sort is by priority (high to low) and omitted priority defaults to low"""
+    # Create tasks: one explicit, one without any priority specified
     client.post("/api/todos", json={"title": "Low priority", "priority": "low"}, headers=auth_headers)
     client.post("/api/todos", json={"title": "High priority", "priority": "high"}, headers=auth_headers)
-    client.post("/api/todos", json={"title": "None priority", "priority": "none"}, headers=auth_headers)
-    client.post("/api/todos", json={"title": "Medium priority", "priority": "medium"}, headers=auth_headers)
+    client.post("/api/todos", json={"title": "Default priority"}, headers=auth_headers)
 
     # Get tasks with default sort
     response = client.get("/api/todos", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
     priorities = [task["priority"] for task in data["tasks"]]
-    assert priorities == ["high", "medium", "low", "none"]
+    assert priorities == ["high", "low", "low"]
+    # Within same priority, newest created task comes first
+    assert data["tasks"][1]["title"] == "Default priority"
 
 
 def test_api_sort_with_filters(client, auth_headers):

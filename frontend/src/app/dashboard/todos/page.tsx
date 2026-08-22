@@ -263,7 +263,7 @@ export default function TodosPage() {
 
   const handleCreateStep = async (parentId: string, title: string) => {
     try {
-      await createTask({ title, parent_id: parentId, priority: "none", tags: [] });
+      await createTask({ title, parent_id: parentId, priority: "low", tags: [] });
       toast.success("Step added");
     } catch (error) {
       toast.error("Failed to add step");

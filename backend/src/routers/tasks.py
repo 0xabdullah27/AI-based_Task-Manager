@@ -51,7 +51,7 @@ async def list_tasks(
     session: DbSession,
     search: Optional[str] = Query(default=None, description="Search term for task title or description"),
     status: StatusFilter = Query(default=StatusFilter.ALL, description="Filter tasks by completion status ('all', 'pending', 'completed')"),
-    priority: PriorityFilter = Query(default=PriorityFilter.ALL, description="Filter tasks by priority level ('all', 'high', 'medium', 'low', 'none')"),
+    priority: PriorityFilter = Query(default=PriorityFilter.ALL, description="Filter tasks by priority level ('all', 'high', 'medium', 'low')"),
     tags: Optional[List[str]] = Query(default=None, description="List of tag names to filter tasks by"),
     no_tags: bool = Query(default=False, description="Filter for tasks without any tags"),
     sort: SortField = Query(default=SortField.PRIORITY, description="Field to sort tasks by ('priority', 'title', 'created_at')"),
@@ -66,7 +66,7 @@ async def list_tasks(
         session (DbSession): Active database session dependency.
         search (Optional[str]): Case-insensitive keyword search against task title and description.
         status (StatusFilter): Filter by completion status ('all', 'pending', 'completed').
-        priority (PriorityFilter): Filter by priority ('all', 'high', 'medium', 'low', 'none').
+        priority (PriorityFilter): Filter by priority ('all', 'high', 'medium', 'low').
         tags (Optional[List[str]]): Filter tasks that match any of the provided tag names.
         no_tags (bool): Filter for tasks that have no attached tags.
         sort (SortField): Primary field used for sorting results ('priority', 'title', 'created_at').

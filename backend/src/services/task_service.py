@@ -28,6 +28,26 @@ class TaskService:
         self._tag_repo = tag_repo
         self._tag_service = tag_service
 
+    @staticmethod
+    def _normalize_priority_filter(priority: Optional[Union[PriorityFilter, str]]) -> Optional[str]:
+        """Normalize a priority filter value into a concrete Priority string or None.
+
+        Rule: unspecified while fetching means "all tasks". None, "all", empty,
+        and the legacy "none" value all map to no filter.
+
+        Args:
+            priority (Optional[Union[PriorityFilter, str]]): Raw priority filter input.
+
+        Returns:
+            Optional[str]: "high"/"medium"/"low" to filter by, or None for no filtering.
+        """
+        if priority is None:
+            return None
+        value = priority.value if isinstance(priority, PriorityFilter) else str(priority).strip().lower()
+        if value in ("", "all", "none"):
+            return None
+        return value
+
     def create_task(self, session: Session, task_data: TaskCreate, user_id: str) -> Task:
         """Create a new task for a user and link optional tags.
 
@@ -129,7 +149,7 @@ class TaskService:
             user_id (str): Authenticated user ID for data isolation.
             search (Optional[str]): Case-insensitive search text for title and description. Defaults to None.
             status (Optional[Union[StatusFilter, str]]): Completion status filter ('all', 'pending', 'completed'). Defaults to None.
-            priority (Optional[Union[PriorityFilter, str]]): Priority filter ('all', 'high', 'medium', 'low', 'none'). Defaults to None.
+            priority (Optional[Union[PriorityFilter, str]]): Priority filter ('all', 'high', 'medium', 'low'; None/unspecified means all). Defaults to None.
             tags (Optional[List[str]]): List of tag strings to filter tasks. Defaults to None.
             no_tags (bool): Flag to select tasks without tags. Defaults to False.
             sort_field (Union[SortField, str]): Field to sort by ('priority', 'title', 'created_at'). Defaults to "priority".
@@ -146,7 +166,7 @@ class TaskService:
             user_id=user_id,
             search=search,
             status=status,
-            priority=priority,
+            priority=self._normalize_priority_filter(priority),
             tags=tags,
             no_tags=no_tags,
             sort_field=sort_field,
@@ -176,7 +196,7 @@ class TaskService:
             user_id (str): Authenticated user ID.
             search (Optional[str]): Keyword search filter.
             status (Optional[Union[StatusFilter, str]]): Completion status filter.
-            priority (Optional[Union[PriorityFilter, str]]): Priority level filter.
+            priority (Optional[Union[PriorityFilter, str]]): Priority level filter (unspecified means all).
             tags (Optional[List[str]]): Tag names filter list.
             no_tags (bool): Flag for untagged tasks filter.
             sort_field (Union[SortField, str]): Primary sort field.
@@ -198,7 +218,7 @@ class TaskService:
             effective_order = "desc" if sort_field_val == "created_at" else "asc"
 
         status_val = status.value if isinstance(status, StatusFilter) else status
-        priority_val = priority.value if isinstance(priority, PriorityFilter) else priority
+        priority_val = self._normalize_priority_filter(priority)
 
         tasks = self.list_tasks(
             session=session,

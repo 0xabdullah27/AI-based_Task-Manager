@@ -41,7 +41,7 @@ export function FilterPanel({
   const handlePriorityChange = (priority: string) => {
     onFiltersChange({
       ...filters,
-      priority: priority as "all" | "high" | "medium" | "low" | "none",
+      priority: priority as "all" | "high" | "medium" | "low",
     });
   };
 

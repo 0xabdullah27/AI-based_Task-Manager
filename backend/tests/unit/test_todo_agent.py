@@ -69,6 +69,14 @@ class TestAddTaskTool:
         assert "error" in result
         assert "boom" in result["error"]
 
+    @pytest.mark.asyncio
+    async def test_unspecified_priority_defaults_to_low(self):
+        task = _make_task()
+        with patch("src.services.agent.tools.task_service.create_task", return_value=task) as mock_create:
+            wrapper = _make_wrapper(user_id="u-1", session="the-session")
+            await add_task(wrapper, title="Buy milk")
+        assert mock_create.call_args.kwargs["task_data"].priority == "low"
+
 
 class TestListTasksTool:
     @pytest.mark.asyncio
@@ -84,6 +92,41 @@ class TestListTasksTool:
         assert mock_list.call_args.kwargs["user_id"] == "u-1"
         assert mock_list.call_args.kwargs["status"] == "pending"
         assert mock_list.call_args.kwargs["search"] == "milk"
+
+    @pytest.mark.asyncio
+    async def test_unspecified_priority_filter_returns_all(self):
+        """Omitted or 'none'/'all'/'null' priority means NO filter (all tasks)."""
+        task = _make_task()
+        for raw in (None, "", "all", "None", "none", "null"):
+            with patch("src.services.agent.tools.task_service.list_tasks", return_value=[task]) as mock_list:
+                wrapper = _make_wrapper(user_id="u-1", session="the-session")
+                await list_tasks(wrapper, priority=raw)
+            assert mock_list.call_args.kwargs["priority"] is None, f"raw={raw!r}"
+
+    @pytest.mark.asyncio
+    async def test_explicit_priority_filter_is_forwarded(self):
+        task = _make_task()
+        with patch("src.services.agent.tools.task_service.list_tasks", return_value=[task]) as mock_list:
+            wrapper = _make_wrapper(user_id="u-1", session="the-session")
+            await list_tasks(wrapper, priority="HIGH")
+        assert mock_list.call_args.kwargs["priority"] == "high"
+
+
+class TestParsePriorityDefaults:
+    def test_unspecified_or_none_like_defaults_to_low(self):
+        from src.services.agent.tools import _parse_priority
+        from src.models.priority import Priority
+
+        for raw in (None, "", "  ", "none", "NULL"):
+            assert _parse_priority(raw) == Priority.LOW
+
+    def test_synonyms_map_correctly(self):
+        from src.services.agent.tools import _parse_priority
+        from src.models.priority import Priority
+
+        assert _parse_priority("urgent") == Priority.HIGH
+        assert _parse_priority("important") == Priority.MEDIUM
+        assert _parse_priority("casual") == Priority.LOW
 
 
 class TestCompleteTaskTool:

@@ -27,7 +27,7 @@ def test_create_task_with_priority(session: Session, mock_user_id: str):
 
 
 def test_create_task_default_priority(session: Session, mock_user_id: str):
-    """Test creating a task without specifying priority defaults to NONE"""
+    """Test creating a task without specifying priority defaults to LOW"""
     task_data = TaskCreate(
         title="Task with default priority",
         tags=[]
@@ -35,7 +35,7 @@ def test_create_task_default_priority(session: Session, mock_user_id: str):
 
     task = create_task(session, task_data, mock_user_id)
 
-    assert task.priority == Priority.NONE
+    assert task.priority == Priority.LOW
 
 
 def test_update_task_priority(session: Session, mock_user_id: str):
@@ -62,7 +62,6 @@ def test_list_tasks_sorted_by_priority(session: Session, mock_user_id: str):
     priorities = [
         ("Low priority task", Priority.LOW),
         ("High priority task", Priority.HIGH),
-        ("No priority task", Priority.NONE),
         ("Medium priority task", Priority.MEDIUM),
     ]
 
@@ -73,12 +72,25 @@ def test_list_tasks_sorted_by_priority(session: Session, mock_user_id: str):
     # List tasks
     tasks = list_tasks(session, mock_user_id)
 
-    # Verify sort order: HIGH -> MEDIUM -> LOW -> NONE
-    assert len(tasks) == 4
+    # Verify sort order: HIGH -> MEDIUM -> LOW
+    assert len(tasks) == 3
     assert tasks[0].priority == Priority.HIGH
     assert tasks[1].priority == Priority.MEDIUM
     assert tasks[2].priority == Priority.LOW
-    assert tasks[3].priority == Priority.NONE
+
+
+def test_list_tasks_unspecified_priority_returns_all(session: Session, mock_user_id: str):
+    """Test that listing with no priority filter (or legacy 'none') returns all tasks"""
+    for title, priority in [
+        ("High", Priority.HIGH),
+        ("Low", Priority.LOW),
+    ]:
+        create_task(session, TaskCreate(title=title, priority=priority, tags=[]), mock_user_id)
+
+    assert len(list_tasks(session, mock_user_id)) == 2
+    assert len(list_tasks(session, mock_user_id, priority="all")) == 2
+    assert len(list_tasks(session, mock_user_id, priority="none")) == 2
+    assert len(list_tasks(session, mock_user_id, priority=None)) == 2
 
 
 def test_list_tasks_priority_isolation(session: Session, mock_user_id: str, other_user_id: str):

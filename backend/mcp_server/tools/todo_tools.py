@@ -24,13 +24,13 @@ def get_session() -> Session:
 
 
 def _parse_priority(priority_str: Optional[str]) -> Priority:
-    """Parse a priority string into a Priority enum, defaulting to NONE."""
+    """Parse a priority string into a Priority enum, defaulting to LOW."""
     if not priority_str:
-        return Priority.NONE
+        return Priority.LOW
     upper = priority_str.upper()
-    if upper in ("NONE", "LOW", "MEDIUM", "HIGH"):
+    if upper in ("LOW", "MEDIUM", "HIGH"):
         return Priority(upper)
-    return Priority.NONE
+    return Priority.LOW
 
 
 def add_task(
@@ -48,7 +48,7 @@ def add_task(
         user_id: The authenticated user's ID (required).
         title: Task title (required).
         description: Task description (optional).
-        priority: Priority level: none, low, medium, high (optional).
+        priority: Priority level: low, medium, high (optional; defaults to low).
         tags: List of tags to attach (optional).
 
     Returns:
@@ -82,7 +82,7 @@ def list_tasks(
         session: DB session to use (shared across the request).
         user_id: The authenticated user's ID (required).
         status: Filter by status: "all", "pending", "completed" (optional, default "all").
-        priority: Filter by priority: "none", "low", "medium", "high" (optional).
+        priority: Filter by priority: "low", "medium", "high" (optional; omitted means all).
         search: Search in title/description (optional).
         tags: Filter by tag names (optional).
 

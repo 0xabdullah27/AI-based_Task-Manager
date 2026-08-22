@@ -14,6 +14,7 @@ from sqlmodel import Session
 from agents import RunContextWrapper, function_tool
 
 from src.models.priority import Priority
+from src.schemas import task
 from src.schemas.task import TaskCreate, TaskUpdate
 from src.services.task_service import task_service
 
@@ -32,26 +33,39 @@ class AgentContext:
 
 
 def _parse_priority(priority: Optional[str]) -> Priority:
-    """Parse an raw string into a Priority enum, defaulting to Priority.NONE.
+    """Parse a raw string into a Priority enum, defaulting to Priority.LOW.
+
+    Unspecified, unrecognized, or "none"-like input maps to LOW because every
+    task must have a concrete stored priority.
 
     Args:
         priority (Optional[str]): Input priority string (e.g. "high", "urgent", "low").
 
     Returns:
-        Priority: Matched Priority enum value (HIGH, MEDIUM, LOW, or NONE).
+        Priority: Matched Priority enum value (HIGH, MEDIUM, or LOW).
     """
     if not priority:
-        return Priority.NONE
+        return Priority.LOW
     upper = priority.upper().strip()
     if upper in ("HIGH", "URGENT", "ASAP", "CRITICAL", "EMERGENCY"):
         return Priority.HIGH
     elif upper in ("MEDIUM", "NORMAL", "IMPORTANT", "MODERATE"):
         return Priority.MEDIUM
-    elif upper in ("LOW", "MINOR", "CASUAL", "LATER"):
-        return Priority.LOW
-    elif upper in ("NONE", "NULL"):
-        return Priority.NONE
-    return Priority.NONE
+    return Priority.LOW
+
+
+def _normalize_priority_filter(priority: Optional[str]) -> Optional[str]:
+    """Normalize an incoming priority filter string; None means no filtering.
+
+    Rule: unspecified while fetching means all tasks. Empty, "all",
+    and legacy "none"/"null" inputs map to None (no filter).
+    """
+    if priority is None:
+        return None
+    value = str(priority).strip().lower()
+    if value in ("", "all", "none", "null"):
+        return None
+    return value
 
 
 async def add_task(
@@ -69,7 +83,8 @@ async def add_task(
         title (str): Short title of the task (required, 1 to 200 characters).
         description (Optional[str]): Optional task description or detailed notes (max 2000 characters).
         priority (Optional[str]): Urgency level. Allowed values: "high", "medium", "low".
-            Do not pass any other value. If no urgency is expressed, leave empty.
+            Do not pass any other value. If no urgency is expressed, leave empty
+            (the task defaults to low priority).
         tags (Optional[List[str]]): Optional list of category tag names (e.g., ["work", "urgent"]).
         parent_task_id (Optional[str]): Optional UUID of an existing parent task. When provided,
             the new task is created as a subtask (step) under that parent. Use list_tasks first
@@ -125,7 +140,8 @@ async def list_tasks(
     Args:
         ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
         status (Optional[str]): Filter by status: "all", "pending", or "completed" (default "all").
-        priority (Optional[str]): Filter by priority: "high", "medium", "low", "none" (optional).
+        priority (Optional[str]): Filter by priority: "high", "medium", or "low" (optional).
+            Leave empty to retrieve ALL tasks regardless of priority.
         search (Optional[str]): Case-insensitive search keyword matching title or description (optional).
         tags (Optional[List[str]]): Filter tasks matching any of the specified tag names (optional).
 
@@ -141,12 +157,11 @@ async def list_tasks(
             session=ctx.context.session,
             user_id=ctx.context.user_id,
             status=mapped_status,
-            priority=None if not priority or priority == "all" else priority,
+            priority=_normalize_priority_filter(priority),
             search=search,
             tags=tags,
             limit=50,
         )
-
         return [
             {
                 "id": t.id,
@@ -243,7 +258,8 @@ async def update_task(
         task_id (str): Unique UUID string of the target task to update (required).
         title (Optional[str]): Updated task title string (optional).
         description (Optional[str]): Updated task description string (optional).
-        priority (Optional[str]): Updated priority level: "high", "medium", "low", "none" (optional).
+        priority (Optional[str]): Updated priority level: "high", "medium", or "low" (optional).
+            Leave empty to keep the current priority unchanged.
         tags (Optional[List[str]]): Updated list of tag names (optional).
         parent_task_id (Optional[str]): UUID of an existing root task to move this task under,
             turning it into a subtask (optional). One nesting level only.

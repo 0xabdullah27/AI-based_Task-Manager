@@ -42,7 +42,6 @@ def test_api_filter_by_priority(client, auth_headers):
     client.post("/api/todos", json={"title": "High priority", "priority": "high"}, headers=auth_headers)
     client.post("/api/todos", json={"title": "Medium priority", "priority": "medium"}, headers=auth_headers)
     client.post("/api/todos", json={"title": "Low priority", "priority": "low"}, headers=auth_headers)
-    client.post("/api/todos", json={"title": "No priority", "priority": "none"}, headers=auth_headers)
 
     # Filter for high priority
     response = client.get("/api/todos?priority=high", headers=auth_headers)

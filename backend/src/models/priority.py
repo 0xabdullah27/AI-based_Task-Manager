@@ -8,8 +8,10 @@ class Priority(str, Enum):
 
     Values are strings for JSON serialization and database storage.
     Sort order is defined separately for query optimization.
+
+    Note: There is no NONE level. Unspecified priority defaults to LOW;
+    Python None is used to mean "not specified" (e.g. update leaves value unchanged).
     """
-    NONE = "none"      # Default, lowest sort priority
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -20,5 +22,4 @@ PRIORITY_SORT_ORDER = {
     Priority.HIGH: 0,
     Priority.MEDIUM: 1,
     Priority.LOW: 2,
-    Priority.NONE: 3,
 }

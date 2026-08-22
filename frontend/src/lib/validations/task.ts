@@ -16,8 +16,9 @@ import { z } from "zod";
 
 /**
  * Priority enum values
+ * Note: there is no "none" level — unspecified priority defaults to "low".
  */
-export const priorityValues = ["none", "low", "medium", "high"] as const;
+export const priorityValues = ["low", "medium", "high"] as const;
 export type Priority = (typeof priorityValues)[number];
 
 /**
@@ -32,16 +33,6 @@ export const prioritySchema = z.enum(priorityValues);
  * - Dark mode: Colors defined separately in globals.css .dark selector
  */
 export const PRIORITY_CONFIG = {
-  none: {
-    label: "None",
-    color: "gray",
-    sortOrder: 3,
-    badgeStyle: {
-      backgroundColor: "var(--priority-none-bg)",
-      color: "var(--priority-none-text)",
-      borderColor: "var(--priority-none-bg)",
-    },
-  },
   low: {
     label: "Low",
     color: "blue",
@@ -131,7 +122,7 @@ export const taskCreateSchema = z.object({
     .max(2000, "Description must be less than 2000 characters")
     .optional()
     .nullable(),
-  priority: prioritySchema.default("none"),
+  priority: prioritySchema.default("low"),
   tags: tagsArraySchema.default([]),
   parent_id: z.string().uuid().nullable().optional(),
 });
@@ -226,7 +217,6 @@ export const priorityFilterValues = [
   "high",
   "medium",
   "low",
-  "none",
 ] as const;
 export type PriorityFilter = (typeof priorityFilterValues)[number];
 export const priorityFilterSchema = z.enum(priorityFilterValues);
@@ -280,7 +270,7 @@ export type TaskQueryParams = z.infer<typeof taskQueryParamsSchema>;
  * Default sort order per field
  */
 export const DEFAULT_SORT_ORDER: Record<SortField, SortOrder> = {
-  priority: "asc", // High first (0, 1, 2, 3)
+  priority: "asc", // High first (0, 1, 2)
   title: "asc", // A to Z
   created_at: "desc", // Newest first
 };
@@ -309,7 +299,6 @@ export const PRIORITY_FILTER_LABELS: Record<PriorityFilter, string> = {
   high: "High",
   medium: "Medium",
   low: "Low",
-  none: "None",
 };
 
 // ============================================
