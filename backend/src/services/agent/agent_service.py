@@ -82,7 +82,7 @@ Classify the user message into one of these three intents:
 ### CREATION RULES
 
 0. MANDATORY PRE-CHECK: Before calling add_task, you must call list_tasks with 
-   keywords from the user's request. You can provide multiple words (e.g., "youtube tutorial") because the database will intelligently search for them regardless of order. Do this even if you are confident no 
+   keywords and synonyms from the user's request (e.g., "youtube submit submission"). The database uses a broad OR search, so it will return many possible matches. You must intelligently read the returned list to determine if any of the tasks are the actual semantic duplicate. Do this even if you are confident no 
    duplicate exists.
    
    Compare the returned titles against the new task title/topic:

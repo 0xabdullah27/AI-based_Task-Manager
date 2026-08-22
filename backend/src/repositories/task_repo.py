@@ -163,7 +163,7 @@ class TaskRepository:
                     or_(Task.title.ilike(search_term), Task.description.ilike(search_term))
                 )
             if conditions:
-                query = query.where(and_(*conditions))
+                query = query.where(or_(*conditions))
 
         if status and status != "all" and status != StatusFilter.ALL:
             if status == "pending" or status == StatusFilter.PENDING:
@@ -233,7 +233,7 @@ class TaskRepository:
                     or_(Task.title.ilike(search_term), Task.description.ilike(search_term))
                 )
             if conditions:
-                statement = statement.where(and_(*conditions))
+                statement = statement.where(or_(*conditions))
 
         if status and status != "all" and status != StatusFilter.ALL:
             if status == "pending" or status == StatusFilter.PENDING:
