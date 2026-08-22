@@ -62,7 +62,7 @@ export default function OverviewPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {isLoading ? (
+        {isLoading && (!tasks || tasks.length === 0) ? (
           <>
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-40 rounded-lg" />

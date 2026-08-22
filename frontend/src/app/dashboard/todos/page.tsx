@@ -349,7 +349,7 @@ export default function TodosPage() {
 
       {/* Tasks List */}
       <div className="space-y-3">
-        {isLoading ? (
+        {isLoading && (!tasks || tasks.length === 0) ? (
           // Loading Skeleton
           <>
             {[1, 2, 3].map((i) => (
