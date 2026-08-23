@@ -177,11 +177,11 @@
   --primary-foreground: oklch(1 0 0);
 
   /* Notion Dark Secondary & Elevated Surfaces */
-  --secondary: oklch(0.24 0 0); /* #252525 */
+  --secondary: oklch(0.30 0 0); /* Lighter dark gray */
   --secondary-foreground: oklch(0.86 0 0);
 
   /* Notion Dark Muted / Hover */
-  --muted: oklch(0.26 0 0); /* #2a2a2a Notion dark hover */
+  --muted: oklch(0.32 0 0); /* Lighter for hover */
   --muted-foreground: oklch(0.65 0 0); /* #9b9b9b Notion secondary text */
 
   /* Accent */
@@ -222,7 +222,7 @@
   --sidebar-foreground: oklch(0.86 0 0);
   --sidebar-primary: oklch(0.60 0.18 250);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(1 0 0 / 5.5%);
+  --sidebar-accent: oklch(1 0 0 / 12%); /* Increased from 5.5% to 12% for visibility */
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(1 0 0 / 9.4%);
   --sidebar-ring: oklch(0.68 0.12 240);

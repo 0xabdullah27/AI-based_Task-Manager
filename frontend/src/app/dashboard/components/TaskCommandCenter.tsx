@@ -265,7 +265,7 @@ export function TaskCommandCenter() {
                 setEditingTodo(null);
                 setFormDialogOpen(true);
               }}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-3 font-medium"
+              className="h-9 px-4 bg-foreground text-background font-medium rounded hover:bg-foreground/90 transition-colors"
             >
               <Plus className="w-4 h-4 mr-2" strokeWidth={2} />
               New Task
