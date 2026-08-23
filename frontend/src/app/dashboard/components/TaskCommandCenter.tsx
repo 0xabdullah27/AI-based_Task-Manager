@@ -263,12 +263,12 @@ export function TaskCommandCenter() {
         </div>
       </div>
 
-      {/* Sleek Single-Line Glass Metric Strip */}
-      <div className="rounded-xl border border-border/80 bg-card/60 backdrop-blur-md overflow-hidden grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-border/60 shadow-sm">
+      {/* 4 Cards with Individual Borders & Gap */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         {isLoading && (!tasks || tasks.length === 0) ? (
           <>
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-14 rounded-none" />
+              <Skeleton key={i} className="h-16 rounded-xl" />
             ))}
           </>
         ) : (

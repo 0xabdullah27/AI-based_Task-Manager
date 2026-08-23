@@ -75,16 +75,16 @@ export function StatCard({
     <button
       type="button"
       onClick={onClick}
-      className={`group relative flex items-center justify-between px-4 py-3 text-left transition-all duration-200 cursor-pointer ${
+      className={`group relative flex items-center justify-between px-4 py-3.5 rounded-xl border transition-all duration-200 cursor-pointer text-left shadow-sm ${
         isActive
-          ? `${config.activeBg} ${config.activeBorder} font-semibold`
-          : "hover:bg-muted/40"
+          ? `${config.activeBg} ${config.activeBorder} border-primary/40 font-semibold shadow-md`
+          : "border-border/80 bg-card/60 backdrop-blur-md hover:bg-card/90 hover:border-border"
       }`}
     >
       <div className="flex items-center gap-3 min-w-0">
         {/* Glowing Icon Container */}
         <div
-          className={`flex items-center justify-center p-2 rounded-lg flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${config.iconBg}`}
+          className={`flex items-center justify-center p-2.5 rounded-xl flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${config.iconBg}`}
         >
           <Icon className={`w-4 h-4 ${config.iconColor}`} />
         </div>
