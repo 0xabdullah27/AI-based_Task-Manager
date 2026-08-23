@@ -71,7 +71,7 @@ export function InteractiveAgent() {
       />
 
       {/* Outer Ambient Glow Aura */}
-      <div className="absolute w-80 h-80 rounded-full bg-muted/20 blur-3xl animate-pulse pointer-events-none" />
+      <div className="absolute w-80 h-80 rounded-full bg-gradient-to-r from-primary/30 via-chart-4/20 to-chart-2/30 blur-3xl animate-pulse pointer-events-none" />
 
       {/* Floating Prompt Bubble */}
       {/* 

@@ -8,9 +8,9 @@ import { Sparkles, ArrowRight, CheckCircle2, ShieldCheck, Zap } from "lucide-rea
 export function Hero() {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center bg-background text-foreground px-4 py-16 overflow-hidden">
-      {/* Background Effects (subdued for Notion style) */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-muted/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-muted/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Background Gradient Mesh & Light Effects */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-primary/20 via-chart-4/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-chart-2/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Grid Pattern Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
@@ -27,7 +27,7 @@ export function Hero() {
           {/* Main Title */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.15]">
             Master Your Workflow with{" "}
-            <span className="text-foreground border-b-2 border-foreground/20">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-chart-4 to-chart-2">
               Intelligent AI
             </span>
           </h1>
