@@ -4,8 +4,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { InteractiveAgent } from "./InteractiveAgent";
 import { Sparkles, ArrowRight, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
 
 export function Hero() {
+  const { data: session } = useSession();
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center bg-background text-foreground px-4 py-16 overflow-hidden">
       {/* Background Gradient Mesh & Light Effects */}
@@ -39,25 +41,39 @@ export function Hero() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center pt-2">
-            <Link href="/sign-up">
-              <Button
-                size="lg"
-                className="bg-foreground hover:bg-foreground/90 text-background px-8 py-6 text-base font-semibold shadow-sm cursor-pointer rounded-xl"
-              >
-                <span>Get Started Free</span>
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
+            {session ? (
+              <Link href="/dashboard">
+                <Button
+                  size="lg"
+                  className="bg-foreground hover:bg-foreground/90 text-background px-8 py-6 text-base font-semibold shadow-sm cursor-pointer rounded-xl"
+                >
+                  <span>Go to Dashboard</span>
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/sign-up">
+                  <Button
+                    size="lg"
+                    className="bg-foreground hover:bg-foreground/90 text-background px-8 py-6 text-base font-semibold shadow-sm cursor-pointer rounded-xl"
+                  >
+                    <span>Get Started Free</span>
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
 
-            <Link href="/sign-in">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-border hover:bg-muted text-foreground px-8 py-6 text-base font-semibold cursor-pointer rounded-xl"
-              >
-                Sign In to Dashboard
-              </Button>
-            </Link>
+                <Link href="/sign-in">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-border hover:bg-muted text-foreground px-8 py-6 text-base font-semibold cursor-pointer rounded-xl"
+                  >
+                    Sign In to Dashboard
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Trust Badges */}
