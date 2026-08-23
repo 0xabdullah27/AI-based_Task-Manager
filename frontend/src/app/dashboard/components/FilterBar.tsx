@@ -155,7 +155,7 @@ export function FilterBar({
           onClick={() => handleQuickPreset("today")}
           className={`h-7 px-2.5 rounded text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
             filters.quickPreset === "today"
-              ? "bg-primary/10 text-primary font-medium"
+              ? "bg-muted text-foreground font-medium border border-border/50 shadow-xs"
               : "text-muted-foreground hover:bg-muted"
           }`}
         >
@@ -166,7 +166,7 @@ export function FilterBar({
           onClick={() => handleQuickPreset("tomorrow")}
           className={`h-7 px-2.5 rounded text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
             filters.quickPreset === "tomorrow"
-              ? "bg-primary/10 text-primary font-medium"
+              ? "bg-muted text-foreground font-medium border border-border/50 shadow-xs"
               : "text-muted-foreground hover:bg-muted"
           }`}
         >
@@ -181,7 +181,7 @@ export function FilterBar({
             <button
               className={`h-7 px-2.5 rounded text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
                 filters.priority !== "all"
-                  ? "bg-primary/10 text-primary font-medium"
+                  ? "bg-muted text-foreground font-medium border border-border/50 shadow-xs"
                   : "text-muted-foreground hover:bg-muted"
               }`}
             >
@@ -209,55 +209,77 @@ export function FilterBar({
 
         {/* Tag Popover */}
         {availableTags.length > 0 && (
-          <Popover>
-            <PopoverTrigger asChild>
+          <div className="flex items-center">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={`h-7 px-2.5 text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
+                    filters.selectedTags.length > 0
+                      ? "bg-muted text-foreground font-medium rounded-l border border-border/50 border-r-0 shadow-xs"
+                      : "text-muted-foreground hover:bg-muted rounded"
+                  }`}
+                >
+                  <TagIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  <span>Tags {filters.selectedTags.length > 0 && `(${filters.selectedTags.length})`}</span>
+                  <ChevronDown className="w-3.5 h-3.5" strokeWidth={1.5} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-48 p-1">
+                <div className="px-2 py-1 mb-1 flex items-center gap-1">
+                  <Input
+                    type="text"
+                    placeholder="Filter tags..."
+                    value={tagSearch}
+                    onChange={(e) => setTagSearch(e.target.value)}
+                    className="h-7 text-xs shadow-none bg-muted/30 border-none focus-visible:ring-0 px-2 flex-1"
+                  />
+                  {filters.selectedTags.length > 0 && (
+                    <button
+                      onClick={() => onFilterChange({ selectedTags: [] })}
+                      className="h-7 w-7 flex items-center justify-center shrink-0 text-muted-foreground hover:bg-muted hover:text-foreground rounded transition-colors cursor-pointer"
+                      title="Clear tags"
+                    >
+                      <X className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-48 overflow-y-auto space-y-0.5">
+                  {filteredAvailableTags.length === 0 ? (
+                    <p className="text-xs text-muted-foreground px-2 py-1">No tags found</p>
+                  ) : (
+                    filteredAvailableTags.map((tag) => {
+                      const isSelected = filters.selectedTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          onClick={() => toggleTag(tag)}
+                          className={`w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-xs transition cursor-pointer ${
+                            isSelected
+                              ? "bg-muted text-foreground font-medium"
+                              : "hover:bg-muted/50 text-foreground"
+                          }`}
+                        >
+                          <span className="truncate">#{tag}</span>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Split button to clear tags easily */}
+            {filters.selectedTags.length > 0 && (
               <button
-                className={`h-7 px-2.5 rounded text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
-                  filters.selectedTags.length > 0
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
+                onClick={() => onFilterChange({ selectedTags: [] })}
+                className="h-7 px-1.5 bg-muted text-foreground hover:bg-muted/80 rounded-r transition-colors cursor-pointer border border-border/50 border-l-border shrink-0 flex items-center justify-center shadow-xs"
+                title="Clear selected tags"
               >
-                <TagIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
-                <span>Tags {filters.selectedTags.length > 0 && `(${filters.selectedTags.length})`}</span>
-                <ChevronDown className="w-3.5 h-3.5" strokeWidth={1.5} />
+                <X className="w-3.5 h-3.5" strokeWidth={2} />
               </button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-48 p-1">
-              <div className="px-2 py-1 mb-1">
-                <Input
-                  type="text"
-                  placeholder="Filter tags..."
-                  value={tagSearch}
-                  onChange={(e) => setTagSearch(e.target.value)}
-                  className="h-7 text-xs shadow-none bg-muted/30 border-none focus-visible:ring-0 px-2"
-                />
-              </div>
-              <div className="max-h-48 overflow-y-auto space-y-0.5">
-                {filteredAvailableTags.length === 0 ? (
-                  <p className="text-xs text-muted-foreground px-2 py-1">No tags found</p>
-                ) : (
-                  filteredAvailableTags.map((tag) => {
-                    const isSelected = filters.selectedTags.includes(tag);
-                    return (
-                      <button
-                        key={tag}
-                        onClick={() => toggleTag(tag)}
-                        className={`w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-xs transition cursor-pointer ${
-                          isSelected
-                            ? "bg-muted text-foreground font-medium"
-                            : "hover:bg-muted/50 text-foreground"
-                        }`}
-                      >
-                        <span className="truncate">#{tag}</span>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />}
-                      </button>
-                    );
-                  })
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
+            )}
+          </div>
         )}
 
         {/* Clear All */}

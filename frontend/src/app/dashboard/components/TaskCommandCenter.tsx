@@ -331,7 +331,7 @@ export function TaskCommandCenter() {
             <TaskGroupSection
               key={group.id}
               group={group}
-              defaultExpanded={group.id !== "completed" || filters.status === "completed"}
+              defaultExpanded={!["upcoming", "later", "completed"].includes(group.id) || filters.status === "completed"}
               renderTask={(task) => (
                 <TodoCard
                   key={task.id}

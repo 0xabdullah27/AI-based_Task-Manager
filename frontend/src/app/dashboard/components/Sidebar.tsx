@@ -86,13 +86,6 @@ export function Sidebar() {
 
       {/* Bottom Actions */}
       <div className="space-y-[2px] mt-auto pt-4 pb-2">
-        <div className="px-3 py-1.5 flex items-center justify-between text-muted-foreground hover:bg-sidebar-accent hover:text-foreground rounded-md cursor-pointer transition-colors">
-          <div className="flex items-center gap-2.5">
-            <Plus className="h-[18px] w-[18px]" strokeWidth={1.5} />
-            <span className="text-sm">New page</span>
-          </div>
-        </div>
-        
         <ThemeToggle showLabel className="w-full justify-start px-3 py-1.5 h-auto text-muted-foreground hover:bg-sidebar-accent hover:text-foreground rounded-md transition-colors" />
 
         <button

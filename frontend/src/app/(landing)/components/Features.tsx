@@ -48,8 +48,8 @@ export function Features() {
               <Card key={feature.title} className="border-border">
                 <CardContent className="pt-6">
                   <div className="space-y-4">
-                    <div className="bg-primary/10 p-3 rounded-lg w-fit">
-                      <Icon className="w-6 h-6 text-primary" />
+                    <div className="bg-muted p-3 rounded-lg w-fit border border-border/50">
+                      <Icon className="w-6 h-6 text-foreground" />
                     </div>
                     <h3 className="text-lg font-semibold">{feature.title}</h3>
                     <p className="text-muted-foreground">

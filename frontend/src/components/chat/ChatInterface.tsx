@@ -143,7 +143,7 @@ export function ChatInterface() {
 
           {/* Input Area (Fixed at Bottom) */}
           <div className="p-4 sm:px-8 shrink-0 bg-background">
-            <div className="relative max-w-4xl mx-auto rounded-xl border border-border/60 bg-muted/20 focus-within:bg-background focus-within:ring-1 focus-within:ring-primary/30 transition-all shadow-sm">
+            <div className="relative max-w-4xl mx-auto rounded-xl border border-border/60 bg-muted/20 focus-within:bg-background focus-within:border-border focus-within:ring-1 focus-within:ring-border transition-all shadow-sm">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -157,7 +157,7 @@ export function ChatInterface() {
                 className={`absolute right-3 bottom-3 p-1.5 rounded-md transition-colors ${
                   !input.trim() || isSending 
                     ? "text-muted-foreground/40 cursor-not-allowed" 
-                    : "bg-primary text-primary-foreground hover:opacity-90 cursor-pointer shadow-xs"
+                    : "bg-foreground text-background hover:bg-foreground/90 cursor-pointer shadow-xs"
                 }`}
                 onClick={handleSend}
                 disabled={!input.trim() || isSending}

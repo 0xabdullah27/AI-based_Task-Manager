@@ -11,8 +11,8 @@ export function Navigation() {
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-          <div className="bg-primary p-2 rounded-lg">
-            <CheckSquare className="w-5 h-5 text-primary-foreground" />
+          <div className="bg-foreground p-2 rounded-lg">
+            <CheckSquare className="w-5 h-5 text-background" />
           </div>
           <span>TaskHub</span>
         </Link>
@@ -24,7 +24,7 @@ export function Navigation() {
             <Button variant="ghost">Sign In</Button>
           </Link>
           <Link href="/sign-up">
-            <Button className="bg-primary hover:bg-primary/90">Get Started</Button>
+            <Button className="bg-foreground hover:bg-foreground/90 text-background">Get Started</Button>
           </Link>
         </div>
       </div>
