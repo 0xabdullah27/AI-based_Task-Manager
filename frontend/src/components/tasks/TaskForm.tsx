@@ -48,7 +48,7 @@ export function TaskForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
     setValue,
     watch,
@@ -81,6 +81,8 @@ export function TaskForm({
       });
     }
   }, [defaultValues, reset]);
+
+  const isPending = isLoading || isSubmitting;
 
   const handleFormSubmit = async (data: TaskCreateInput) => {
     let processedDueDate: string | null | undefined = data.due_date;
@@ -126,7 +128,7 @@ export function TaskForm({
           {...register("title")}
           id="title"
           type="text"
-          disabled={isLoading}
+          disabled={isPending}
           className="block w-full border-0 bg-transparent text-foreground placeholder:text-muted-foreground/60 text-3xl font-bold focus:outline-none focus:ring-0 disabled:cursor-not-allowed transition p-0"
           placeholder="Untitled"
           autoFocus
@@ -144,7 +146,7 @@ export function TaskForm({
           {...register("description")}
           id="description"
           rows={3}
-          disabled={isLoading}
+          disabled={isPending}
           className="block w-full border-0 bg-transparent text-foreground placeholder:text-muted-foreground/60 text-base focus:outline-none focus:ring-0 disabled:cursor-not-allowed transition p-0 resize-none"
           placeholder="Add description or notes..."
         />
@@ -169,7 +171,7 @@ export function TaskForm({
               <button
                 type="button"
                 id="due_date"
-                disabled={isLoading}
+                disabled={isPending}
                 className={cn(
                   "flex items-center gap-2 px-2 py-1 -ml-2 rounded text-left text-sm transition hover:bg-muted/50 focus:outline-none disabled:cursor-not-allowed cursor-pointer w-fit",
                   !selectedDate ? "text-muted-foreground/60" : "text-foreground"
@@ -233,7 +235,7 @@ export function TaskForm({
             <select
               {...register("priority")}
               id="priority"
-              disabled={isLoading}
+              disabled={isPending}
               className="bg-transparent border-0 text-foreground px-2 py-1 text-sm hover:bg-muted/50 rounded focus:outline-none focus:ring-0 disabled:cursor-not-allowed transition cursor-pointer appearance-none w-fit"
             >
               {priorityValues.map((priority) => (
@@ -261,7 +263,7 @@ export function TaskForm({
               value={watchedTags}
               onChange={(newTags) => setValue("tags", newTags, { shouldValidate: true })}
               suggestions={tags.map(tag => tag.name)}
-              disabled={isLoading || tagsLoading}
+              disabled={isPending || tagsLoading}
               placeholder="Empty"
               className="border-0 bg-transparent shadow-none hover:bg-muted/20 px-2 py-1 text-sm transition focus-within:ring-0 focus-within:bg-muted/10 h-auto min-h-0"
             />
@@ -281,7 +283,7 @@ export function TaskForm({
             type="button"
             variant="ghost"
             onClick={onCancel}
-            disabled={isLoading}
+            disabled={isPending}
             className="text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             Cancel
@@ -290,14 +292,14 @@ export function TaskForm({
         <Button
           type="submit"
           variant="default"
-          disabled={isLoading}
+          disabled={isPending}
           className="bg-foreground text-background hover:bg-foreground/90 shadow-none font-medium"
         >
           {mode === "edit"
-            ? isLoading
+            ? isPending
               ? "Saving..."
               : "Save Changes"
-            : isLoading
+            : isPending
             ? "Creating..."
             : "Create Task"}
         </Button>

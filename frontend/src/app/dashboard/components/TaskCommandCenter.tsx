@@ -231,7 +231,7 @@ export function TaskCommandCenter() {
   return (
     <div className="space-y-6 pb-12 max-w-5xl mx-auto">
       {/* Header section (Notion Style) */}
-      <div className="pt-8 pb-4">
+      <div className="pb-4">
         <div className="mb-4 text-muted-foreground">
           <CheckSquare className="w-12 h-12" strokeWidth={1.5} />
         </div>
@@ -303,8 +303,8 @@ export function TaskCommandCenter() {
               {filters.search || filters.quickPreset || filters.selectedTags.length > 0
                 ? "No tasks match your current filter criteria. Try adjusting or clearing your filters."
                 : filters.status === "completed"
-                ? "You haven't completed any tasks yet."
-                : "Your task list is clean! Create your first task to get started."}
+                  ? "You haven't completed any tasks yet."
+                  : "Your task list is clean! Create your first task to get started."}
             </p>
 
             {filters.search || filters.quickPreset || filters.selectedTags.length > 0 ? (
@@ -363,12 +363,12 @@ export function TaskCommandCenter() {
             defaultValues={
               editingTodo
                 ? {
-                    title: editingTodo.title,
-                    description: editingTodo.description || undefined,
-                    priority: editingTodo.priority,
-                    tags: editingTodo.tags,
-                    due_date: editingTodo.due_date || undefined,
-                  }
+                  title: editingTodo.title,
+                  description: editingTodo.description || undefined,
+                  priority: editingTodo.priority,
+                  tags: editingTodo.tags,
+                  due_date: editingTodo.due_date || undefined,
+                }
                 : undefined
             }
             mode={editingTodo ? "edit" : "create"}
