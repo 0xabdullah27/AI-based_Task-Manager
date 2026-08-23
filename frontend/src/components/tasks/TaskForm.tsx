@@ -6,7 +6,7 @@
 
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskCreateSchema, type TaskCreateInput, priorityValues, PRIORITY_CONFIG } from "@/lib/validations/task";
@@ -22,6 +22,27 @@ interface TaskFormProps {
   mode?: "create" | "edit";
 }
 
+/**
+ * Helper to format ISO datetime string (e.g. "2026-08-23T14:30:00Z")
+ * into "YYYY-MM-DDTHH:mm" format required by <input type="datetime-local">.
+ */
+function formatForDateTimeLocal(isoStr?: string | null): string {
+  if (!isoStr) return "";
+  try {
+    const d = new Date(isoStr);
+    if (isNaN(d.getTime())) return "";
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const year = d.getFullYear();
+    const month = pad(d.getMonth() + 1);
+    const day = pad(d.getDate());
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  } catch {
+    return "";
+  }
+}
+
 export function TaskForm({
   onSubmit,
   onCancel,
@@ -29,6 +50,15 @@ export function TaskForm({
   defaultValues,
   mode = "create"
 }: TaskFormProps) {
+  const formattedDefaultValues = useMemo(() => {
+    return {
+      priority: "low" as const,
+      tags: [] as string[],
+      ...defaultValues,
+      due_date: defaultValues?.due_date ? formatForDateTimeLocal(defaultValues.due_date) : "",
+    };
+  }, [defaultValues]);
+
   const {
     register,
     handleSubmit,
@@ -38,7 +68,7 @@ export function TaskForm({
     watch,
   } = useForm<TaskCreateInput>({
     resolver: zodResolver(taskCreateSchema),
-    defaultValues: { priority: "low", tags: [], ...defaultValues },
+    defaultValues: formattedDefaultValues,
   });
 
   const { tags, isLoading: tagsLoading, fetchTags } = useTags();
@@ -48,24 +78,50 @@ export function TaskForm({
     fetchTags();
   }, [fetchTags]);
 
-  const handleFormSubmit = async (data: TaskCreateInput) => {
-    await onSubmit(data);
-    // Note: Create form is remounted via key prop in parent component
-    // Edit form stays mounted and user can cancel or continue editing
-    if (mode === "edit") {
-      // Could add success feedback here if needed
+  useEffect(() => {
+    if (defaultValues) {
+      reset({
+        priority: "low",
+        tags: [],
+        ...defaultValues,
+        due_date: defaultValues.due_date ? formatForDateTimeLocal(defaultValues.due_date) : "",
+      });
     }
+  }, [defaultValues, reset]);
+
+  const handleFormSubmit = async (data: TaskCreateInput) => {
+    let processedDueDate: string | null | undefined = data.due_date;
+    if (processedDueDate) {
+      const trimmed = processedDueDate.trim();
+      if (!trimmed) {
+        processedDueDate = null;
+      } else {
+        // If user picked/entered a date without explicit time, default to end of day (23:59)
+        const valToParse = trimmed.includes("T") ? trimmed : `${trimmed}T23:59`;
+        const dateObj = new Date(valToParse);
+        if (!isNaN(dateObj.getTime())) {
+          processedDueDate = dateObj.toISOString();
+        } else {
+          processedDueDate = null;
+        }
+      }
+    } else {
+      processedDueDate = null;
+    }
+
+    await onSubmit({
+      ...data,
+      due_date: processedDueDate,
+    });
   };
 
   return (
-    // T039: Update modal styling with opaque background
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+    // noValidate prevents native browser incomplete-datetime popups while RHF/Zod handles validation
+    <form noValidate onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
-        {/* T043: Update form label styling to use --foreground variable */}
         <label htmlFor="title" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
           Title
         </label>
-        {/* T041: Use semantic input field styling */}
         <input
           {...register("title")}
           id="title"
@@ -95,11 +151,9 @@ export function TaskForm({
       </div>
 
       <div>
-        {/* T043: Form label styling */}
         <label htmlFor="description" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
           Description (Optional)
         </label>
-        {/* T041: Input field styling */}
         <textarea
           {...register("description")}
           id="description"
@@ -129,11 +183,9 @@ export function TaskForm({
       </div>
 
       <div>
-        {/* T043: Form label styling */}
         <label htmlFor="priority" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
           Priority
         </label>
-        {/* T046: Replace priority selector styling with semantic variables */}
         <select
           {...register("priority")}
           id="priority"
@@ -198,11 +250,9 @@ export function TaskForm({
       </div>
 
       <div>
-        {/* T043: Form label styling */}
         <label htmlFor="tags" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
           Tags (Optional)
         </label>
-        {/* T045: Update tag input styling */}
         <TagInput
           value={watchedTags}
           onChange={(newTags) => setValue("tags", newTags, { shouldValidate: true })}
