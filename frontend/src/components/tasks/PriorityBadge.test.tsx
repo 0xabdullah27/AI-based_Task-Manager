@@ -45,8 +45,21 @@ describe("PriorityBadge", () => {
   it("has correct color classes for high priority", () => {
     render(<PriorityBadge priority="high" />);
     const badge = screen.getByLabelText("Priority: High");
-    expect(badge).toHaveClass("bg-red-100");
-    expect(badge).toHaveClass("text-red-800");
-    expect(badge).toHaveClass("border-red-200");
+    expect(badge).toHaveClass("bg-priority-high");
+    expect(badge).toHaveClass("text-priority-high-foreground");
+  });
+
+  it("has correct color classes for medium priority", () => {
+    render(<PriorityBadge priority="medium" />);
+    const badge = screen.getByLabelText("Priority: Medium");
+    expect(badge).toHaveClass("bg-priority-medium");
+    expect(badge).toHaveClass("text-priority-medium-foreground");
+  });
+
+  it("has correct color classes for low priority", () => {
+    render(<PriorityBadge priority="low" />);
+    const badge = screen.getByLabelText("Priority: Low");
+    expect(badge).toHaveClass("bg-priority-low");
+    expect(badge).toHaveClass("text-priority-low-foreground");
   });
 });

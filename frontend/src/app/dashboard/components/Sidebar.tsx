@@ -6,12 +6,14 @@ import { useSession, signOut } from "@/lib/auth-client";
 import { Button } from "@/components/ui/Button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
   navigationSections,
   getActiveSection,
 } from "@/lib/dashboard-navigation";
 import { LogOut, CheckSquare } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -39,62 +41,42 @@ export function Sidebar() {
     : session?.user?.email?.[0]?.toUpperCase() || "U";
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto p-4 space-y-6">
-      {/* Logo - T021: Use primary color variable */}
+    <div className="h-full flex flex-col overflow-y-auto p-4 space-y-6 bg-card text-card-foreground">
+      {/* Logo */}
       <Link href="/" className="flex items-center gap-2 px-2">
-        <div
-          className="p-2 rounded-lg"
-          style={{
-            backgroundColor: "var(--primary)",
-            color: "var(--primary-foreground)",
-          }}
-        >
+        <div className="p-2 rounded-lg bg-primary text-primary-foreground">
           <CheckSquare className="w-5 h-5" />
         </div>
-        <span
-          className="font-bold text-lg hidden sm:block"
-          style={{ color: "var(--foreground)" }}
-        >
+        <span className="font-bold text-lg hidden sm:block text-foreground">
           TaskHub
         </span>
       </Link>
 
-      <Separator style={{ backgroundColor: "var(--border)" }} />
+      <Separator />
 
       {/* User Info */}
       <div className="px-2 space-y-3">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
-            <AvatarFallback
-              style={{
-                backgroundColor: "var(--primary)",
-                color: "var(--primary-foreground)",
-              }}
-            >
+            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
               {userInitials}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p
-              className="text-sm font-semibold truncate"
-              style={{ color: "var(--foreground)" }}
-            >
+            <p className="text-sm font-semibold truncate text-foreground">
               {session?.user?.name || "User"}
             </p>
-            <p
-              className="text-xs truncate"
-              style={{ color: "var(--muted-foreground)" }}
-            >
+            <p className="text-xs truncate text-muted-foreground">
               {session?.user?.email}
             </p>
           </div>
         </div>
       </div>
 
-      <Separator style={{ backgroundColor: "var(--border)" }} />
+      <Separator />
 
-      {/* Navigation - T023: Use semantic variables with proper states */}
-      <nav className="flex-1 space-y-2">
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1">
         {navigationSections.map((section) => {
           const Icon = section.icon;
           const isActive = activeSection === section.id;
@@ -103,29 +85,12 @@ export function Sidebar() {
             <button
               key={section.id}
               onClick={() => router.push(section.href)}
-              style={
+              className={cn(
+                "w-full cursor-pointer flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition",
                 isActive
-                  ? {
-                      backgroundColor: "var(--primary)",
-                      color: "var(--primary-foreground)",
-                    }
-                  : {
-                      color: "var(--muted-foreground)",
-                    }
-              }
-              className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition hover:opacity-80`}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLElement).style.backgroundColor =
-                    "var(--border)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLElement).style.backgroundColor =
-                    "transparent";
-                }
-              }}
+                  ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
             >
               <Icon className="h-5 w-5 shrink-0" />
               <span className="truncate">{section.label}</span>
@@ -134,18 +99,22 @@ export function Sidebar() {
         })}
       </nav>
 
-      <Separator style={{ backgroundColor: "var(--border)" }} />
+      <Separator />
 
-      {/* Sign Out Button - T054: Use semantic theme variables */}
-      <Button
-        onClick={handleSignOut}
-        variant="outline"
-        disabled={isSigningOut}
-        className="bg-secondary text-secondary-foreground cursor-pointer hover:bg-primary/80 disabled:opacity-50"
-      >
-        <LogOut className="h-4 w-4 mr-2" />
-        {isSigningOut ? "Signing out..." : "Sign Out"}
-      </Button>
+      {/* Theme Toggle & Sign Out */}
+      <div className="space-y-2">
+        <ThemeToggle showLabel className="w-full justify-start px-3 py-2 h-auto" />
+
+        <Button
+          onClick={handleSignOut}
+          variant="outline"
+          disabled={isSigningOut}
+          className="w-full justify-start bg-secondary text-secondary-foreground border-border hover:bg-destructive hover:text-destructive-foreground cursor-pointer disabled:opacity-50 transition-colors"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          {isSigningOut ? "Signing out..." : "Sign Out"}
+        </Button>
+      </div>
     </div>
   );
 }

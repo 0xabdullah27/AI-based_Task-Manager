@@ -1,351 +1,105 @@
 # Theme System Documentation
 
-**Task**: T073 - Create theme usage guide documenting all semantic variables
-
 ## Overview
 
-This application uses a comprehensive CSS custom properties (CSS variables) theming system to provide consistent, accessible, and theme-aware styling across all components. The theme automatically adapts to light and dark modes without requiring component-level theme switching logic.
+This application uses **Tailwind CSS v4** with a semantic design token system mapped via `@theme inline` in `frontend/src/app/globals.css`. 
 
-## Theme Variables Location
+All component styling is done **strictly using standard Tailwind utility classes** (such as `bg-primary`, `text-foreground`, `bg-card`, `border-border`, `bg-priority-high`, `text-priority-high-foreground`, `bg-warning`, `bg-success`, `bg-destructive`).
 
-All theme variables are defined in:
-- **File**: `frontend/src/app/globals.css`
-- **Light Mode**: `:root` selector (lines 49-108)
-- **Dark Mode**: `.dark` selector (lines 110-168)
+> [!IMPORTANT]
+> **No inline `style={{ backgroundColor: "var(--...)" }}` or manual JS mouse/focus handlers should be used in React components.**
+> All theme switching between Light Mode and Dark Mode is handled smoothly and globally by `next-themes` via the `<ThemeProvider>` and `<ThemeToggle />` components.
 
-## Color Semantic Tokens
+---
 
-### Foreground & Background
-- `--foreground`: Primary text color (dark in light mode, light in dark mode)
-- `--muted-foreground`: Secondary/disabled text color
-- `--background`: Page background
-- `--card`: Card/container background
-- `--muted`: Muted/disabled background
+## Design Token Definitions
 
-### Input & Form Fields
-- `--input-bg`: Input field background
-- `--input-border`: Input field border
-- `--input-text`: Input field text color
-- `--input-placeholder`: Placeholder text color
+All theme variables are defined in OKLCH color space in [globals.css](file:///d:/AbdullahQureshi/workspace/AI-based_Task-Manager/frontend/src/app/globals.css):
+- **Tailwind `@theme inline` mappings**: Lines 6-55
+- **Light Theme Palette**: `:root` selector
+- **Dark Theme Palette**: `.dark` selector
 
-### Interactive States
-- `--primary`: Primary action color
-- `--primary-foreground`: Primary text on primary background
-- `--border`: Subtle borders and separators
-- `--destructive`: Error/delete actions
+### Core Semantic Classes
 
-### Error Handling
-- `--error-bg`: Error message background
-- `--error-border`: Error message border
-- `--error-text`: Error message text
+| Token Category | Tailwind Utility Classes | Purpose |
+| :--- | :--- | :--- |
+| **Surfaces** | `bg-background`, `text-foreground` | Main page body background & base text |
+| **Cards & Popovers** | `bg-card`, `text-card-foreground`, `bg-popover` | Container cards, popovers, dropdowns |
+| **Primary Brand** | `bg-primary`, `text-primary-foreground` | Active nav items, primary buttons, highlights |
+| **Secondary / Muted** | `bg-secondary`, `bg-muted`, `text-muted-foreground` | Subtle badges, tag chips, secondary buttons |
+| **Borders & Inputs** | `border-border`, `border-input`, `ring-ring` | Form boundaries, focus indicators |
+| **Success Status** | `bg-success`, `text-success`, `border-success` | Completed tasks, high progress, positive alerts |
+| **Warning Status** | `bg-warning`, `text-warning`, `border-warning` | Due today tasks, medium urgency |
+| **Destructive / Error** | `bg-destructive`, `text-destructive` | Overdue tasks, delete actions, form errors |
+| **Info Status** | `bg-info`, `text-info`, `border-info` | Upcoming tasks, notifications |
+| **Priority High** | `bg-priority-high`, `text-priority-high-foreground` | High priority badges & accent indicators |
+| **Priority Medium** | `bg-priority-medium`, `text-priority-medium-foreground` | Medium priority badges & accent indicators |
+| **Priority Low** | `bg-priority-low`, `text-priority-low-foreground` | Low priority badges & accent indicators |
 
-### Link Styling
-- `--link-text`: Link text color
-- `--link-text-hover`: Link text on hover
+---
 
-### Priority Badges
-Each priority level has two variables for background and text:
-- `--priority-high-bg` / `--priority-high-text` (Red)
-- `--priority-medium-bg` / `--priority-medium-text` (Yellow)
-- `--priority-low-bg` / `--priority-low-text` (Green)
-- `--priority-none-bg` / `--priority-none-text` (Gray)
+## Component Usage Guidelines
 
-## Component-Specific Usage
-
-### Form Components
-
-**Input Fields, Textareas, Selects**:
+### 1. Form Inputs and Labels
 ```tsx
-<input
-  className="border px-3 py-2"
-  style={{
-    backgroundColor: "var(--input-bg)",
-    borderColor: "var(--input-border)",
-    color: "var(--input-text)",
-  }}
-  onFocus={(e) => {
-    e.currentTarget.style.borderColor = "var(--primary)";
-    e.currentTarget.style.boxShadow = "0 0 0 1px var(--primary)";
-  }}
-  onBlur={(e) => {
-    e.currentTarget.style.borderColor = "var(--input-border)";
-  }}
-/>
-```
-
-**Form Labels**:
-```tsx
-<label style={{ color: "var(--foreground)" }}>
-  Field Label
+// Labels
+<label htmlFor="title" className="block text-sm font-medium text-foreground">
+  Title
 </label>
-```
 
-**Error Messages**:
-```tsx
-<p style={{ color: "var(--error-text)" }}>
-  Error message
+// Inputs
+<input
+  type="text"
+  className="mt-1 block w-full rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary transition"
+  placeholder="Enter title"
+/>
+
+// Error Messages
+<p className="mt-1 text-sm text-destructive">
+  Title is required
 </p>
 ```
 
-### Badge & Status Components
-
-**Priority Badge**:
+### 2. Badges & Priority Tags
 ```tsx
-<span
-  style={{
-    backgroundColor: "var(--priority-high-bg)",
-    color: "var(--priority-high-text)",
-  }}
->
+// Using PriorityBadge component
+<PriorityBadge priority="high" size="sm" />
+
+// Direct Tailwind classes
+<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-priority-high text-priority-high-foreground">
   High
 </span>
 ```
 
-**Tag Chip**:
+### 3. Cards & Containers
 ```tsx
-<span
-  style={{
-    backgroundColor: "var(--primary)",
-    color: "var(--primary-foreground)",
-    borderColor: "var(--border)",
-  }}
->
-  Tag Name
-</span>
-```
-
-### Card & Container Components
-
-**Card Background & Border**:
-```tsx
-<div
-  style={{
-    backgroundColor: "var(--card)",
-    borderColor: "var(--border)",
-  }}
->
-  {/* content */}
+<div className="rounded-xl border border-border bg-card text-card-foreground p-5 shadow-sm">
+  <h3 className="font-semibold text-foreground">Card Title</h3>
+  <p className="text-sm text-muted-foreground">Card description</p>
 </div>
 ```
 
-### Navigation Components
-
-**Sidebar & Links**:
+### 4. Interactive Navigation & Buttons
 ```tsx
 <button
-  style={{
-    color: isActive ? "var(--primary-foreground)" : "var(--muted-foreground)",
-    backgroundColor: isActive ? "var(--primary)" : "transparent",
-  }}
+  onClick={() => router.push("/dashboard/todos")}
+  className={cn(
+    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition",
+    isActive
+      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+  )}
 >
-  Navigation Link
+  <CheckSquare className="w-5 h-5" />
+  <span>Todos</span>
 </button>
 ```
 
-### Modal & Dialog
-
-**Dialog Content**:
-```tsx
-<div style={{ backgroundColor: "var(--background)" }}>
-  {/* Modal content */}
-</div>
-```
-
-Note: Modal overlay opacity (bg-black/50) is hardcoded for consistent visual effect.
-
-## WCAG AA Compliance
-
-All color combinations have been verified to meet WCAG AA contrast ratio requirements (4.5:1 minimum):
-
-- Foreground text on background: ✓ 7.5:1+
-- Foreground text on card: ✓ 7.5:1+
-- Error text on error background: ✓ 4.5:1+
-- All priority badges: ✓ 4.5:1+ (adjusted in Phase 1, Task T003)
-
-Verification details: See `specs/004-fix-priority-theme/contrast-verification.md`
-
-## Migration Guide
-
-### From Hardcoded Tailwind Classes to CSS Variables
-
-**Before** (Hardcoded):
-```tsx
-<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-  <p className="text-slate-900 dark:text-white">
-    Content
-  </p>
-</div>
-```
-
-**After** (CSS Variables):
-```tsx
-<div
-  className="border"
-  style={{
-    backgroundColor: "var(--card)",
-    borderColor: "var(--border)",
-  }}
->
-  <p style={{ color: "var(--foreground)" }}>
-    Content
-  </p>
-</div>
-```
-
-### Implementation Checklist
-
-When updating components to use theme variables:
-
-1. ✅ Replace hardcoded `bg-` classes with `style={{ backgroundColor: "var(--*)" }}`
-2. ✅ Replace hardcoded `text-` classes with `style={{ color: "var(--*)" }}`
-3. ✅ Replace hardcoded `border-` classes with `style={{ borderColor: "var(--*)" }}`
-4. ✅ Add focus/hover state handlers for interactive elements
-5. ✅ Test in both light and dark modes
-6. ✅ Verify contrast ratios in both modes
-
-## Light & Dark Mode Values
-
-### Light Mode (:root)
-
-Key colors in OKLCH color space:
-- Foreground: oklch(0.141 0.005 285.823) - Dark navy/black
-- Background: oklch(1 0 0) - Pure white
-- Primary: oklch(0.21 0.006 285.885) - Deep purple
-- Border: oklch(0.92 0.004 286.32) - Light gray
-
-### Dark Mode (.dark)
-
-Key colors in OKLCH color space:
-- Foreground: oklch(65.159% 0.0532 18.54) - Light cream
-- Background: oklch(0.141 0.005 285.823) - Dark navy/black
-- Primary: oklch(0.92 0.004 286.32) - Light purple
-- Border: oklch(1 0 0 / 10%) - Subtle white overlay
-
-## Browser Support
-
-CSS custom properties are supported in all modern browsers:
-- Chrome/Edge 49+
-- Firefox 31+
-- Safari 9.1+
-- Mobile browsers: Supported on all modern versions
-
-## Accessibility Features
-
-1. **Automatic Theme Adaptation**: Components automatically adapt colors when dark mode is enabled
-2. **High Contrast**: All text meets WCAG AA standards
-3. **Focus Indicators**: Input fields show primary color on focus for clear visual feedback
-4. **Semantic Naming**: Variable names clearly indicate their purpose
-5. **Reduced Motion**: Theme changes respect user's system preferences (no animations)
-
-## Testing Theme Changes
-
-### Manual Testing Steps
-
-1. **Light Mode Verification**:
-   - Navigate through all pages
-   - Verify all text is readable
-   - Check form inputs are visible
-   - Confirm button states are clear
-
-2. **Dark Mode Verification**:
-   - Enable dark mode (system preferences or app toggle)
-   - Repeat light mode checks
-   - Verify borders are visible
-   - Check that error states are visible
-
-3. **Responsive Testing**:
-   - Test on mobile, tablet, desktop
-   - Verify theme variables work on all screen sizes
-   - Check hover states work on devices that support them
-
-4. **Accessibility Audit**:
-   - Run contrast checker (WebAIM)
-   - Verify keyboard navigation
-   - Test with screen reader
-   - Check focus indicators are visible
-
-## Common Issues & Solutions
-
-### Issue: Colors look wrong in dark mode
-**Solution**: Check that CSS variables are properly closed with `var(--variable-name)`. Verify dark mode class (`.dark`) is applied to root element.
-
-### Issue: Focus states not visible
-**Solution**: Ensure `onFocus` handler updates border and box-shadow. Example:
-```tsx
-onFocus={(e) => {
-  e.currentTarget.style.borderColor = "var(--primary)";
-  e.currentTarget.style.boxShadow = "0 0 0 1px var(--primary)";
-}}
-```
-
-### Issue: Hover states don't work
-**Solution**: Use `onMouseEnter`/`onMouseLeave` for mouse states or CSS :hover pseudo-class in className.
-
-## Future Enhancements
-
-- [ ] Add theme selector UI for user preferences
-- [ ] Support system color scheme preferences
-- [ ] Add high contrast mode option
-- [ ] Create additional color themes (blue, green, etc.)
-- [ ] Implement theme persistence in localStorage
-
-## Related Files
-
-- **Core Theme**: `frontend/src/app/globals.css`
-- **Priority Colors**: `frontend/src/lib/priority-colors.ts`
-- **Task Validation**: `frontend/src/lib/validations/task.ts`
-- **Test Utilities**: `frontend/__tests__/utils/theme-colors.test.ts`
-- **Theme Variables Reference**: `specs/004-fix-priority-theme/theme-variables.md`
-- **Contrast Verification**: `specs/004-fix-priority-theme/contrast-verification.md`
-
-## Implementation Details
-
-### CSS Custom Properties (Variables)
-
-CSS variables use the `var()` function with fallback support:
-```css
-color: var(--foreground, #333); /* #333 is fallback if not defined */
-```
-
-However, in this implementation, all variables are guaranteed to be defined in either `:root` or `.dark` selectors, so fallbacks are not necessary.
-
-### Color Space: OKLCH
-
-This theme uses OKLCH color space instead of RGB/HEX:
-- **O**: Oklab lightness (0-1)
-- **K**: Chroma (0-0.37)
-- **L**: Hue (0-360)
-- **H**: Optional hue channel
-
-Benefits:
-- Perceptually uniform color differences
-- Better dark mode color matching
-- Natural color transitions
-
-## Maintenance
-
-### Adding New Variables
-
-When adding new theme variables:
-
-1. Define in `:root` for light mode
-2. Define in `.dark` for dark mode
-3. Document in this file
-4. Update theme-variables.md reference
-5. Test contrast ratios if color-related
-6. Update components to use new variable
-
-### Updating Existing Variables
-
-1. Update both `:root` and `.dark` selectors
-2. Search for components using old hardcoded values
-3. Update components to use CSS variable
-4. Verify contrast ratios still meet WCAG AA
-5. Test in all components using the variable
-6. Update documentation
-
 ---
 
-**Last Updated**: February 3, 2026
-**Implementation Phase**: 004-fix-priority-theme, Tasks T001-T073
-**WCAG Compliance**: AA (4.5:1 minimum contrast ratio)
+## Theme Switching
+
+Theme switching is powered by `next-themes`:
+- **Provider**: `<ThemeProvider attribute="class" defaultTheme="system" enableSystem>` in `RootLayout`
+- **UI Toggle**: `<ThemeToggle />` component located in the Sidebar and Mobile Dashboard navigation bar.
+- Changes between Light and Dark mode seamlessly update the `.dark` class on `<html>`, instantly swapping all OKLCH semantic tokens.

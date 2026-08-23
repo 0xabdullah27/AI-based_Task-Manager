@@ -146,15 +146,7 @@ export function SignUpForm() {
       </div>
 
       {error && (
-        // T012: Use semantic error color variables instead of hardcoded red
-        <div
-          className="rounded-lg border p-3 text-sm"
-          style={{
-            borderColor: "var(--error-border)",
-            backgroundColor: "var(--error-bg)",
-            color: "var(--error-text)",
-          }}
-        >
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 text-destructive p-3 text-sm">
           {error}
         </div>
       )}
@@ -163,22 +155,11 @@ export function SignUpForm() {
         {isRedirecting ? "Redirecting to dashboard..." : isLoading ? "Creating account..." : "Create account"}
       </Button>
 
-      <p className="text-center text-sm" style={{ color: "var(--foreground)" }}>
+      <p className="text-center text-sm text-foreground">
         Already have an account?{" "}
-        {/* T013: Use semantic link color variables */}
         <Link
           href="/sign-in"
-          className="font-medium"
-          style={{
-            color: "var(--link-text)",
-            textDecoration: "none",
-          }}
-          onMouseEnter={(e) => {
-            (e.target as HTMLElement).style.color = "var(--link-text-hover)";
-          }}
-          onMouseLeave={(e) => {
-            (e.target as HTMLElement).style.color = "var(--link-text)";
-          }}
+          className="font-medium text-primary hover:underline hover:text-primary/80 transition-colors"
         >
           Sign in
         </Link>

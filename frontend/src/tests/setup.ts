@@ -1,23 +1,56 @@
 // Test setup and configuration
 import '@testing-library/jest-dom';
-import { server } from './mocks/server';
+import { TextEncoder, TextDecoder } from 'util';
+import { ReadableStream, TransformStream, WritableStream } from 'stream/web';
+
+// Polyfill web globals on both global and globalThis before MSW is required
+const globalsMap = {
+  TextEncoder,
+  TextDecoder,
+  ReadableStream,
+  TransformStream,
+  WritableStream,
+  fetch: globalThis.fetch,
+  Response: globalThis.Response,
+  Request: globalThis.Request,
+  Headers: globalThis.Headers,
+  FormData: globalThis.FormData,
+};
+
+for (const [key, val] of Object.entries(globalsMap)) {
+  if (val !== undefined) {
+    Object.defineProperty(global, key, { value: val, writable: true, configurable: true });
+    Object.defineProperty(globalThis, key, { value: val, writable: true, configurable: true });
+  }
+}
+
+// Dynamically require server after globals are configured
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let server: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const mockModule = require('./mocks/server');
+  server = mockModule.server;
+} catch (e) {
+  // eslint-disable-next-line no-console
+  console.warn('MSW server initialization warning:', e);
+}
 
 // Establish API mocking before all tests
 beforeAll(() => {
-  server.listen({
+  server?.listen?.({
     onUnhandledRequest: 'warn',
   });
 });
 
-// Reset any request handlers that we may add during the tests,
-// so they don't affect other tests
+// Reset any request handlers that we may add during the tests
 afterEach(() => {
-  server.resetHandlers();
+  server?.resetHandlers?.();
 });
 
 // Clean up after the tests are finished
 afterAll(() => {
-  server.close();
+  server?.close?.();
 });
 
 // Mock Next.js router
@@ -54,4 +87,7 @@ jest.mock('@/lib/auth-client', () => ({
     signOut: jest.fn(),
     signUp: jest.fn(),
   },
+  getJwtToken: jest.fn(() => 'mock-jwt-token'),
+  setJwtToken: jest.fn(),
+  clearJwtToken: jest.fn(),
 }));

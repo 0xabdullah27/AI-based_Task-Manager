@@ -10,10 +10,17 @@ const createJestConfig = nextJest({
 const config: Config = {
   coverageProvider: 'v8',
   testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+  },
+  setupFiles: ['<rootDir>/src/tests/polyfills.ts'],
   // Add more setup options before each test is run
   setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^msw/node$': '<rootDir>/node_modules/msw/lib/node/index.js',
+    '^msw/browser$': '<rootDir>/node_modules/msw/lib/browser/index.js',
+    '^msw$': '<rootDir>/node_modules/msw/lib/core/index.js',
   },
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
@@ -33,6 +40,7 @@ const config: Config = {
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
+    '<rootDir>/__tests__/**/*.{js,jsx,ts,tsx}',
   ],
 };
 

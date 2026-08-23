@@ -7,6 +7,7 @@
 import { useState, useRef, KeyboardEvent } from "react";
 import { X } from "lucide-react";
 import { TagChip } from "./TagChip";
+import { cn } from "@/lib/utils";
 
 interface TagInputProps {
   value: string[];
@@ -16,7 +17,7 @@ interface TagInputProps {
   disabled?: boolean;
 }
 
-export function TagInput({ value, onChange, suggestions, placeholder = "Add tags...", disabled = false }: TagInputProps) {
+export function TagInput({ value, onChange, suggestions, placeholder = "Add tags (comma or enter to add)...", disabled = false }: TagInputProps) {
   const [inputValue, setInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,53 +122,41 @@ export function TagInput({ value, onChange, suggestions, placeholder = "Add tags
       </div>
 
       <div className="relative">
-        {/* T045: Update tag input styling with theme variables */}
         <input
           ref={inputRef}
           type="text"
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = error ? "var(--error-border)" : "var(--input-border)";
-            e.currentTarget.style.boxShadow = "none";
+          onBlur={() => {
             setTimeout(() => setShowSuggestions(false), 200);
           }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = error ? "var(--error-border)" : "var(--primary)";
-            e.currentTarget.style.boxShadow = `0 0 0 1px ${error ? "var(--error-border)" : "var(--primary)"}`;
+          onFocus={() => {
             inputValue && setShowSuggestions(true);
           }}
-          placeholder={value.length === 0 ? placeholder : ""}
+          placeholder={placeholder}
           disabled={disabled}
-          className="w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition"
-          style={{
-            borderColor: error ? "var(--error-border)" : "var(--input-border)",
-            backgroundColor: "var(--input-bg)",
-            color: "var(--input-text)",
-          }}
+          className={cn(
+            "w-full rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed transition",
+            error && "border-destructive focus:ring-destructive"
+          )}
         />
 
         {error && (
-          <p className="mt-1 text-sm" style={{ color: "var(--error-text)" }}>
+          <p className="mt-1 text-sm text-destructive">
             {error}
           </p>
         )}
 
         {showSuggestions && filteredSuggestions.length > 0 && (
           <div
-            className="absolute z-10 mt-1 w-full rounded-md shadow-lg border max-h-60 overflow-auto transition"
-            style={{
-              backgroundColor: "var(--card)",
-              borderColor: "var(--border)",
-            }}
+            className="absolute z-10 mt-1 w-full rounded-md shadow-lg border border-border bg-card text-card-foreground max-h-60 overflow-auto transition"
           >
             <div className="py-1">
-              {filteredSuggestions.map((suggestion, index) => (
+              {filteredSuggestions.map((suggestion) => (
                 <div
                   key={suggestion}
-                  className="px-4 py-2 text-sm cursor-pointer transition hover:opacity-80"
-                  style={{ color: "var(--foreground)" }}
+                  className="px-4 py-2 text-sm text-foreground hover:bg-muted cursor-pointer transition"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion}

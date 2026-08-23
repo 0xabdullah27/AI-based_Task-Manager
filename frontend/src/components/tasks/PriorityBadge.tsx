@@ -6,13 +6,15 @@
  */
 
 import { PRIORITY_CONFIG, type Priority } from "@/lib/validations/task";
+import { cn } from "@/lib/utils";
 
 interface PriorityBadgeProps {
   priority: Priority;
   size?: "sm" | "md";
+  className?: string;
 }
 
-export function PriorityBadge({ priority, size = "md" }: PriorityBadgeProps) {
+export function PriorityBadge({ priority, size = "md", className }: PriorityBadgeProps) {
   const config = PRIORITY_CONFIG[priority];
 
   const sizeClasses = {
@@ -20,24 +22,17 @@ export function PriorityBadge({ priority, size = "md" }: PriorityBadgeProps) {
     md: "text-sm px-2.5 py-1",
   };
 
-  const priorityClasses = {
-    bg: config.badgeStyle?.backgroundColor,
-    text: config.badgeStyle?.color,
-    border: config.badgeStyle?.borderColor,
-  };
-
   return (
-    // T060: Use semantic priority variables for badge colors
     <span
-      className={`inline-flex items-center rounded-full border font-medium transition ${sizeClasses[size]}`}
-      style={{
-        backgroundColor: priorityClasses.bg,
-        color: priorityClasses.text,
-        borderColor: priorityClasses.border,
-      }}
-      aria-label={`Priority: ${config.label}`}
+      className={cn(
+        "inline-flex items-center rounded-full border font-medium transition",
+        sizeClasses[size],
+        config?.className || "bg-priority-low text-priority-low-foreground border-priority-low/30",
+        className
+      )}
+      aria-label={`Priority: ${config?.label || priority}`}
     >
-      {config.label}
+      {config?.label || priority}
     </span>
   );
 }

@@ -1,14 +1,18 @@
 import type { Todo } from "@/types/task";
 
 /**
- * T060: Updated to use CSS theme variables instead of hardcoded Tailwind colors
- * Variables are defined in frontend/src/app/globals.css with light and dark mode support
+ * Priority configuration with semantic Tailwind utility classes
+ * Variables are mapped to Tailwind @theme in frontend/src/app/globals.css
  */
 export interface PriorityConfig {
   label: string;
   color: string;
   variant: "destructive" | "warning" | "success" | "secondary";
-  /** CSS variables for theme-aware styling */
+  className: string;
+  bgClass: string;
+  textClass: string;
+  borderClass: string;
+  /** CSS variables for backwards compatibility if referenced */
   bgVar: string;
   textVar: string;
 }
@@ -21,7 +25,10 @@ export const priorityColors: Record<
     label: "High",
     color: "destructive",
     variant: "destructive",
-    // T060: Use CSS variables for dynamic theming
+    className: "bg-priority-high text-priority-high-foreground border-priority-high/30",
+    bgClass: "bg-priority-high",
+    textClass: "text-priority-high-foreground",
+    borderClass: "border-priority-high",
     bgVar: "var(--priority-high-bg)",
     textVar: "var(--priority-high-text)",
   },
@@ -29,7 +36,10 @@ export const priorityColors: Record<
     label: "Medium",
     color: "warning",
     variant: "warning",
-    // T060: Use CSS variables for dynamic theming
+    className: "bg-priority-medium text-priority-medium-foreground border-priority-medium/30",
+    bgClass: "bg-priority-medium",
+    textClass: "text-priority-medium-foreground",
+    borderClass: "border-priority-medium",
     bgVar: "var(--priority-medium-bg)",
     textVar: "var(--priority-medium-text)",
   },
@@ -37,7 +47,10 @@ export const priorityColors: Record<
     label: "Low",
     color: "success",
     variant: "success",
-    // T060: Use CSS variables for dynamic theming
+    className: "bg-priority-low text-priority-low-foreground border-priority-low/30",
+    bgClass: "bg-priority-low",
+    textClass: "text-priority-low-foreground",
+    borderClass: "border-priority-low",
     bgVar: "var(--priority-low-bg)",
     textVar: "var(--priority-low-text)",
   },
@@ -52,3 +65,4 @@ export function getPriorityConfig(
 export function getPriorityColor(priority: Todo["priority"]): string {
   return getPriorityConfig(priority).color;
 }
+

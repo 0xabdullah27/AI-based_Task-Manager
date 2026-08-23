@@ -15,31 +15,17 @@ interface SortSelectorProps {
 export function SortSelector({ value, onChange }: SortSelectorProps) {
   return (
     <div>
-      {/* T062: Replace hardcoded colors with theme variables */}
-      <label className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>
+      <label className="block text-sm font-medium mb-1 text-foreground">
         Sort by
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as SortField)}
-        className="w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 transition"
-        style={{
-          backgroundColor: "var(--input-bg)",
-          borderColor: "var(--input-border)",
-          color: "var(--input-text)",
-        }}
-        onFocus={(e) => {
-          e.currentTarget.style.borderColor = "var(--primary)";
-          e.currentTarget.style.boxShadow = "0 0 0 1px var(--primary)";
-        }}
-        onBlur={(e) => {
-          e.currentTarget.style.borderColor = "var(--input-border)";
-          e.currentTarget.style.boxShadow = "none";
-        }}
+        className="w-full rounded-md border border-input bg-card text-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary transition"
       >
-        <option value="priority">{SORT_LABELS.priority}</option>
-        <option value="title">{SORT_LABELS.title}</option>
-        <option value="created_at">{SORT_LABELS.created_at}</option>
+        <option value="priority" className="bg-card text-foreground">{SORT_LABELS.priority}</option>
+        <option value="title" className="bg-card text-foreground">{SORT_LABELS.title}</option>
+        <option value="created_at" className="bg-card text-foreground">{SORT_LABELS.created_at}</option>
       </select>
     </div>
   );

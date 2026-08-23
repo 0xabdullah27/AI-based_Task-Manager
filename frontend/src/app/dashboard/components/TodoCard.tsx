@@ -66,13 +66,15 @@ export function TodoCard({
 
   // Left urgency accent border line determination
   const accentBorderClass = todo.completed
-    ? "border-l-4 border-l-emerald-500/50"
+    ? "border-l-4 border-l-success"
     : dueInfo.isOverdue
     ? "border-l-4 border-l-destructive"
     : dueInfo.isToday
-    ? "border-l-4 border-l-amber-500"
+    ? "border-l-4 border-l-warning"
     : todo.priority === "high"
-    ? "border-l-4 border-l-blue-500"
+    ? "border-l-4 border-l-priority-high"
+    : todo.priority === "medium"
+    ? "border-l-4 border-l-priority-medium"
     : "border-l-4 border-l-border/80";
 
   const handleAddSubtaskSubmit = async (e: React.FormEvent) => {
@@ -109,7 +111,7 @@ export function TodoCard({
             className="mt-0.5 flex-shrink-0 cursor-pointer transition-transform hover:scale-110"
           >
             {todo.completed ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-500 fill-emerald-500/20" />
+              <CheckCircle2 className="w-5 h-5 text-success fill-success/20" />
             ) : (
               <Circle className="w-5 h-5 text-muted-foreground hover:text-foreground" />
             )}
@@ -198,7 +200,7 @@ export function TodoCard({
                     dueInfo.isOverdue
                       ? "bg-destructive/15 text-destructive border-destructive/40 font-semibold"
                       : dueInfo.isToday
-                      ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/40 font-semibold"
+                      ? "bg-warning/15 text-warning border-warning/40 font-semibold"
                       : "border-border text-muted-foreground bg-muted/40"
                   }`}
                 >
@@ -268,7 +270,7 @@ export function TodoCard({
                           aria-label={`Toggle subtask ${subtask.title}`}
                         >
                           {subtask.completed ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500/20" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-success fill-success/20" />
                           ) : (
                             <Circle className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:text-foreground" />
                           )}

@@ -25,24 +25,24 @@ const VARIANT_CONFIGS: Record<
   }
 > = {
   total: {
-    iconBg: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
-    activeBar: "bg-blue-500",
-    activeBg: "bg-blue-500/[0.06]",
+    iconBg: "bg-primary/10 text-primary border border-primary/20",
+    activeBar: "bg-primary",
+    activeBg: "bg-primary/[0.06]",
   },
   completed: {
-    iconBg: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-    activeBar: "bg-emerald-500",
-    activeBg: "bg-emerald-500/[0.06]",
+    iconBg: "bg-success/10 text-success border border-success/20",
+    activeBar: "bg-success",
+    activeBg: "bg-success/[0.06]",
   },
   today: {
-    iconBg: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-    activeBar: "bg-amber-500",
-    activeBg: "bg-amber-500/[0.06]",
+    iconBg: "bg-warning/10 text-warning border border-warning/20",
+    activeBar: "bg-warning",
+    activeBg: "bg-warning/[0.06]",
   },
   overdue: {
-    iconBg: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
-    activeBar: "bg-rose-500",
-    activeBg: "bg-rose-500/[0.06]",
+    iconBg: "bg-destructive/10 text-destructive border border-destructive/20",
+    activeBar: "bg-destructive",
+    activeBg: "bg-destructive/[0.06]",
   },
 };
 
@@ -78,7 +78,7 @@ export function StatCard({
             {value}
           </span>
           {progress !== undefined && (
-            <span className="text-[14px] font-semibold text-emerald-400">
+            <span className="text-[14px] font-semibold text-success">
               ({progress}%)
             </span>
           )}

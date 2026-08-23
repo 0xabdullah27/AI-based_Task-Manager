@@ -7,19 +7,11 @@ export interface ErrorMessageProps {
 
 export function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
   return (
-    <div
-      className="rounded-md p-4"
-      style={{
-        backgroundColor: "var(--error-bg)",
-        borderColor: "var(--error-border)",
-        borderWidth: 1,
-      }}
-    >
+    <div className="rounded-md p-4 border border-destructive/30 bg-destructive/10 text-destructive">
       <div className="flex items-start">
         <div className="flex-shrink-0">
           <svg
-            className="h-5 w-5"
-            style={{ color: "var(--error-text)" }}
+            className="h-5 w-5 text-destructive"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -31,14 +23,13 @@ export function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
           </svg>
         </div>
         <div className="ml-3 flex-1">
-          <p className="text-sm" style={{ color: "var(--error-text)" }}>
+          <p className="text-sm text-destructive">
             {message}
           </p>
           {onRetry && (
             <button
               onClick={onRetry}
-              className="mt-2 text-sm font-medium hover:opacity-80"
-              style={{ color: "var(--error-text)" }}
+              className="mt-2 text-sm font-medium text-destructive underline hover:opacity-80 cursor-pointer"
             >
               Try again
             </button>

@@ -100,16 +100,28 @@ export function TaskForm({
       processedDueDate = null;
     }
 
-    await onSubmit({
-      ...data,
-      due_date: processedDueDate,
-    });
+    const submitPayload: TaskCreateInput = {
+      title: data.title,
+      priority: data.priority,
+      tags: data.tags || [],
+    };
+    if (data.description) {
+      submitPayload.description = data.description;
+    }
+    if (processedDueDate) {
+      submitPayload.due_date = processedDueDate;
+    }
+    if (data.parent_id) {
+      submitPayload.parent_id = data.parent_id;
+    }
+
+    await onSubmit(submitPayload);
   };
 
   return (
     <form noValidate onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
-        <label htmlFor="title" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
+        <label htmlFor="title" className="block text-sm font-medium text-foreground">
           Title
         </label>
         <input
@@ -117,31 +129,18 @@ export function TaskForm({
           id="title"
           type="text"
           disabled={isLoading}
-          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition text-sm"
-          style={{
-            backgroundColor: "var(--input-bg)",
-            borderColor: "var(--input-border)",
-            color: "var(--input-text)",
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = "var(--primary)";
-            e.currentTarget.style.boxShadow = "0 0 0 1px var(--primary)";
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = "var(--input-border)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
+          className="mt-1 block w-full rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed transition"
           placeholder="Enter task title"
         />
         {errors.title && (
-          <p className="mt-1 text-sm" style={{ color: "var(--error-text)" }}>
+          <p className="mt-1 text-sm text-destructive">
             {errors.title.message}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
+        <label htmlFor="description" className="block text-sm font-medium text-foreground">
           Description (Optional)
         </label>
         <textarea
@@ -149,60 +148,34 @@ export function TaskForm({
           id="description"
           rows={3}
           disabled={isLoading}
-          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition text-sm"
-          style={{
-            backgroundColor: "var(--input-bg)",
-            borderColor: "var(--input-border)",
-            color: "var(--input-text)",
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = "var(--primary)";
-            e.currentTarget.style.boxShadow = "0 0 0 1px var(--primary)";
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = "var(--input-border)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
+          className="mt-1 block w-full rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed transition"
           placeholder="Enter task description"
         />
         {errors.description && (
-          <p className="mt-1 text-sm" style={{ color: "var(--error-text)" }}>
+          <p className="mt-1 text-sm text-destructive">
             {errors.description.message}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="priority" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
+        <label htmlFor="priority" className="block text-sm font-medium text-foreground">
           Priority
         </label>
         <select
           {...register("priority")}
           id="priority"
           disabled={isLoading}
-          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition text-sm"
-          style={{
-            backgroundColor: "var(--input-bg)",
-            borderColor: "var(--input-border)",
-            color: "var(--input-text)",
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = "var(--primary)";
-            e.currentTarget.style.boxShadow = "0 0 0 1px var(--primary)";
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = "var(--input-border)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
+          className="mt-1 block w-full rounded-md border border-input bg-card text-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed transition"
         >
           {priorityValues.map((priority) => (
-            <option key={priority} value={priority}>
+            <option key={priority} value={priority} className="bg-card text-foreground">
               {PRIORITY_CONFIG[priority].label}
             </option>
           ))}
         </select>
         {errors.priority && (
-          <p className="mt-1 text-sm" style={{ color: "var(--error-text)" }}>
+          <p className="mt-1 text-sm text-destructive">
             {errors.priority.message}
           </p>
         )}
@@ -210,7 +183,7 @@ export function TaskForm({
 
       {/* Shadcn UI Calendar Date Picker */}
       <div>
-        <label htmlFor="due_date" className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>
+        <label htmlFor="due_date" className="block text-sm font-medium mb-1 text-foreground">
           Due Date (Optional)
         </label>
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
@@ -220,14 +193,9 @@ export function TaskForm({
               id="due_date"
               disabled={isLoading}
               className={cn(
-                "mt-1 w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md border text-left text-sm transition shadow-xs focus:outline-none focus:ring-1 disabled:cursor-not-allowed cursor-pointer",
+                "mt-1 w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-input bg-card text-foreground text-left text-sm transition shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed cursor-pointer",
                 !selectedDate && "text-muted-foreground"
               )}
-              style={{
-                backgroundColor: "var(--input-bg)",
-                borderColor: "var(--input-border)",
-                color: selectedDate ? "var(--input-text)" : "var(--muted-foreground)",
-              }}
             >
               <span className="flex items-center gap-2 truncate">
                 <CalendarIcon className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -275,14 +243,14 @@ export function TaskForm({
           </PopoverContent>
         </Popover>
         {errors.due_date && (
-          <p className="mt-1 text-sm" style={{ color: "var(--error-text)" }}>
+          <p className="mt-1 text-sm text-destructive">
             {errors.due_date.message}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="tags" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
+        <label htmlFor="tags" className="block text-sm font-medium text-foreground">
           Tags (Optional)
         </label>
         <TagInput
@@ -293,7 +261,7 @@ export function TaskForm({
           placeholder="Add tags (comma or enter to add)..."
         />
         {errors.tags && (
-          <p className="mt-1 text-sm" style={{ color: "var(--error-text)" }}>
+          <p className="mt-1 text-sm text-destructive">
             {errors.tags.message}
           </p>
         )}
