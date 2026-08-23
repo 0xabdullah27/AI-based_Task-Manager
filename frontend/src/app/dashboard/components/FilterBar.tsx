@@ -139,7 +139,7 @@ export function FilterBar({
       </div>
 
       {/* Row 2: Standardized Refinements (Clean Muted Icon & Matching Family Outline Buttons) */}
-      <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-border/50 overflow-x-auto scrollbar-none py-0.5 flex-nowrap">
+      <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-border/50 overflow-x-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-0.5 flex-nowrap">
         {/* Quick Presets matching family outline buttons with minimalist muted icon */}
         <div className="flex items-center gap-2 shrink-0">
           <Zap className="w-4 h-4 text-muted-foreground/70 shrink-0 select-none mr-0.5" />
@@ -299,11 +299,11 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* Row 3: Clean Active Filter Chips Bar (Single-Line Horizontal Scroll) */}
+      {/* Row 3: Clean Active Filter Chips Bar (Single-Line Horizontal Scroll without Scrollbar) */}
       {hasActiveFilters && (
         <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-border/50">
           {/* Left: Horizontal scrolling active chips flex box */}
-          <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none flex-1 min-w-0 py-0.5">
+          <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex-1 min-w-0 py-0.5">
             <span className="text-xs font-semibold text-muted-foreground/80 flex items-center gap-1 shrink-0 select-none mr-1">
               <Filter className="w-3.5 h-3.5 text-muted-foreground" />
               Active Filters:
