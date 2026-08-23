@@ -263,12 +263,12 @@ export function TaskCommandCenter() {
         </div>
       </div>
 
-      {/* Top Interactive Stat Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      {/* Sleek Single-Line Glass Metric Strip */}
+      <div className="rounded-xl border border-border/80 bg-card/60 backdrop-blur-md overflow-hidden grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-border/60 shadow-sm">
         {isLoading && (!tasks || tasks.length === 0) ? (
           <>
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-20 rounded-xl" />
+              <Skeleton key={i} className="h-14 rounded-none" />
             ))}
           </>
         ) : (
@@ -277,8 +277,7 @@ export function TaskCommandCenter() {
               label="Total Tasks"
               value={stats.total}
               icon={BarChart3}
-              bgColor="bg-primary/10"
-              textColor="text-primary"
+              variant="total"
               onClick={() => handleFilterChange({ status: "all", quickPreset: null })}
               isActive={filters.status === "all" && !filters.quickPreset}
             />
@@ -286,8 +285,7 @@ export function TaskCommandCenter() {
               label="Completed"
               value={stats.completed}
               icon={CheckCircle2}
-              bgColor="bg-emerald-500/15"
-              textColor="text-emerald-500"
+              variant="completed"
               progress={completionPercentage}
               onClick={() => handleFilterChange({ status: "completed", quickPreset: null })}
               isActive={filters.status === "completed"}
@@ -296,8 +294,7 @@ export function TaskCommandCenter() {
               label="Due Today"
               value={stats.today}
               icon={Zap}
-              bgColor="bg-amber-500/15"
-              textColor="text-amber-500"
+              variant="today"
               onClick={() => handleFilterChange({ quickPreset: "today" })}
               isActive={filters.quickPreset === "today"}
             />
@@ -305,8 +302,7 @@ export function TaskCommandCenter() {
               label="Overdue"
               value={overdueCount}
               icon={AlertTriangle}
-              bgColor="bg-destructive/15"
-              textColor="text-destructive"
+              variant="overdue"
               onClick={() => handleFilterChange({ quickPreset: "overdue" })}
               isActive={filters.quickPreset === "overdue"}
             />
