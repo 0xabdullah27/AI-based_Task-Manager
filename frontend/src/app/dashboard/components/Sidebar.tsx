@@ -3,16 +3,12 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
-import { Button } from "@/components/ui/Button";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
   navigationSections,
   getActiveSection,
 } from "@/lib/dashboard-navigation";
-import { LogOut, CheckSquare } from "lucide-react";
-import Link from "next/link";
+import { LogOut, ChevronsUpDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
@@ -40,43 +36,32 @@ export function Sidebar() {
         .toUpperCase()
     : session?.user?.email?.[0]?.toUpperCase() || "U";
 
+  const workspaceName = session?.user?.name
+    ? `${session.user.name.split(" ")[0]}'s Workspace`
+    : "My Workspace";
+
   return (
-    <div className="h-full flex flex-col overflow-y-auto p-4 space-y-6 bg-sidebar text-sidebar-foreground">
-      {/* Logo */}
-      <Link href="/" className="flex items-center gap-2 px-2">
-        <div className="p-2 rounded-lg bg-primary text-primary-foreground">
-          <CheckSquare className="w-5 h-5" />
+    <div className="h-full flex flex-col overflow-y-auto p-2 bg-sidebar text-sidebar-foreground">
+      {/* Workspace Selector (Notion Style) */}
+      <div className="flex items-center gap-2 px-2 py-3 hover:bg-sidebar-accent rounded-md cursor-pointer transition-colors mt-2">
+        <div className="h-5 w-5 flex items-center justify-center rounded-[3px] bg-foreground text-background text-[10px] font-bold">
+          {userInitials}
         </div>
-        <span className="font-bold text-lg hidden sm:block text-foreground">
-          TaskHub
-        </span>
-      </Link>
-
-      <Separator />
-
-      {/* User Info */}
-      <div className="px-2 space-y-3">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-              {userInitials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate text-foreground">
-              {session?.user?.name || "User"}
-            </p>
-            <p className="text-xs truncate text-muted-foreground">
-              {session?.user?.email}
-            </p>
-          </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate text-foreground leading-tight">
+            {workspaceName}
+          </p>
+          <p className="text-[11px] truncate text-muted-foreground leading-tight">
+            Free Plan
+          </p>
         </div>
+        <ChevronsUpDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" strokeWidth={1.5} />
       </div>
 
-      <Separator />
+      <div className="h-4" /> {/* Spacer */}
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1">
+      <nav className="flex-1 space-y-[2px]">
         {navigationSections.map((section) => {
           const Icon = section.icon;
           const isActive = activeSection === section.id;
@@ -86,34 +71,38 @@ export function Sidebar() {
               key={section.id}
               onClick={() => router.push(section.href)}
               className={cn(
-                "w-full cursor-pointer flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition",
+                "w-full cursor-pointer flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm transition-colors",
                 isActive
-                  ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-sidebar-accent text-foreground font-medium"
+                  : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
               )}
             >
-              <Icon className="h-5 w-5 shrink-0" />
+              <Icon className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-foreground" : "text-muted-foreground")} strokeWidth={1.5} />
               <span className="truncate">{section.label}</span>
             </button>
           );
         })}
       </nav>
 
-      <Separator />
+      {/* Bottom Actions */}
+      <div className="space-y-[2px] mt-auto pt-4 pb-2">
+        <div className="px-3 py-1.5 flex items-center justify-between text-muted-foreground hover:bg-sidebar-accent hover:text-foreground rounded-md cursor-pointer transition-colors">
+          <div className="flex items-center gap-2.5">
+            <Plus className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            <span className="text-sm">New page</span>
+          </div>
+        </div>
+        
+        <ThemeToggle showLabel className="w-full justify-start px-3 py-1.5 h-auto text-muted-foreground hover:bg-sidebar-accent hover:text-foreground rounded-md transition-colors" />
 
-      {/* Theme Toggle & Sign Out */}
-      <div className="space-y-2">
-        <ThemeToggle showLabel className="w-full justify-start px-3 py-2 h-auto" />
-
-        <Button
+        <button
           onClick={handleSignOut}
-          variant="outline"
           disabled={isSigningOut}
-          className="w-full justify-start bg-secondary text-secondary-foreground border-border hover:bg-destructive hover:text-destructive-foreground cursor-pointer disabled:opacity-50 transition-colors"
+          className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive cursor-pointer disabled:opacity-50 transition-colors"
         >
-          <LogOut className="h-4 w-4 mr-2" />
-          {isSigningOut ? "Signing out..." : "Sign Out"}
-        </Button>
+          <LogOut className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
+          <span className="truncate">{isSigningOut ? "Signing out..." : "Log out"}</span>
+        </button>
       </div>
     </div>
   );

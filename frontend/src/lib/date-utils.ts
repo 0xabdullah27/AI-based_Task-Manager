@@ -126,7 +126,7 @@ export function groupTasksByUrgency(tasks: Todo[]): TaskGroup[] {
     {
       id: "overdue",
       title: "Overdue",
-      icon: "⚠️",
+      icon: "AlertCircle",
       description: "Tasks requiring immediate attention",
       badgeClass: "bg-destructive/15 text-destructive border-destructive/30",
       borderClass: "border-destructive/40",
@@ -136,7 +136,7 @@ export function groupTasksByUrgency(tasks: Todo[]): TaskGroup[] {
     {
       id: "today",
       title: "Due Today",
-      icon: "📅",
+      icon: "Target",
       description: "Tasks scheduled for completion today",
       badgeClass: "bg-warning/15 text-warning border-warning/30",
       borderClass: "border-warning/40",
@@ -146,7 +146,7 @@ export function groupTasksByUrgency(tasks: Todo[]): TaskGroup[] {
     {
       id: "upcoming",
       title: "Upcoming",
-      icon: "🔥",
+      icon: "Calendar",
       description: "High priority or due within the next 7 days",
       badgeClass: "bg-info/15 text-info border-info/30",
       borderClass: "border-info/40",
@@ -156,7 +156,7 @@ export function groupTasksByUrgency(tasks: Todo[]): TaskGroup[] {
     {
       id: "later",
       title: "Later",
-      icon: "📌",
+      icon: "Inbox",
       description: "General pending tasks",
       badgeClass: "bg-muted-foreground/15 text-muted-foreground border-muted-foreground/30",
       borderClass: "border-border",
@@ -166,7 +166,7 @@ export function groupTasksByUrgency(tasks: Todo[]): TaskGroup[] {
     {
       id: "completed",
       title: "Completed",
-      icon: "✅",
+      icon: "CheckCircle2",
       description: "Finished tasks",
       badgeClass: "bg-success/15 text-success border-success/30",
       borderClass: "border-success/30",

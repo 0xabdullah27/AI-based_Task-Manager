@@ -15,9 +15,10 @@ interface TagInputProps {
   suggestions: string[];
   placeholder?: string;
   disabled?: boolean;
+  className?: string;
 }
 
-export function TagInput({ value, onChange, suggestions, placeholder = "Add tags (comma or enter to add)...", disabled = false }: TagInputProps) {
+export function TagInput({ value, onChange, suggestions, placeholder = "Add tags (comma or enter to add)...", disabled = false, className }: TagInputProps) {
   const [inputValue, setInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -138,7 +139,8 @@ export function TagInput({ value, onChange, suggestions, placeholder = "Add tags
           disabled={disabled}
           className={cn(
             "w-full rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed transition",
-            error && "border-destructive focus:ring-destructive"
+            error && "border-destructive focus:ring-destructive",
+            className
           )}
         />
 

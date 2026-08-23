@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/Input";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -15,7 +13,7 @@ import {
 import {
   CheckCircle2,
   Circle,
-  MoreVertical,
+  MoreHorizontal,
   Trash2,
   Edit,
   Calendar,
@@ -45,7 +43,7 @@ export function TodoCard({
   onAddSubtask,
   onToggleSubtask,
 }: TodoCardProps) {
-  const [subtasksExpanded, setSubtasksExpanded] = useState(true);
+  const [subtasksExpanded, setSubtasksExpanded] = useState(false);
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const [subtaskTitle, setSubtaskTitle] = useState("");
   const [isSubmittingSubtask, setIsSubmittingSubtask] = useState(false);
@@ -58,24 +56,10 @@ export function TodoCard({
     ? todo.subtasks.filter((s) => s.completed).length
     : 0;
   const totalSubtasksCount = hasSubtasks ? todo.subtasks.length : 0;
-  const subtasksPending = hasSubtasks && completedSubtasksCount < totalSubtasksCount;
-
+  
   const subtaskProgressPercentage = totalSubtasksCount > 0
     ? Math.round((completedSubtasksCount / totalSubtasksCount) * 100)
     : 0;
-
-  // Left urgency accent border line determination
-  const accentBorderClass = todo.completed
-    ? "border-l-4 border-l-success"
-    : dueInfo.isOverdue
-    ? "border-l-4 border-l-destructive"
-    : dueInfo.isToday
-    ? "border-l-4 border-l-warning"
-    : todo.priority === "high"
-    ? "border-l-4 border-l-priority-high"
-    : todo.priority === "medium"
-    ? "border-l-4 border-l-priority-medium"
-    : "border-l-4 border-l-border/80";
 
   const handleAddSubtaskSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,260 +71,230 @@ export function TodoCard({
       await onAddSubtask(todo.id, trimmed);
       setSubtaskTitle("");
       setIsAddingSubtask(false);
+      setSubtasksExpanded(true);
     } finally {
       setIsSubmittingSubtask(false);
     }
   };
 
   return (
-    <Card
-      className={`transition-all duration-200 ${accentBorderClass} overflow-hidden ${
-        todo.completed
-          ? "bg-muted/30 opacity-75 border-border/50"
-          : dueInfo.isOverdue
-          ? "bg-destructive/5 border-destructive/30 hover:border-destructive/60 hover:shadow-md"
-          : "bg-card hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5"
+    <div
+      className={`group flex items-start gap-3 py-3 border-b border-border last:border-b-0 hover:bg-muted/40 transition-colors ${
+        todo.completed ? "opacity-60" : ""
       }`}
     >
-      <CardContent className="p-4 sm:p-5">
-        <div className="flex items-start gap-3.5">
-          {/* Main Checkbox */}
-          <button
-            onClick={onToggle}
-            title={todo.completed ? "Mark incomplete" : "Mark complete"}
-            className="mt-0.5 flex-shrink-0 cursor-pointer transition-transform hover:scale-110"
-          >
-            {todo.completed ? (
-              <CheckCircle2 className="w-5 h-5 text-success fill-success/20" />
-            ) : (
-              <Circle className="w-5 h-5 text-muted-foreground hover:text-foreground" />
-            )}
-          </button>
+      {/* Checkbox */}
+      <button
+        onClick={onToggle}
+        title={todo.completed ? "Mark incomplete" : "Mark complete"}
+        className="mt-0.5 flex-shrink-0 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {todo.completed ? (
+          <CheckCircle2 className="w-[18px] h-[18px] text-muted-foreground" strokeWidth={1.5} />
+        ) : (
+          <Circle className="w-[18px] h-[18px]" strokeWidth={1.5} />
+        )}
+      </button>
 
-          {/* Main Task Content */}
+      {/* Main Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1">
-                <h3
-                  className={`font-bold text-base text-foreground leading-snug transition ${
-                    todo.completed ? "line-through text-muted-foreground" : ""
-                  }`}
-                >
-                  {todo.title}
-                </h3>
-                {todo.description && (
-                  <p
-                    className={`text-sm text-muted-foreground mt-1 line-clamp-2 ${
-                      todo.completed ? "line-through opacity-70" : ""
-                    }`}
-                  >
-                    {todo.description}
-                  </p>
-                )}
-              </div>
+            <h3
+              className={`text-sm font-medium text-foreground leading-snug truncate ${
+                todo.completed ? "line-through text-muted-foreground" : ""
+              }`}
+            >
+              {todo.title}
+            </h3>
+            
+            {todo.description && (
+              <p
+                className={`text-[13px] text-muted-foreground mt-0.5 line-clamp-1 ${
+                  todo.completed ? "line-through" : ""
+                }`}
+              >
+                {todo.description}
+              </p>
+            )}
 
-              {/* Action Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 flex-shrink-0 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg hover:bg-muted"
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                    <span className="sr-only">Open menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem
-                    onClick={() => onEdit(todo)}
-                    className="cursor-pointer"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Task
-                  </DropdownMenuItem>
-                  {onAddSubtask && !todo.parent_id && (
-                    <DropdownMenuItem
-                      onClick={() => setIsAddingSubtask(true)}
-                      className="cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Step
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem
-                    onClick={onDelete}
-                    className="text-destructive focus:text-destructive cursor-pointer"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Task
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* Badges Row */}
-            <div className="flex flex-wrap items-center gap-2 mt-3">
-              {/* Priority Badge */}
-              <Badge
-                className="border-0 font-semibold px-2.5 py-0.5 text-xs capitalize shadow-2xs"
+            {/* Properties Row */}
+            <div className="flex flex-wrap items-center gap-2 mt-1.5">
+              {/* Priority Tag (Notion style select) */}
+              <span
+                className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium rounded-sm truncate"
                 style={{
                   backgroundColor: priorityConfig.bgVar,
                   color: priorityConfig.textVar,
                 }}
               >
                 {priorityConfig.label}
-              </Badge>
+              </span>
 
-              {/* Relative Due Date Badge */}
+              {/* Due Date Tag */}
               {todo.due_date && dueInfo.text && (
-                <Badge
-                  variant="outline"
-                  className={`flex items-center gap-1 text-xs px-2.5 py-0.5 border font-medium ${
+                <span
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[11px] rounded-sm truncate ${
                     dueInfo.isOverdue
-                      ? "bg-destructive/15 text-destructive border-destructive/40 font-semibold"
+                      ? "bg-destructive/10 text-destructive"
                       : dueInfo.isToday
-                      ? "bg-warning/15 text-warning border-warning/40 font-semibold"
-                      : "border-border text-muted-foreground bg-muted/40"
+                      ? "bg-warning/10 text-warning"
+                      : "text-muted-foreground"
                   }`}
                 >
-                  {dueInfo.isOverdue ? (
-                    <AlertTriangle className="w-3 h-3 text-destructive animate-pulse" />
-                  ) : (
-                    <Calendar className="w-3 h-3" />
-                  )}
+                  <Calendar className="w-3 h-3" strokeWidth={1.5} />
                   {dueInfo.text}
-                </Badge>
+                </span>
               )}
 
-              {/* Tag Badges */}
+              {/* General Tags */}
               {todo.tags && todo.tags.length > 0 && (
                 <>
                   {todo.tags.map((tag) => (
-                    <Badge
+                    <span
                       key={tag}
-                      variant="outline"
-                      className="border-border/60 bg-muted/30 text-muted-foreground text-xs px-2 py-0.5"
+                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] text-muted-foreground bg-muted rounded-sm truncate"
                     >
-                      #{tag}
-                    </Badge>
+                      {tag}
+                    </span>
                   ))}
                 </>
               )}
+              
+              {/* Subtask indicator badge */}
+              {hasSubtasks && !subtasksExpanded && (
+                 <span className="inline-flex items-center text-[11px] text-muted-foreground">
+                    <ChevronRight className="w-3 h-3 mr-0.5" strokeWidth={1.5} />
+                    {completedSubtasksCount}/{totalSubtasksCount} steps
+                 </span>
+              )}
             </div>
+          </div>
 
-            {/* Subtasks Progress Bar & Checklist Section */}
-            {hasSubtasks && (
-              <div className="mt-3.5 pt-3 border-t border-border/50 space-y-2">
-                {/* Progress bar header */}
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <button
-                    type="button"
-                    onClick={() => setSubtasksExpanded((prev) => !prev)}
-                    className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer"
+          {/* Action Menu - only shows on hover in desktop, always on mobile */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 flex-shrink-0 text-muted-foreground hover:text-foreground md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+              >
+                <MoreHorizontal className="w-4 h-4" strokeWidth={1.5} />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem onClick={() => onEdit(todo)} className="text-[13px] cursor-pointer">
+                <Edit className="w-[14px] h-[14px] mr-2" strokeWidth={1.5} />
+                Edit
+              </DropdownMenuItem>
+              {onAddSubtask && !todo.parent_id && (
+                <DropdownMenuItem
+                  onClick={() => setIsAddingSubtask(true)}
+                  className="text-[13px] cursor-pointer"
+                >
+                  <Plus className="w-[14px] h-[14px] mr-2" strokeWidth={1.5} />
+                  Add Step
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={onDelete}
+                className="text-[13px] text-destructive focus:text-destructive cursor-pointer"
+              >
+                <Trash2 className="w-[14px] h-[14px] mr-2" strokeWidth={1.5} />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Subtasks Section */}
+        {hasSubtasks && (
+          <div className="mt-2">
+            {/* Toggle button */}
+            {subtasksExpanded && (
+              <button
+                type="button"
+                onClick={() => setSubtasksExpanded(false)}
+                className="flex items-center text-[11px] text-muted-foreground hover:text-foreground mb-1"
+              >
+                <ChevronDown className="w-3 h-3 mr-1" strokeWidth={1.5} />
+                Hide steps
+              </button>
+            )}
+
+            {/* Subtask list */}
+            {subtasksExpanded && (
+              <div className="space-y-1 pl-1 ml-[5px] border-l border-border/50">
+                {todo.subtasks.map((subtask) => (
+                  <div
+                    key={subtask.id}
+                    className="flex items-center gap-2 text-sm py-1 group/subtask hover:bg-muted/30 px-2 rounded-sm"
                   >
-                    {subtasksExpanded ? (
-                      <ChevronDown className="w-3.5 h-3.5 text-primary" />
-                    ) : (
-                      <ChevronRight className="w-3.5 h-3.5 text-primary" />
-                    )}
-                    <span>Subtask Steps ({completedSubtasksCount}/{totalSubtasksCount})</span>
-                  </button>
-
-                  <span className="text-muted-foreground font-medium text-[11px]">
-                    {subtaskProgressPercentage}% completed
-                  </span>
-                </div>
-
-                {/* Progress bar visual indicator */}
-                <Progress value={subtaskProgressPercentage} className="h-1.5 bg-muted/60" />
-
-                {/* Subtask list */}
-                {subtasksExpanded && (
-                  <div className="space-y-1.5 pl-2 pt-1 border-l-2 border-primary/30 mt-2">
-                    {todo.subtasks.map((subtask) => (
-                      <div
-                        key={subtask.id}
-                        className="flex items-center gap-2 text-xs py-0.5 group"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => onToggleSubtask?.(subtask.id)}
-                          className="cursor-pointer flex-shrink-0 text-muted-foreground hover:text-foreground transition"
-                          aria-label={`Toggle subtask ${subtask.title}`}
-                        >
-                          {subtask.completed ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-success fill-success/20" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:text-foreground" />
-                          )}
-                        </button>
-                        <span
-                          className={`flex-1 ${
-                            subtask.completed
-                              ? "line-through text-muted-foreground"
-                              : "text-foreground"
-                          }`}
-                        >
-                          {subtask.title}
-                        </span>
-                      </div>
-                    ))}
+                    <button
+                      type="button"
+                      onClick={() => onToggleSubtask?.(subtask.id)}
+                      className="cursor-pointer flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {subtask.completed ? (
+                        <CheckCircle2 className="w-[14px] h-[14px] text-muted-foreground" strokeWidth={1.5} />
+                      ) : (
+                        <Circle className="w-[14px] h-[14px] text-muted-foreground/50 group-hover/subtask:text-foreground" strokeWidth={1.5} />
+                      )}
+                    </button>
+                    <span
+                      className={`flex-1 text-[13px] ${
+                        subtask.completed
+                          ? "line-through text-muted-foreground"
+                          : "text-foreground"
+                      }`}
+                    >
+                      {subtask.title}
+                    </span>
                   </div>
-                )}
+                ))}
               </div>
             )}
-
-            {/* Inline Add Subtask Input Form */}
-            {isAddingSubtask ? (
-              <form
-                onSubmit={handleAddSubtaskSubmit}
-                className="mt-3 flex items-center gap-2"
-              >
-                <Input
-                  type="text"
-                  placeholder="Subtask title..."
-                  value={subtaskTitle}
-                  onChange={(e) => setSubtaskTitle(e.target.value)}
-                  disabled={isSubmittingSubtask}
-                  className="h-8 text-xs bg-muted/50 border-border"
-                  autoFocus
-                />
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={isSubmittingSubtask || !subtaskTitle.trim()}
-                  className="h-8 text-xs px-3 bg-primary text-primary-foreground cursor-pointer font-semibold"
-                >
-                  Add
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsAddingSubtask(false)}
-                  disabled={isSubmittingSubtask}
-                  className="h-8 text-xs px-2 cursor-pointer"
-                >
-                  Cancel
-                </Button>
-              </form>
-            ) : (
-              !todo.parent_id &&
-              onAddSubtask && (
-                <button
-                  type="button"
-                  onClick={() => setIsAddingSubtask(true)}
-                  className="mt-2.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition cursor-pointer font-medium"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Add subtask step
-                </button>
-              )
-            )}
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        )}
+
+        {/* Inline Add Subtask Input Form */}
+        {isAddingSubtask && (
+          <form
+            onSubmit={handleAddSubtaskSubmit}
+            className="mt-2 flex items-center gap-2 pl-4"
+          >
+            <Input
+              type="text"
+              placeholder="Step title..."
+              value={subtaskTitle}
+              onChange={(e) => setSubtaskTitle(e.target.value)}
+              disabled={isSubmittingSubtask}
+              className="h-7 text-[13px] border-0 border-b border-border rounded-none bg-transparent focus-visible:ring-0 focus-visible:border-primary px-0"
+              autoFocus
+            />
+            <Button
+              type="submit"
+              size="sm"
+              variant="ghost"
+              disabled={isSubmittingSubtask || !subtaskTitle.trim()}
+              className="h-7 text-[12px] px-2 font-medium"
+            >
+              Add
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAddingSubtask(false)}
+              disabled={isSubmittingSubtask}
+              className="h-7 text-[12px] px-2 text-muted-foreground"
+            >
+              Cancel
+            </Button>
+          </form>
+        )}
+      </div>
+    </div>
   );
 }

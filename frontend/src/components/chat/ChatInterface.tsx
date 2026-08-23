@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { Send, User, Bot, Loader2 } from "lucide-react";
+import { Send, User, Bot, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ChatHeader } from "./ChatHeader";
 import { ChatSidebar } from "./ChatSidebar";
@@ -55,8 +55,8 @@ export function ChatInterface() {
 
   return (
     <div
-      className="flex flex-col h-full bg-background rounded-lg border shadow-sm mx-auto max-w-4xl overflow-hidden mt-4 mb-8"
-      style={{ height: "calc(100vh - 100px)" }}
+      className="flex flex-col h-full bg-background mx-auto max-w-5xl overflow-hidden border-x border-border/50"
+      style={{ height: "calc(100vh - 56px)" }} // Assuming 56px is the top nav height
     >
       <ChatHeader
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
@@ -78,22 +78,22 @@ export function ChatInterface() {
         {/* Right Side: Flex Column keeps input pinned to bottom */}
         <div className="flex-1 flex flex-col bg-background">
           {/* Messages Area (Scrollable) */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-8">
             {isLoading ? (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground/50 space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin" />
-                <p>Loading conversations...</p>
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                <p className="text-sm">Loading conversations...</p>
               </div>
             ) : isFetchingHistory ? (
-              <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50 space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin" />
-                <p>Loading history...</p>
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground/50 space-y-4">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                <p className="text-sm">Loading history...</p>
               </div>
             ) : messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50 space-y-4">
-                <Bot className="w-16 h-16" />
-                <p className="max-w-md text-center">
-                  Hello! I&apos;m your AI Todo assistant. Ask me to add a task,
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground/70 space-y-4">
+                <Sparkles className="w-12 h-12 opacity-80" strokeWidth={1.5} />
+                <p className="max-w-md text-center text-sm">
+                  Hello! I'm your AI Todo assistant. Ask me to add a task,
                   show your pending items, or mark something as complete.
                 </p>
               </div>
@@ -101,27 +101,25 @@ export function ChatInterface() {
               messages.map((m, i) => (
                 <div
                   key={i}
-                  className={`flex gap-3 ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex gap-4 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {m.role === "assistant" && (
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Bot className="w-5 h-5 text-primary" />
-                    </div>
+                     <Sparkles className="w-5 h-5 mt-1 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                   )}
 
                   <div
-                    className={`px-4 py-3 rounded-2xl max-w-[80%] ${
+                    className={`text-[15px] leading-relaxed max-w-[85%] ${
                       m.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-sm"
-                        : "bg-muted text-foreground rounded-bl-sm border"
+                        ? "bg-muted/50 px-4 py-3 rounded-xl rounded-br-sm border border-border/50 text-foreground"
+                        : "text-foreground"
                     }`}
                   >
                     <ChatMessageContent content={m.content} role={m.role} />
                   </div>
 
                   {m.role === "user" && (
-                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                      <User className="w-5 h-5 text-secondary-foreground" />
+                    <div className="w-7 h-7 rounded-full bg-muted/80 border border-border/50 flex items-center justify-center shrink-0 mt-1">
+                      <User className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
                     </div>
                   )}
                 </div>
@@ -129,15 +127,14 @@ export function ChatInterface() {
             )}
 
             {isSending && (
-              <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <Bot className="w-5 h-5 text-primary" />
-                </div>
-                <div className="px-5 py-4 rounded-2xl bg-muted rounded-bl-sm border flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    Thinking...
-                  </span>
+              <div className="flex gap-4 justify-start">
+                <Sparkles className="w-5 h-5 mt-1 shrink-0 animate-pulse text-muted-foreground" strokeWidth={1.5} />
+                <div className="flex items-center gap-2 h-8">
+                  <div className="flex space-x-1">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce"></div>
+                  </div>
                 </div>
               </div>
             )}
@@ -145,28 +142,31 @@ export function ChatInterface() {
           </div>
 
           {/* Input Area (Fixed at Bottom) */}
-          <div className="p-2 bg-card border-t shrink-0">
-            <div className="relative flex items-end gap-2 max-w-4xl mx-auto">
+          <div className="p-4 sm:px-8 shrink-0 bg-background">
+            <div className="relative max-w-4xl mx-auto rounded-xl border border-border/60 bg-muted/20 focus-within:bg-background focus-within:ring-1 focus-within:ring-primary/30 transition-all shadow-sm">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask me to create a task..."
-                className="w-full min-h-[56px] max-h-32 resize-none bg-background rounded-xl border p-4 pr-12 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm shadow-sm"
+                placeholder="Ask AI to manage your tasks..."
+                className="w-full min-h-[56px] max-h-40 resize-none bg-transparent p-4 pr-12 focus:outline-none text-[15px]"
                 rows={1}
                 disabled={isSending}
               />
-              <Button
-                size="icon"
-                className="absolute right-2 bottom-2 rounded-lg"
+              <button
+                className={`absolute right-3 bottom-3 p-1.5 rounded-md transition-colors ${
+                  !input.trim() || isSending 
+                    ? "text-muted-foreground/40 cursor-not-allowed" 
+                    : "bg-primary text-primary-foreground hover:opacity-90 cursor-pointer shadow-xs"
+                }`}
                 onClick={handleSend}
                 disabled={!input.trim() || isSending}
               >
-                <Send className="w-4 h-4" />
-              </Button>
+                <Send className="w-4 h-4" strokeWidth={2} />
+              </button>
             </div>
-            <p className="text-xs text-center text-muted-foreground mt-1">
-              AI agents can make mistakes. Always verify your task changes.
+            <p className="text-[11px] text-center text-muted-foreground/70 mt-3 font-medium">
+              AI can make mistakes. Please verify important task changes.
             </p>
           </div>
         </div>

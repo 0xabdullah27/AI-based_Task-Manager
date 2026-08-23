@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { TaskGroup } from "@/lib/date-utils";
+import * as Icons from "lucide-react";
 import type { Todo } from "@/types/task";
 
 interface TaskGroupSectionProps {
@@ -20,6 +21,9 @@ export function TaskGroupSection({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   if (group.tasks.length === 0) return null;
+  
+  // Dynamically resolve the icon from lucide-react
+  const IconComponent = (Icons as any)[group.icon] || Icons.HelpCircle;
 
   return (
     <div className={`rounded-xl border ${group.borderClass} overflow-hidden shadow-xs transition-all`}>
@@ -30,7 +34,7 @@ export function TaskGroupSection({
         className={`w-full flex items-center justify-between px-4 py-3 ${group.headerBgClass} hover:opacity-90 transition cursor-pointer select-none`}
       >
         <div className="flex items-center gap-2.5">
-          <span className="text-lg">{group.icon}</span>
+          <IconComponent className="w-5 h-5" strokeWidth={1.5} />
           <h2 className="font-bold text-foreground text-base flex items-center gap-2">
             {group.title}
             <Badge className={`border ${group.badgeClass} font-semibold px-2 text-xs`}>
