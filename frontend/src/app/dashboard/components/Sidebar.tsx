@@ -41,7 +41,7 @@ export function Sidebar() {
     : session?.user?.email?.[0]?.toUpperCase() || "U";
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto p-4 space-y-6 bg-card text-card-foreground">
+    <div className="h-full flex flex-col overflow-y-auto p-4 space-y-6 bg-sidebar text-sidebar-foreground">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 px-2">
         <div className="p-2 rounded-lg bg-primary text-primary-foreground">

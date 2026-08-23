@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { CheckSquare } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function Navigation() {
   return (
@@ -18,6 +19,7 @@ export function Navigation() {
 
         {/* Auth Actions */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link href="/sign-in">
             <Button variant="ghost">Sign In</Button>
           </Link>
