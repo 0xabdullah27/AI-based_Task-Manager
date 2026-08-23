@@ -68,6 +68,8 @@ class TaskCreate(BaseModel):
         completed (bool): Initial completion status (default False).
         priority (Priority): Priority level (default Priority.LOW when unspecified).
         tags (list[str]): List of tag names to attach (max 20 tags).
+        parent_id (Optional[str]): ID of parent task if creating a subtask.
+        due_date (Optional[datetime]): Optional due date and time for the task.
     """
     title: str = Field(..., min_length=1, max_length=200, description="Task title (1-200 chars)")
     description: Optional[str] = Field(None, max_length=2000, description="Task description (max 2000 chars)")
@@ -75,6 +77,7 @@ class TaskCreate(BaseModel):
     priority: Priority = Field(default=Priority.LOW, description="Task priority level (defaults to low when unspecified)")
     tags: list[str] = Field(default_factory=list, max_length=20, description="List of tag names")
     parent_id: Optional[str] = Field(None, description="ID of the parent task; set to create a subtask")
+    due_date: Optional[datetime] = Field(None, description="Optional due date and time for the task")
 
     @field_validator('tags')
     @classmethod
@@ -114,6 +117,9 @@ class TaskUpdate(BaseModel):
         completed (Optional[bool]): Updated completion flag.
         priority (Optional[Priority]): Updated priority level.
         tags (Optional[list[str]]): Updated tag list (replaces all existing tags if provided).
+        parent_id (Optional[str]): Reparent task under parent ID.
+        position (Optional[int]): Step position among sibling subtasks.
+        due_date (Optional[datetime]): Updated task due date and time.
     """
     title: Optional[str] = Field(None, min_length=1, max_length=200, description="Updated title")
     description: Optional[str] = Field(None, max_length=2000, description="Updated description")
@@ -122,6 +128,7 @@ class TaskUpdate(BaseModel):
     tags: Optional[list[str]] = Field(None, max_length=20, description="Updated tag list")
     parent_id: Optional[str] = Field(None, description="Reparent task under this parent ID (one level only)")
     position: Optional[int] = Field(None, ge=1, description="New step ordering position among sibling subtasks")
+    due_date: Optional[datetime] = Field(None, description="Updated task due date and time")
 
     @field_validator('tags')
     @classmethod
@@ -164,6 +171,7 @@ class TaskRead(BaseModel):
         priority (Priority): Task priority.
         parent_id (Optional[str]): Parent task ID if this task is a subtask.
         position (Optional[int]): Step ordering index among sibling subtasks.
+        due_date (Optional[datetime]): Task due date timestamp (NULL if unspecified).
         tags (list[str]): List of tag name strings attached to this task.
         subtasks (list[TaskRead]): Child tasks ordered by step position.
         created_at (datetime): UTC creation timestamp.
@@ -179,6 +187,7 @@ class TaskRead(BaseModel):
     priority: Priority
     parent_id: Optional[str] = None
     position: Optional[int] = None
+    due_date: Optional[datetime] = None
     tags: list[str] = Field(default_factory=list)
     subtasks: list["TaskRead"] = Field(default_factory=list)
     created_at: datetime

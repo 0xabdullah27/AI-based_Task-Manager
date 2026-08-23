@@ -124,6 +124,7 @@ export const taskCreateSchema = z.object({
     .nullable(),
   priority: prioritySchema.default("low"),
   tags: tagsArraySchema.default([]),
+  due_date: z.string().nullable().optional(),
   parent_id: z.string().uuid().nullable().optional(),
 });
 
@@ -146,6 +147,7 @@ export const taskUpdateSchema = z.object({
   completed: z.boolean().optional(),
   priority: prioritySchema.optional(),
   tags: tagsArraySchema.optional(),
+  due_date: z.string().nullable().optional(),
   parent_id: z.string().uuid().nullable().optional(),
   position: z.number().int().min(1).optional(),
 });
@@ -163,6 +165,7 @@ export interface TaskRead {
   completed: boolean;
   priority: Priority;
   tags: string[];
+  due_date?: string | null;
   parent_id: string | null;
   position: number | null;
   subtasks: TaskRead[];
@@ -179,11 +182,12 @@ export const taskReadSchema: z.ZodType<TaskRead> = z.lazy(() =>
     completed: z.boolean(),
     priority: prioritySchema,
     tags: z.array(z.string()),
+    due_date: z.string().nullable().optional(),
     parent_id: z.string().uuid().nullable(),
     position: z.number().int().nullable(),
     subtasks: z.array(taskReadSchema),
-    created_at: z.string().datetime(),
-    updated_at: z.string().datetime().nullable(),
+    created_at: z.string(),
+    updated_at: z.string().nullable(),
   })
 );
 

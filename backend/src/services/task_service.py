@@ -65,6 +65,7 @@ class TaskService:
             description=task_data.description,
             completed=task_data.completed,
             priority=task_data.priority,
+            due_date=task_data.due_date,
             parent_id=None,
             position=None,
         )
@@ -295,6 +296,8 @@ class TaskService:
             task.completed = task_data.completed
         if task_data.priority is not None:
             task.priority = task_data.priority
+        if 'due_date' in task_data.model_dump(exclude_unset=True):
+            task.due_date = task_data.due_date
 
         if task_data.tags is not None:
             self._task_repo.delete_task_tags(session, task.id)

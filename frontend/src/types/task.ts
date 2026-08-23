@@ -14,6 +14,7 @@ export interface Task {
   completed: boolean;
   priority: Priority;
   tags: string[];
+  due_date?: string | null;
   parent_id: string | null;
   position: number | null;
   subtasks: Task[];
@@ -26,6 +27,7 @@ export interface TaskCreateInput {
   description?: string | null;
   priority?: Priority;
   tags?: string[];
+  due_date?: string | null;
   parent_id?: string | null;
 }
 
@@ -35,6 +37,7 @@ export interface TaskUpdateInput {
   completed?: boolean;
   priority?: Priority;
   tags?: string[];
+  due_date?: string | null;
   parent_id?: string | null;
   position?: number;
 }

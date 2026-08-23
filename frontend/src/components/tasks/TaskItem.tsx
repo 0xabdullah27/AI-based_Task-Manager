@@ -97,6 +97,11 @@ export function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemProps) {
           )}
 
           <p className="mt-2 text-xs text-muted-foreground">
+            {task.due_date && (
+              <span className="mr-2 font-medium text-foreground">
+                Due: {new Date(task.due_date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })} •
+              </span>
+            )}
             Created: {new Date(task.created_at).toLocaleDateString()}
             {task.updated_at && (
               <span className="ml-2">
