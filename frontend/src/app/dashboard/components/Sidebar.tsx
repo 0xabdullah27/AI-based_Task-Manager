@@ -43,7 +43,10 @@ export function Sidebar() {
   return (
     <div className="h-full flex flex-col overflow-y-auto p-2 bg-sidebar text-sidebar-foreground">
       {/* Workspace Selector (Notion Style) */}
-      <div className="flex items-center gap-2 px-2 py-3 hover:bg-sidebar-accent rounded-md cursor-pointer transition-colors mt-2">
+      <div 
+        onClick={() => router.push("/")}
+        className="flex items-center gap-2 px-2 py-3 hover:bg-sidebar-accent rounded-md cursor-pointer transition-colors mt-2"
+      >
         <div className="h-5 w-5 flex items-center justify-center rounded-[3px] bg-foreground text-background text-[10px] font-bold">
           {userInitials}
         </div>
