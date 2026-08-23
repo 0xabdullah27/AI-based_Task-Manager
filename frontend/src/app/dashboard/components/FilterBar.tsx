@@ -32,6 +32,13 @@ interface FilterBarProps {
   filteredCount: number;
 }
 
+const PRESET_LABELS: Record<QuickPreset, string> = {
+  overdue: "Overdue",
+  today: "Due Today",
+  tomorrow: "Due Tomorrow",
+  high_priority: "High Priority",
+};
+
 export function FilterBar({
   filters,
   onFilterChange,
@@ -64,8 +71,15 @@ export function FilterBar({
     if (filters.quickPreset === preset) {
       onFilterChange({ quickPreset: null });
     } else {
-      onFilterChange({ quickPreset: preset });
+      // Automatically clear standard Priority filter when selecting a quick preset to prevent filter conflicts
+      onFilterChange({ quickPreset: preset, priority: "all" });
     }
+  };
+
+  const handlePrioritySelect = (pOption: Priority | "all") => {
+    // If setting a specific priority and high_priority preset is active, clear quickPreset to prevent 0 tasks conflict
+    const updatedPreset = filters.quickPreset === "high_priority" ? null : filters.quickPreset;
+    onFilterChange({ priority: pOption, quickPreset: updatedPreset });
   };
 
   const filteredAvailableTags = useMemo(() => {
@@ -124,7 +138,7 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* Row 2: Standardize Refinements (Quick Filters, Priority, Tags) */}
+      {/* Row 2: Standardized Refinements (Matching Family Outline Buttons) */}
       <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-border/50 overflow-x-auto scrollbar-none py-0.5 flex-nowrap">
         {/* Quick Presets matching family outline buttons */}
         <div className="flex items-center gap-2 shrink-0">
@@ -138,7 +152,7 @@ export function FilterBar({
             onClick={() => handleQuickPreset("overdue")}
             className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
               filters.quickPreset === "overdue"
-                ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-xs"
+                ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
                 : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
             }`}
           >
@@ -150,7 +164,7 @@ export function FilterBar({
             onClick={() => handleQuickPreset("today")}
             className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
               filters.quickPreset === "today"
-                ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-xs"
+                ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
                 : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
             }`}
           >
@@ -162,7 +176,7 @@ export function FilterBar({
             onClick={() => handleQuickPreset("tomorrow")}
             className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
               filters.quickPreset === "tomorrow"
-                ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-xs"
+                ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
                 : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
             }`}
           >
@@ -174,7 +188,7 @@ export function FilterBar({
             onClick={() => handleQuickPreset("high_priority")}
             className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
               filters.quickPreset === "high_priority"
-                ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-xs"
+                ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
                 : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
             }`}
           >
@@ -191,7 +205,7 @@ export function FilterBar({
                 type="button"
                 className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
                   filters.priority !== "all"
-                    ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-xs"
+                    ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
                     : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
                 }`}
               >
@@ -203,7 +217,7 @@ export function FilterBar({
               {(["all", "high", "medium", "low"] as const).map((pOption) => (
                 <button
                   key={pOption}
-                  onClick={() => onFilterChange({ priority: pOption })}
+                  onClick={() => handlePrioritySelect(pOption)}
                   className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-medium transition cursor-pointer capitalize flex items-center justify-between ${
                     filters.priority === pOption
                       ? "bg-primary/15 text-primary font-semibold"
@@ -225,7 +239,7 @@ export function FilterBar({
                   type="button"
                   className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
                     filters.selectedTags.length > 0
-                      ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-xs"
+                      ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
                       : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
                   }`}
                 >
@@ -288,7 +302,7 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* Row 3: Clean Active Filter Chips Bar */}
+      {/* Row 3: Clean Active Filter Chips Bar (Uniform Styling & Title Case) */}
       {hasActiveFilters && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3.5 border-t border-border/50">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -301,11 +315,11 @@ export function FilterBar({
             {filters.quickPreset && (
               <Badge
                 variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/80 bg-muted/60 text-foreground rounded-full cursor-pointer font-medium hover:bg-muted transition"
+                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition flex items-center select-none"
                 onClick={() => onFilterChange({ quickPreset: null })}
               >
-                Preset: {filters.quickPreset === "high_priority" ? "high priority" : filters.quickPreset}
-                <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                Preset: {PRESET_LABELS[filters.quickPreset]}
+                <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
               </Badge>
             )}
 
@@ -313,11 +327,11 @@ export function FilterBar({
             {filters.priority !== "all" && (
               <Badge
                 variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/80 bg-muted/60 text-foreground rounded-full cursor-pointer font-medium capitalize hover:bg-muted transition"
+                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition flex items-center select-none"
                 onClick={() => onFilterChange({ priority: "all" })}
               >
-                Priority: {filters.priority}
-                <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                Priority: {filters.priority.charAt(0).toUpperCase() + filters.priority.slice(1)}
+                <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
               </Badge>
             )}
 
@@ -326,11 +340,11 @@ export function FilterBar({
               <Badge
                 key={tag}
                 variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/80 bg-muted/60 text-foreground rounded-full cursor-pointer font-medium hover:bg-muted transition"
+                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition flex items-center select-none"
                 onClick={() => toggleTag(tag)}
               >
                 #{tag}
-                <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
               </Badge>
             ))}
 
@@ -338,11 +352,11 @@ export function FilterBar({
             {filters.search.trim() && (
               <Badge
                 variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/80 bg-muted/60 text-foreground rounded-full cursor-pointer font-medium max-w-xs truncate hover:bg-muted transition"
+                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium max-w-xs truncate hover:bg-muted/80 transition flex items-center select-none"
                 onClick={() => onFilterChange({ search: "" })}
               >
                 Search: &quot;{filters.search}&quot;
-                <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
               </Badge>
             )}
           </div>
