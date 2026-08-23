@@ -152,7 +152,7 @@ export function SignUpForm() {
       )}
 
       <Button type="submit" className="w-full cursor-pointer bg-foreground text-background hover:bg-foreground/90 font-medium rounded transition-colors" disabled={isPending}>
-        {isRedirecting ? "Redirecting..." : isLoading ? "Continuing..." : "Continue"}
+        {isRedirecting ? "Redirecting..." : isLoading ? "Signing up..." : "Sign up"}
       </Button>
     </form>
   );

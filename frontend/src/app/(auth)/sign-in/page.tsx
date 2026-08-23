@@ -20,22 +20,12 @@ export default function SignInPage() {
 
         <SignInForm />
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border/50" />
-          </div>
-          <div className="relative flex justify-center text-[13px]">
-            <span className="px-2 bg-background text-muted-foreground">
-              Don&apos;t have an account?
-            </span>
-          </div>
-        </div>
-
-        <Link href="/sign-up" className="block">
-          <button className="w-full px-4 py-2 text-center border border-border/50 bg-secondary text-secondary-foreground text-[14px] font-medium rounded hover:bg-secondary/80 transition cursor-pointer">
+        <div className="text-center text-[13px] text-muted-foreground mt-4">
+          Don't have an account?{" "}
+          <Link href="/sign-up" className="text-foreground hover:underline font-medium">
             Sign up
-          </button>
-        </Link>
+          </Link>
+        </div>
       </div>
     </div>
   );

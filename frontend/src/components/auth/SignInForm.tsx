@@ -154,7 +154,7 @@ export function SignInForm() {
       )}
 
       <Button type="submit" className="w-full cursor-pointer bg-foreground text-background hover:bg-foreground/90 font-medium rounded transition-colors" disabled={isPending}>
-        {isRedirecting ? "Redirecting..." : isLoading ? "Continuing..." : "Continue"}
+        {isRedirecting ? "Redirecting..." : isLoading ? "Logging in..." : "Log in"}
       </Button>
     </form>
   );
