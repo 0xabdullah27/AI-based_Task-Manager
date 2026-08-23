@@ -299,64 +299,68 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* Row 3: Clean Active Filter Chips Bar (Single-Line Horizontal Scroll without Scrollbar) */}
+      {/* Row 3: Clean Active Filter Chips Bar (Fixed Heading & Scrolling Chips) */}
       {hasActiveFilters && (
         <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-border/50">
-          {/* Left: Horizontal scrolling active chips flex box */}
-          <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex-1 min-w-0 py-0.5">
-            <span className="text-xs font-semibold text-muted-foreground/80 flex items-center gap-1 shrink-0 select-none mr-1">
+          {/* Left section: Static "Active Filters:" Label + Horizontal scrolling chips */}
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            {/* Fixed/Static Label that stays pinned */}
+            <span className="text-xs font-semibold text-muted-foreground/80 flex items-center gap-1 shrink-0 select-none">
               <Filter className="w-3.5 h-3.5 text-muted-foreground" />
               Active Filters:
             </span>
 
-            {/* Quick Preset Chip */}
-            {filters.quickPreset && (
-              <Badge
-                variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
-                onClick={() => onFilterChange({ quickPreset: null })}
-              >
-                Preset: {PRESET_LABELS[filters.quickPreset]}
-                <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
-              </Badge>
-            )}
+            {/* Horizontal scrolling chip container (ONLY chips scroll) */}
+            <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex-1 min-w-0 py-0.5">
+              {/* Quick Preset Chip */}
+              {filters.quickPreset && (
+                <Badge
+                  variant="secondary"
+                  className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
+                  onClick={() => onFilterChange({ quickPreset: null })}
+                >
+                  Preset: {PRESET_LABELS[filters.quickPreset]}
+                  <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
+                </Badge>
+              )}
 
-            {/* Priority Chip */}
-            {filters.priority !== "all" && (
-              <Badge
-                variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
-                onClick={() => onFilterChange({ priority: "all" })}
-              >
-                Priority: {filters.priority.charAt(0).toUpperCase() + filters.priority.slice(1)}
-                <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
-              </Badge>
-            )}
+              {/* Priority Chip */}
+              {filters.priority !== "all" && (
+                <Badge
+                  variant="secondary"
+                  className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
+                  onClick={() => onFilterChange({ priority: "all" })}
+                >
+                  Priority: {filters.priority.charAt(0).toUpperCase() + filters.priority.slice(1)}
+                  <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
+                </Badge>
+              )}
 
-            {/* Selected Tag Chips */}
-            {filters.selectedTags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
-                onClick={() => toggleTag(tag)}
-              >
-                #{tag}
-                <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
-              </Badge>
-            ))}
+              {/* Selected Tag Chips */}
+              {filters.selectedTags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
+                  onClick={() => toggleTag(tag)}
+                >
+                  #{tag}
+                  <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
+                </Badge>
+              ))}
 
-            {/* Search Chip */}
-            {filters.search.trim() && (
-              <Badge
-                variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium max-w-xs truncate hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
-                onClick={() => onFilterChange({ search: "" })}
-              >
-                Search: &quot;{filters.search}&quot;
-                <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
-              </Badge>
-            )}
+              {/* Search Chip */}
+              {filters.search.trim() && (
+                <Badge
+                  variant="secondary"
+                  className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium max-w-xs truncate hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
+                  onClick={() => onFilterChange({ search: "" })}
+                >
+                  Search: &quot;{filters.search}&quot;
+                  <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
+                </Badge>
+              )}
+            </div>
           </div>
 
           {/* Right: Task Count & Clear All */}
