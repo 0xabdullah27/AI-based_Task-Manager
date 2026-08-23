@@ -46,6 +46,11 @@ async def lifespan(app: FastAPI):
     async with AsyncExitStack() as stack:
         await stack.enter_async_context(mcp.session_manager.run())
         logger.info("Starting up Todo Backend API...")
+        try:
+            from run_migrations import main as run_migrations
+            run_migrations()
+        except Exception as e:
+            logger.warning("Automatic migration check failed: %s", e)
         yield
         logger.info("Shutting down Todo Backend API...")
 
