@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, X, Tag as TagIcon, Check, ChevronDown, Sparkles, Filter } from "lucide-react";
+import { Search, X, Tag as TagIcon, Check, ChevronDown, Zap, Filter } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
@@ -138,14 +138,11 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* Row 2: Standardized Refinements (Matching Family Outline Buttons) */}
+      {/* Row 2: Standardized Refinements (Clean Muted Icon & Matching Family Outline Buttons) */}
       <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-border/50 overflow-x-auto scrollbar-none py-0.5 flex-nowrap">
-        {/* Quick Presets matching family outline buttons */}
+        {/* Quick Presets matching family outline buttons with minimalist muted icon */}
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs font-semibold text-muted-foreground/70 mr-0.5 flex items-center gap-1 shrink-0 select-none">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Quick:
-          </span>
+          <Zap className="w-4 h-4 text-muted-foreground/70 shrink-0 select-none mr-0.5" />
 
           <button
             type="button"
@@ -302,11 +299,12 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* Row 3: Clean Active Filter Chips Bar (Uniform Styling & Title Case) */}
+      {/* Row 3: Clean Active Filter Chips Bar (Single-Line Horizontal Scroll) */}
       {hasActiveFilters && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3.5 border-t border-border/50">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-semibold text-muted-foreground/80 flex items-center gap-1 mr-1 select-none">
+        <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-border/50">
+          {/* Left: Horizontal scrolling active chips flex box */}
+          <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none flex-1 min-w-0 py-0.5">
+            <span className="text-xs font-semibold text-muted-foreground/80 flex items-center gap-1 shrink-0 select-none mr-1">
               <Filter className="w-3.5 h-3.5 text-muted-foreground" />
               Active Filters:
             </span>
@@ -315,7 +313,7 @@ export function FilterBar({
             {filters.quickPreset && (
               <Badge
                 variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition flex items-center select-none"
+                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
                 onClick={() => onFilterChange({ quickPreset: null })}
               >
                 Preset: {PRESET_LABELS[filters.quickPreset]}
@@ -327,7 +325,7 @@ export function FilterBar({
             {filters.priority !== "all" && (
               <Badge
                 variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition flex items-center select-none"
+                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
                 onClick={() => onFilterChange({ priority: "all" })}
               >
                 Priority: {filters.priority.charAt(0).toUpperCase() + filters.priority.slice(1)}
@@ -340,7 +338,7 @@ export function FilterBar({
               <Badge
                 key={tag}
                 variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition flex items-center select-none"
+                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
                 onClick={() => toggleTag(tag)}
               >
                 #{tag}
@@ -352,7 +350,7 @@ export function FilterBar({
             {filters.search.trim() && (
               <Badge
                 variant="secondary"
-                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium max-w-xs truncate hover:bg-muted/80 transition flex items-center select-none"
+                className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium max-w-xs truncate hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
                 onClick={() => onFilterChange({ search: "" })}
               >
                 Search: &quot;{filters.search}&quot;
@@ -361,15 +359,16 @@ export function FilterBar({
             )}
           </div>
 
+          {/* Right: Task Count & Clear All */}
           <div className="flex items-center gap-3.5 ml-auto shrink-0">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
               Showing <span className="font-bold text-foreground">{filteredCount}</span> of {totalCount} tasks
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={onResetFilters}
-              className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-1 font-medium transition"
+              className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-1 font-medium transition whitespace-nowrap"
             >
               <X className="w-3.5 h-3.5" />
               Clear All
