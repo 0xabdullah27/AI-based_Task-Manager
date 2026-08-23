@@ -18,9 +18,11 @@ export function calculateDashboardStats(
     completed: todos.filter((t) => t.completed).length,
     pending: todos.filter((t) => !t.completed).length,
     today: todos.filter((t) => {
-      const todoDate = new Date(t.created_at);
-      todoDate.setHours(0, 0, 0, 0);
-      return todoDate.getTime() === today.getTime();
+      if (!t.due_date) return false;
+      const dueDate = new Date(t.due_date);
+      if (isNaN(dueDate.getTime())) return false;
+      dueDate.setHours(0, 0, 0, 0);
+      return dueDate.getTime() === today.getTime();
     }).length,
   };
 }

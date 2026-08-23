@@ -1,14 +1,5 @@
-"use client";
-
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { TaskCommandCenter } from "./components/TaskCommandCenter";
 
 export default function DashboardPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.push("/dashboard/overview");
-  }, [router]);
-
-  return null;
+  return <TaskCommandCenter />;
 }
