@@ -18,19 +18,19 @@ export default function DashboardLayout({
   const { data: session, isPending } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/sign-in");
-    }
+  // useEffect(() => {
+  //   if (!isPending && !session) {
+  //     router.push("/sign-in");
+  //   }
 
-    // Log auth token and user ID on dashboard entry
-    if (session) {
-      const token = getJwtToken();
-      console.log("🔑 [Dashboard] JWT Token:", token);
-      console.log("👤 [Dashboard] User ID:", session.user?.id);
-      console.log("👤 [Dashboard] User Email:", session.user?.email);
-    }
-  }, [session, isPending, router]);
+  //   // Log auth token and user ID on dashboard entry
+  //   if (session) {
+  //     const token = getJwtToken();
+  //     console.log("🔑 [Dashboard] JWT Token:", token);
+  //     console.log("👤 [Dashboard] User ID:", session.user?.id);
+  //     console.log("👤 [Dashboard] User Email:", session.user?.email);
+  //   }
+  // }, [session, isPending, router]);
 
   if (isPending) {
     return (
@@ -40,9 +40,9 @@ export default function DashboardLayout({
     );
   }
 
-  if (!session) {
-    return null;
-  }
+  // if (!session) {
+  //   return null;
+  // }
 
   return (
     <ChatProvider>

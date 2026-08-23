@@ -201,7 +201,12 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
       prev.map((task) => {
         // Check if root task
         if (task.id === id) {
-          return { ...task, completed: !task.completed };
+          const nextCompleted = !task.completed;
+          return {
+            ...task,
+            completed: nextCompleted,
+            subtasks: task.subtasks?.map((s) => ({ ...s, completed: nextCompleted })) ?? [],
+          };
         }
         // Check if subtask inside this parent
         if (task.subtasks && task.subtasks.some((s) => s.id === id)) {

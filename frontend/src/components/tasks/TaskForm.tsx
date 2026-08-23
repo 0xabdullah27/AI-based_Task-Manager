@@ -6,13 +6,18 @@
 
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskCreateSchema, type TaskCreateInput, priorityValues, PRIORITY_CONFIG } from "@/lib/validations/task";
 import { Button } from "@/components/ui/Button";
 import { TagInput } from "./TagInput";
 import { useTags } from "@/hooks/useTags";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon, X } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface TaskFormProps {
   onSubmit: (data: TaskCreateInput) => Promise<void>;
@@ -29,6 +34,17 @@ export function TaskForm({
   defaultValues,
   mode = "create"
 }: TaskFormProps) {
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  const formattedDefaultValues = useMemo(() => {
+    return {
+      priority: "low" as const,
+      tags: [] as string[],
+      ...defaultValues,
+      due_date: defaultValues?.due_date || "",
+    };
+  }, [defaultValues]);
+
   const {
     register,
     handleSubmit,
@@ -38,40 +54,70 @@ export function TaskForm({
     watch,
   } = useForm<TaskCreateInput>({
     resolver: zodResolver(taskCreateSchema),
-    defaultValues: { priority: "low", tags: [], ...defaultValues },
+    defaultValues: formattedDefaultValues,
   });
 
   const { tags, isLoading: tagsLoading, fetchTags } = useTags();
   const watchedTags = watch("tags", defaultValues?.tags || []);
+  const dueDateValue = watch("due_date");
+
+  const selectedDate = useMemo(() => {
+    if (!dueDateValue) return undefined;
+    const d = new Date(dueDateValue);
+    return isNaN(d.getTime()) ? undefined : d;
+  }, [dueDateValue]);
 
   useEffect(() => {
     fetchTags();
   }, [fetchTags]);
 
-  const handleFormSubmit = async (data: TaskCreateInput) => {
-    await onSubmit(data);
-    // Note: Create form is remounted via key prop in parent component
-    // Edit form stays mounted and user can cancel or continue editing
-    if (mode === "edit") {
-      // Could add success feedback here if needed
+  useEffect(() => {
+    if (defaultValues) {
+      reset({
+        priority: "low",
+        tags: [],
+        ...defaultValues,
+        due_date: defaultValues.due_date || "",
+      });
     }
+  }, [defaultValues, reset]);
+
+  const handleFormSubmit = async (data: TaskCreateInput) => {
+    let processedDueDate: string | null | undefined = data.due_date;
+    if (processedDueDate) {
+      const trimmed = processedDueDate.trim();
+      if (!trimmed) {
+        processedDueDate = null;
+      } else {
+        const dateObj = new Date(trimmed);
+        if (!isNaN(dateObj.getTime())) {
+          processedDueDate = dateObj.toISOString();
+        } else {
+          processedDueDate = null;
+        }
+      }
+    } else {
+      processedDueDate = null;
+    }
+
+    await onSubmit({
+      ...data,
+      due_date: processedDueDate,
+    });
   };
 
   return (
-    // T039: Update modal styling with opaque background
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+    <form noValidate onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
-        {/* T043: Update form label styling to use --foreground variable */}
         <label htmlFor="title" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
           Title
         </label>
-        {/* T041: Use semantic input field styling */}
         <input
           {...register("title")}
           id="title"
           type="text"
           disabled={isLoading}
-          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition"
+          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition text-sm"
           style={{
             backgroundColor: "var(--input-bg)",
             borderColor: "var(--input-border)",
@@ -95,17 +141,15 @@ export function TaskForm({
       </div>
 
       <div>
-        {/* T043: Form label styling */}
         <label htmlFor="description" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
           Description (Optional)
         </label>
-        {/* T041: Input field styling */}
         <textarea
           {...register("description")}
           id="description"
           rows={3}
           disabled={isLoading}
-          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition"
+          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition text-sm"
           style={{
             backgroundColor: "var(--input-bg)",
             borderColor: "var(--input-border)",
@@ -129,16 +173,14 @@ export function TaskForm({
       </div>
 
       <div>
-        {/* T043: Form label styling */}
         <label htmlFor="priority" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
           Priority
         </label>
-        {/* T046: Replace priority selector styling with semantic variables */}
         <select
           {...register("priority")}
           id="priority"
           disabled={isLoading}
-          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition"
+          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition text-sm"
           style={{
             backgroundColor: "var(--input-bg)",
             borderColor: "var(--input-border)",
@@ -166,30 +208,72 @@ export function TaskForm({
         )}
       </div>
 
+      {/* Shadcn UI Calendar Date Picker */}
       <div>
-        <label htmlFor="due_date" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
+        <label htmlFor="due_date" className="block text-sm font-medium mb-1" style={{ color: "var(--foreground)" }}>
           Due Date (Optional)
         </label>
-        <input
-          {...register("due_date")}
-          id="due_date"
-          type="datetime-local"
-          disabled={isLoading}
-          className="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed transition"
-          style={{
-            backgroundColor: "var(--input-bg)",
-            borderColor: "var(--input-border)",
-            color: "var(--input-text)",
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = "var(--primary)";
-            e.currentTarget.style.boxShadow = "0 0 0 1px var(--primary)";
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = "var(--input-border)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        />
+        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              id="due_date"
+              disabled={isLoading}
+              className={cn(
+                "mt-1 w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md border text-left text-sm transition shadow-xs focus:outline-none focus:ring-1 disabled:cursor-not-allowed cursor-pointer",
+                !selectedDate && "text-muted-foreground"
+              )}
+              style={{
+                backgroundColor: "var(--input-bg)",
+                borderColor: "var(--input-border)",
+                color: selectedDate ? "var(--input-text)" : "var(--muted-foreground)",
+              }}
+            >
+              <span className="flex items-center gap-2 truncate">
+                <CalendarIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                {selectedDate ? format(selectedDate, "PPP") : <span>Pick a due date...</span>}
+              </span>
+              {selectedDate && (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setValue("due_date", "", { shouldValidate: true });
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.stopPropagation();
+                      setValue("due_date", "", { shouldValidate: true });
+                    }
+                  }}
+                  className="p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
+                  title="Clear due date"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </span>
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 z-50 border border-border bg-popover text-popover-foreground shadow-xl rounded-xl" align="start">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => {
+                if (date) {
+                  // Set time to end of day (23:59:00) so the due date covers the full day
+                  const fullDate = new Date(date);
+                  fullDate.setHours(23, 59, 0, 0);
+                  setValue("due_date", fullDate.toISOString(), { shouldValidate: true });
+                } else {
+                  setValue("due_date", "", { shouldValidate: true });
+                }
+                setCalendarOpen(false);
+              }}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
         {errors.due_date && (
           <p className="mt-1 text-sm" style={{ color: "var(--error-text)" }}>
             {errors.due_date.message}
@@ -198,11 +282,9 @@ export function TaskForm({
       </div>
 
       <div>
-        {/* T043: Form label styling */}
         <label htmlFor="tags" className="block text-sm font-medium" style={{ color: "var(--foreground)" }}>
           Tags (Optional)
         </label>
-        {/* T045: Update tag input styling */}
         <TagInput
           value={watchedTags}
           onChange={(newTags) => setValue("tags", newTags, { shouldValidate: true })}

@@ -132,3 +132,25 @@ def test_update_subtask_position(client, auth_headers):
     assert response.status_code == 200
     assert response.json()["position"] == 1
     assert sub1["id"] != sub2["id"]
+
+
+def test_parent_toggle_cascades_to_subtasks(client, auth_headers):
+    """Toggling parent task directly to completed cascades completed status to all subtasks."""
+    parent = _create_task(client, auth_headers, title="Parent")
+    sub1 = _create_task(client, auth_headers, title="Step 1", parent_id=parent["id"])
+    sub2 = _create_task(client, auth_headers, title="Step 2", parent_id=parent["id"])
+
+    # Toggle parent to completed directly
+    client.post(f"/api/todos/{parent['id']}/toggle", headers=auth_headers)
+
+    detail = client.get(f"/api/todos/{parent['id']}", headers=auth_headers).json()
+    assert detail["completed"] is True
+    assert all(s["completed"] is True for s in detail["subtasks"])
+
+    # Toggle parent back to incomplete directly
+    client.post(f"/api/todos/{parent['id']}/toggle", headers=auth_headers)
+
+    detail_after = client.get(f"/api/todos/{parent['id']}", headers=auth_headers).json()
+    assert detail_after["completed"] is False
+    assert all(s["completed"] is False for s in detail_after["subtasks"])
+

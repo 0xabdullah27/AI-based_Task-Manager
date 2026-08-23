@@ -294,6 +294,16 @@ class TaskService:
             task.description = task_data.description
         if task_data.completed is not None:
             task.completed = task_data.completed
+
+            # Cascade completion state to all child subtasks if task is a parent
+            children = self._task_repo.find_subtasks(session, task.id, user_id)
+            if children:
+                for child in children:
+                    if child.completed != task_data.completed:
+                        child.completed = task_data.completed
+                        child.updated_at = utc_now()
+                        session.add(child)
+
         if task_data.priority is not None:
             task.priority = task_data.priority
         if 'due_date' in task_data.model_dump(exclude_unset=True):
@@ -357,6 +367,7 @@ class TaskService:
     def toggle_task_completion(self, session: Session, task_id: str, user_id: str) -> Task:
         """Toggle the completed boolean status of a task.
 
+        When a parent task is toggled, its completed status cascades to all child subtasks.
         When a subtask is toggled, its parent's completion is synchronized:
         all subtasks complete => parent completes; any incomplete => parent reopens.
 
@@ -372,10 +383,21 @@ class TaskService:
             TaskNotFoundError: If task does not exist or belong to user.
         """
         task = self.get_task(session, task_id, user_id)
-        task.completed = not task.completed
+        new_state = not task.completed
+        task.completed = new_state
         task.updated_at = utc_now()
         session.add(task)
 
+        # Cascade completion state to all child subtasks if task is a parent
+        children = self._task_repo.find_subtasks(session, task.id, user_id)
+        if children:
+            for child in children:
+                if child.completed != new_state:
+                    child.completed = new_state
+                    child.updated_at = utc_now()
+                    session.add(child)
+
+        # Synchronize parent completion state if task is a subtask
         if task.parent_id:
             parent = self.get_task(session, task.parent_id, user_id)
             self._sync_parent_completion(session, parent)
