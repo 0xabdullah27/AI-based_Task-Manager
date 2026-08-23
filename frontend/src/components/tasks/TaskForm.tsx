@@ -15,7 +15,7 @@ import { TagInput } from "./TagInput";
 import { useTags } from "@/hooks/useTags";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon, X } from "lucide-react";
+import { Calendar as CalendarIcon, X, Tag, Flag } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +48,7 @@ export function TaskForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
     setValue,
     watch,
@@ -81,6 +81,8 @@ export function TaskForm({
       });
     }
   }, [defaultValues, reset]);
+
+  const isPending = isLoading || isSubmitting;
 
   const handleFormSubmit = async (data: TaskCreateInput) => {
     let processedDueDate: string | null | undefined = data.due_date;
@@ -119,18 +121,17 @@ export function TaskForm({
   };
 
   return (
-    <form noValidate onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+    <form noValidate onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 pt-2">
+      {/* Title Input */}
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-foreground">
-          Title
-        </label>
         <input
           {...register("title")}
           id="title"
           type="text"
-          disabled={isLoading}
-          className="mt-1 block w-full rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed transition"
-          placeholder="Enter task title"
+          disabled={isPending}
+          className="block w-full border-0 bg-transparent text-foreground placeholder:text-muted-foreground/60 text-3xl font-bold focus:outline-none focus:ring-0 disabled:cursor-not-allowed transition p-0"
+          placeholder="Untitled"
+          autoFocus
         />
         {errors.title && (
           <p className="mt-1 text-sm text-destructive">
@@ -139,17 +140,15 @@ export function TaskForm({
         )}
       </div>
 
+      {/* Description Input */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-foreground">
-          Description (Optional)
-        </label>
         <textarea
           {...register("description")}
           id="description"
           rows={3}
-          disabled={isLoading}
-          className="mt-1 block w-full rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed transition"
-          placeholder="Enter task description"
+          disabled={isPending}
+          className="block w-full border-0 bg-transparent text-foreground placeholder:text-muted-foreground/60 text-base focus:outline-none focus:ring-0 disabled:cursor-not-allowed transition p-0 resize-none"
+          placeholder="Add description or notes..."
         />
         {errors.description && (
           <p className="mt-1 text-sm text-destructive">
@@ -158,122 +157,134 @@ export function TaskForm({
         )}
       </div>
 
-      <div>
-        <label htmlFor="priority" className="block text-sm font-medium text-foreground">
-          Priority
-        </label>
-        <select
-          {...register("priority")}
-          id="priority"
-          disabled={isLoading}
-          className="mt-1 block w-full rounded-md border border-input bg-card text-foreground px-3 py-2 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed transition"
-        >
-          {priorityValues.map((priority) => (
-            <option key={priority} value={priority} className="bg-card text-foreground">
-              {PRIORITY_CONFIG[priority].label}
-            </option>
-          ))}
-        </select>
-        {errors.priority && (
-          <p className="mt-1 text-sm text-destructive">
-            {errors.priority.message}
-          </p>
-        )}
-      </div>
-
-      {/* Shadcn UI Calendar Date Picker */}
-      <div>
-        <label htmlFor="due_date" className="block text-sm font-medium mb-1 text-foreground">
-          Due Date (Optional)
-        </label>
-        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              id="due_date"
-              disabled={isLoading}
-              className={cn(
-                "mt-1 w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-input bg-card text-foreground text-left text-sm transition shadow-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed cursor-pointer",
-                !selectedDate && "text-muted-foreground"
-              )}
-            >
-              <span className="flex items-center gap-2 truncate">
-                <CalendarIcon className="w-4 h-4 text-muted-foreground shrink-0" />
-                {selectedDate ? format(selectedDate, "PPP") : <span>Pick a due date...</span>}
-              </span>
-              {selectedDate && (
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setValue("due_date", "", { shouldValidate: true });
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
+      {/* Properties (Notion Style Grid) */}
+      <div className="space-y-3 pt-4 border-t border-border/50">
+        
+        {/* Due Date Property */}
+        <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+          <label htmlFor="due_date" className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <CalendarIcon className="w-4 h-4" strokeWidth={1.5} />
+            Due date
+          </label>
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                id="due_date"
+                disabled={isPending}
+                className={cn(
+                  "flex items-center gap-2 px-2 py-1 -ml-2 rounded text-left text-sm transition hover:bg-muted/50 focus:outline-none disabled:cursor-not-allowed cursor-pointer w-fit",
+                  !selectedDate ? "text-muted-foreground/60" : "text-foreground"
+                )}
+              >
+                {selectedDate ? format(selectedDate, "PPP") : <span>Empty</span>}
+                {selectedDate && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => {
                       e.stopPropagation();
                       setValue("due_date", "", { shouldValidate: true });
-                    }
-                  }}
-                  className="p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
-                  title="Clear due date"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </span>
-              )}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 z-50 border border-border bg-popover text-popover-foreground shadow-xl rounded-xl" align="start">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={(date) => {
-                if (date) {
-                  // Set time to end of day (23:59:00) so the due date covers the full day
-                  const fullDate = new Date(date);
-                  fullDate.setHours(23, 59, 0, 0);
-                  setValue("due_date", fullDate.toISOString(), { shouldValidate: true });
-                } else {
-                  setValue("due_date", "", { shouldValidate: true });
-                }
-                setCalendarOpen(false);
-              }}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.stopPropagation();
+                        setValue("due_date", "", { shouldValidate: true });
+                      }
+                    }}
+                    className="p-0.5 rounded-full hover:bg-muted-foreground/20 text-muted-foreground hover:text-foreground transition cursor-pointer"
+                    title="Clear due date"
+                  >
+                    <X className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  </span>
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 z-50 border border-border bg-popover text-popover-foreground shadow-xl rounded-xl" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => {
+                  if (date) {
+                    const fullDate = new Date(date);
+                    fullDate.setHours(23, 59, 0, 0);
+                    setValue("due_date", fullDate.toISOString(), { shouldValidate: true });
+                  } else {
+                    setValue("due_date", "", { shouldValidate: true });
+                  }
+                  setCalendarOpen(false);
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
         {errors.due_date && (
-          <p className="mt-1 text-sm text-destructive">
+          <p className="mt-1 text-sm text-destructive pl-[116px]">
             {errors.due_date.message}
           </p>
         )}
-      </div>
 
-      <div>
-        <label htmlFor="tags" className="block text-sm font-medium text-foreground">
-          Tags (Optional)
-        </label>
-        <TagInput
-          value={watchedTags}
-          onChange={(newTags) => setValue("tags", newTags, { shouldValidate: true })}
-          suggestions={tags.map(tag => tag.name)}
-          disabled={isLoading || tagsLoading}
-          placeholder="Add tags (comma or enter to add)..."
-        />
+        {/* Priority Property */}
+        <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+          <label htmlFor="priority" className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <Flag className="w-4 h-4" strokeWidth={1.5} />
+            Priority
+          </label>
+          <div className="-ml-2">
+            <select
+              {...register("priority")}
+              id="priority"
+              disabled={isPending}
+              className="bg-transparent border-0 text-foreground px-2 py-1 text-sm hover:bg-muted/50 rounded focus:outline-none focus:ring-0 disabled:cursor-not-allowed transition cursor-pointer appearance-none w-fit"
+            >
+              {priorityValues.map((priority) => (
+                <option key={priority} value={priority} className="bg-card text-foreground">
+                  {PRIORITY_CONFIG[priority].label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {errors.priority && (
+          <p className="mt-1 text-sm text-destructive pl-[116px]">
+            {errors.priority.message}
+          </p>
+        )}
+
+        {/* Tags Property */}
+        <div className="grid grid-cols-[100px_1fr] items-start gap-4">
+          <label htmlFor="tags" className="text-sm text-muted-foreground flex items-center gap-1.5 pt-1.5">
+            <Tag className="w-4 h-4" strokeWidth={1.5} />
+            Tags
+          </label>
+          <div className="-ml-2 w-full max-w-sm">
+            <TagInput
+              value={watchedTags}
+              onChange={(newTags) => setValue("tags", newTags, { shouldValidate: true })}
+              suggestions={tags.map(tag => tag.name)}
+              disabled={isPending || tagsLoading}
+              placeholder="Empty"
+              className="border-0 bg-transparent shadow-none hover:bg-muted/20 px-2 py-1 text-sm transition focus-within:ring-0 focus-within:bg-muted/10 h-auto min-h-0"
+            />
+          </div>
+        </div>
         {errors.tags && (
-          <p className="mt-1 text-sm text-destructive">
+          <p className="mt-1 text-sm text-destructive pl-[116px]">
             {errors.tags.message}
           </p>
         )}
+
       </div>
 
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end gap-2 pt-6">
         {mode === "edit" && onCancel && (
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             onClick={onCancel}
-            disabled={isLoading}
+            disabled={isPending}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             Cancel
           </Button>
@@ -281,13 +292,14 @@ export function TaskForm({
         <Button
           type="submit"
           variant="default"
-          disabled={isLoading}
+          disabled={isPending}
+          className="bg-foreground text-background hover:bg-foreground/90 shadow-none font-medium"
         >
           {mode === "edit"
-            ? isLoading
+            ? isPending
               ? "Saving..."
               : "Save Changes"
-            : isLoading
+            : isPending
             ? "Creating..."
             : "Create Task"}
         </Button>

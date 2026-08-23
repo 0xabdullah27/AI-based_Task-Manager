@@ -49,9 +49,9 @@ export function ThemeToggle({ className = "", showLabel = false }: ThemeTogglePr
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
       {isDark ? (
-        <Sun className="h-4 w-4 text-warning transition-transform hover:rotate-45 duration-300" />
+        <Sun className="h-4 w-4 transition-transform hover:rotate-45 duration-300" strokeWidth={1.5} />
       ) : (
-        <Moon className="h-4 w-4 text-primary transition-transform hover:-rotate-12 duration-300" />
+        <Moon className="h-4 w-4 transition-transform hover:-rotate-12 duration-300" strokeWidth={1.5} />
       )}
       {showLabel && (
         <span className="ml-2 text-xs font-medium">

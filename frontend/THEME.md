@@ -1,10 +1,12 @@
-# Theme System Documentation
+# Theme System Documentation - Notion Design System
 
 ## Overview
 
-This application uses **Tailwind CSS v4** with a semantic design token system mapped via `@theme inline` in `frontend/src/app/globals.css`. 
+This application adopts the authentic **Notion workspace design system** for both Light and Dark modes. 
 
-All component styling is done **strictly using standard Tailwind utility classes** (such as `bg-primary`, `text-foreground`, `bg-card`, `border-border`, `bg-priority-high`, `text-priority-high-foreground`, `bg-warning`, `bg-success`, `bg-destructive`).
+It is implemented with **Tailwind CSS v4** using semantic design tokens mapped via `@theme inline` in `frontend/src/app/globals.css`.
+
+All component styling is done **strictly using standard Tailwind utility classes** (`bg-primary`, `text-foreground`, `bg-card`, `border-border`, `bg-priority-high`, `text-priority-high-foreground`, `bg-warning`, `bg-success`, `bg-destructive`, `bg-sidebar`).
 
 > [!IMPORTANT]
 > **No inline `style={{ backgroundColor: "var(--...)" }}` or manual JS mouse/focus handlers should be used in React components.**
@@ -12,19 +14,48 @@ All component styling is done **strictly using standard Tailwind utility classes
 
 ---
 
-## Design Token Definitions
+## Notion Theme Tokens & Mappings
 
 All theme variables are defined in OKLCH color space in [globals.css](file:///d:/AbdullahQureshi/workspace/AI-based_Task-Manager/frontend/src/app/globals.css):
-- **Tailwind `@theme inline` mappings**: Lines 6-55
-- **Light Theme Palette**: `:root` selector
-- **Dark Theme Palette**: `.dark` selector
 
-### Core Semantic Classes
+### Light Mode (Notion Classic Clean)
+- **Canvas / Page (`--background`)**: `#ffffff` (Clean white workspace)
+- **Cards & Popovers (`--card`, `--popover`)**: `#ffffff`
+- **Sidebar & Subsurfaces (`--sidebar`, `--secondary`)**: `#f7f6f3` (`rgb(247, 246, 243)` - Notion iconic sidebar off-white)
+- **Primary Text (`--foreground`)**: `#37352f` (`rgb(55, 53, 47)` - Notion signature charcoal)
+- **Secondary / Helper Text (`--muted-foreground`)**: `#787774` (`rgb(120, 119, 116)`)
+- **Hover Surface (`--muted`, `--accent`)**: `#f1f1ef` (`rgb(241, 241, 239)`)
+- **Borders & Dividers (`--border`, `--input`)**: `rgba(55, 53, 47, 0.12)` (`#e9e9e7`)
+- **Primary Interactive (`--primary`)**: `#2383e2` (Notion blue)
+- **Pills / Status / Priorities**:
+  - High Priority / Destructive: `#eb5757` (Notion Red)
+  - Medium Priority / Warning: `#cb7b37` (Notion Orange)
+  - Low Priority / Success: `#448361` (Notion Green)
+  - Info: `#2383e2` (Notion Blue)
 
-| Token Category | Tailwind Utility Classes | Purpose |
+### Dark Mode (Notion Deep Slate-Charcoal)
+- **Canvas / Page (`--background`)**: `#191919` (`rgb(25, 25, 25)` - Notion dark canvas)
+- **Cards & Sidebar (`--card`, `--sidebar`, `--popover`)**: `#202020` (`rgb(32, 32, 32)` - Notion dark card/modal)
+- **Primary Text (`--foreground`)**: `#d4d4d4` (`rgba(255, 255, 255, 0.81)`)
+- **Secondary / Helper Text (`--muted-foreground`)**: `#9b9b9b` (`rgba(255, 255, 255, 0.44)`)
+- **Hover Surface (`--muted`, `--accent`)**: `#2a2a2a` (`rgba(255, 255, 255, 0.055)`)
+- **Borders & Dividers (`--border`, `--input`)**: `rgba(255, 255, 255, 0.094)` (`#2e2e2e`)
+- **Primary Interactive (`--primary`)**: `#2383e2` (Notion dark interactive blue)
+- **Pills / Status / Priorities**:
+  - High Priority / Destructive: `#ff7369` (Notion Dark Red)
+  - Medium Priority / Warning: `#ffdc49` (Notion Dark Yellow)
+  - Low Priority / Success: `#4dab72` (Notion Dark Green)
+  - Info: `#529cca` (Notion Dark Blue)
+
+---
+
+## Semantic Class Quick Reference
+
+| Token Category | Tailwind Utility Classes | Notion Purpose |
 | :--- | :--- | :--- |
 | **Surfaces** | `bg-background`, `text-foreground` | Main page body background & base text |
 | **Cards & Popovers** | `bg-card`, `text-card-foreground`, `bg-popover` | Container cards, popovers, dropdowns |
+| **Sidebar** | `bg-sidebar`, `text-sidebar-foreground` | Notion sidebar navigation panel |
 | **Primary Brand** | `bg-primary`, `text-primary-foreground` | Active nav items, primary buttons, highlights |
 | **Secondary / Muted** | `bg-secondary`, `bg-muted`, `text-muted-foreground` | Subtle badges, tag chips, secondary buttons |
 | **Borders & Inputs** | `border-border`, `border-input`, `ring-ring` | Form boundaries, focus indicators |
@@ -102,4 +133,4 @@ All theme variables are defined in OKLCH color space in [globals.css](file:///d:
 Theme switching is powered by `next-themes`:
 - **Provider**: `<ThemeProvider attribute="class" defaultTheme="system" enableSystem>` in `RootLayout`
 - **UI Toggle**: `<ThemeToggle />` component located in the Sidebar and Mobile Dashboard navigation bar.
-- Changes between Light and Dark mode seamlessly update the `.dark` class on `<html>`, instantly swapping all OKLCH semantic tokens.
+- Changes between Light and Dark mode seamlessly update the `.dark` class on `<html>`, instantly swapping all Notion semantic tokens.

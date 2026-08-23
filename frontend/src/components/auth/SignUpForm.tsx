@@ -151,19 +151,9 @@ export function SignUpForm() {
         </div>
       )}
 
-      <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
-        {isRedirecting ? "Redirecting to dashboard..." : isLoading ? "Creating account..." : "Create account"}
+      <Button type="submit" className="w-full cursor-pointer bg-foreground text-background hover:bg-foreground/90 font-medium rounded transition-colors" disabled={isPending}>
+        {isRedirecting ? "Redirecting..." : isLoading ? "Signing up..." : "Sign up"}
       </Button>
-
-      <p className="text-center text-sm text-foreground">
-        Already have an account?{" "}
-        <Link
-          href="/sign-in"
-          className="font-medium text-primary hover:underline hover:text-primary/80 transition-colors"
-        >
-          Sign in
-        </Link>
-      </p>
     </form>
   );
 }

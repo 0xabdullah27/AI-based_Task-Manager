@@ -73,8 +73,8 @@ export function getRelativeDueDateText(dueDateStr?: string | null): { text: stri
  * Categorizes a list of tasks into smart visual groups:
  * 1. ⚠️ Overdue (Due before today)
  * 2. 📅 Due Today (Due today)
- * 3. 🔥 Upcoming (High priority or due in next 7 days)
- * 4. 📌 Later (Remaining pending tasks)
+ * 3. 🔥 This Week (Due in next 7 days)
+ * 4. 📌 Later (Remaining pending tasks or no due date)
  * 5. ✅ Completed (Completed tasks)
  */
 export function groupTasksByUrgency(tasks: Todo[]): TaskGroup[] {
@@ -84,7 +84,7 @@ export function groupTasksByUrgency(tasks: Todo[]): TaskGroup[] {
 
   const overdue: Todo[] = [];
   const dueToday: Todo[] = [];
-  const upcoming: Todo[] = [];
+  const thisWeek: Todo[] = [];
   const later: Todo[] = [];
   const completed: Todo[] = [];
 
@@ -95,11 +95,7 @@ export function groupTasksByUrgency(tasks: Todo[]): TaskGroup[] {
     }
 
     if (!task.due_date) {
-      if (task.priority === "high") {
-        upcoming.push(task);
-      } else {
-        later.push(task);
-      }
+      later.push(task);
       return;
     }
 
@@ -115,63 +111,78 @@ export function groupTasksByUrgency(tasks: Todo[]): TaskGroup[] {
       overdue.push(task);
     } else if (taskDay.getTime() === today.getTime()) {
       dueToday.push(task);
-    } else if (taskDay <= next7Days || task.priority === "high") {
-      upcoming.push(task);
+    } else if (taskDay <= next7Days) {
+      thisWeek.push(task);
     } else {
       later.push(task);
     }
   });
 
+  // Helper to sort tasks: 1. Priority (High > Medium > Low), 2. Due Date (Soonest first)
+  const priorityWeight = { high: 3, medium: 2, low: 1 };
+  const sortByPriority = (a: Todo, b: Todo) => {
+    const pA = priorityWeight[a.priority as keyof typeof priorityWeight] || 0;
+    const pB = priorityWeight[b.priority as keyof typeof priorityWeight] || 0;
+    if (pA !== pB) {
+      return pB - pA;
+    }
+    
+    // Sort by Due Date (if priorities are equal)
+    const dateA = a.due_date ? new Date(a.due_date).getTime() : Infinity;
+    const dateB = b.due_date ? new Date(b.due_date).getTime() : Infinity;
+    return dateA - dateB;
+  };
+
   return [
     {
       id: "overdue",
       title: "Overdue",
-      icon: "⚠️",
+      icon: "AlertCircle",
       description: "Tasks requiring immediate attention",
       badgeClass: "bg-destructive/15 text-destructive border-destructive/30",
       borderClass: "border-destructive/40",
       headerBgClass: "bg-destructive/10",
-      tasks: overdue,
+      tasks: overdue.sort(sortByPriority),
     },
     {
       id: "today",
       title: "Due Today",
-      icon: "📅",
+      icon: "Target",
       description: "Tasks scheduled for completion today",
       badgeClass: "bg-warning/15 text-warning border-warning/30",
       borderClass: "border-warning/40",
       headerBgClass: "bg-warning/10",
-      tasks: dueToday,
+      tasks: dueToday.sort(sortByPriority),
     },
     {
       id: "upcoming",
-      title: "Upcoming",
-      icon: "🔥",
-      description: "High priority or due within the next 7 days",
+      title: "This Week",
+      icon: "Calendar",
+      description: "Tasks due within the next 7 days",
       badgeClass: "bg-info/15 text-info border-info/30",
       borderClass: "border-info/40",
       headerBgClass: "bg-info/10",
-      tasks: upcoming,
+      tasks: thisWeek.sort(sortByPriority),
     },
     {
       id: "later",
       title: "Later",
-      icon: "📌",
-      description: "General pending tasks",
+      icon: "Inbox",
+      description: "Tasks due further out, or with no specific deadline",
       badgeClass: "bg-muted-foreground/15 text-muted-foreground border-muted-foreground/30",
       borderClass: "border-border",
       headerBgClass: "bg-muted/40",
-      tasks: later,
+      tasks: later.sort(sortByPriority),
     },
     {
       id: "completed",
       title: "Completed",
-      icon: "✅",
+      icon: "CheckCircle2",
       description: "Finished tasks",
       badgeClass: "bg-success/15 text-success border-success/30",
       borderClass: "border-success/30",
       headerBgClass: "bg-success/10",
-      tasks: completed,
+      tasks: completed.sort(sortByPriority), // Maybe sort by completion date instead, but this is fine
     },
   ];
 }

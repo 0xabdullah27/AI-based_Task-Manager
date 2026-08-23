@@ -6,8 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -62,199 +62,195 @@
 }
 
 :root {
-  /* Core surfaces */
-  --background: oklch(0.13 0.03 255); /* deep navy blue */
-  --foreground: oklch(0.92 0.01 255); /* soft blue-white */
+  --radius: 0.25rem;
 
-  --card: oklch(0.17 0.035 255);
-  --card-foreground: oklch(0.95 0.01 255);
+  /* Notion Light Core Surfaces */
+  --background: oklch(1 0 0); /* #ffffff pure white canvas */
+  --foreground: oklch(0.32 0.01 65); /* #37352f signature Notion charcoal */
 
-  --popover: oklch(0.17 0.035 255);
-  --popover-foreground: oklch(0.95 0.01 255);
+  --card: oklch(1 0 0); /* #ffffff */
+  --card-foreground: oklch(0.32 0.01 65);
 
-  /* Primary (main blue) */
-  --primary: oklch(0.65 0.16 255); /* rich royal blue */
-  --primary-foreground: oklch(0.12 0.02 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.32 0.01 65);
 
-  /* Secondary */
-  --secondary: oklch(0.25 0.04 255);
-  --secondary-foreground: oklch(0.92 0.01 255);
+  /* Notion Interactive Blue */
+  --primary: oklch(0.60 0.18 250); /* #2383e2 */
+  --primary-foreground: oklch(1 0 0);
 
-  /* Muted */
-  --muted: oklch(0.23 0.035 255);
-  --muted-foreground: oklch(0.7 0.04 255);
+  /* Notion Light Secondary & Off-white Surfaces */
+  --secondary: oklch(0.97 0.005 85); /* #f7f6f3 Notion sidebar & callout off-white */
+  --secondary-foreground: oklch(0.32 0.01 65);
+
+  /* Notion Light Muted / Hover */
+  --muted: oklch(0.95 0.003 85); /* #f1f1ef Notion item hover gray */
+  --muted-foreground: oklch(0.56 0.01 65); /* #787774 Notion secondary gray */
 
   /* Accent */
-  --accent: oklch(0.32 0.07 250);
-  --accent-foreground: oklch(0.95 0.01 255);
+  --accent: oklch(0.95 0.003 85);
+  --accent-foreground: oklch(0.32 0.01 65);
 
-  /* Status Colors */
-  --destructive: oklch(0.65 0.22 25);
-  --destructive-foreground: oklch(0.98 0 0);
+  /* Notion Light Status Colors */
+  --destructive: oklch(0.62 0.19 25); /* #eb5757 Notion Red */
+  --destructive-foreground: oklch(1 0 0);
 
-  --success: oklch(0.55 0.17 150);
-  --success-foreground: oklch(0.98 0 0);
+  --success: oklch(0.55 0.11 150); /* #448361 Notion Green */
+  --success-foreground: oklch(1 0 0);
 
-  --warning: oklch(0.7 0.16 75);
-  --warning-foreground: oklch(0.12 0.02 255);
+  --warning: oklch(0.64 0.14 65); /* #cb7b37 Notion Orange/Yellow */
+  --warning-foreground: oklch(1 0 0);
 
-  --info: oklch(0.65 0.16 240);
-  --info-foreground: oklch(0.98 0 0);
+  --info: oklch(0.60 0.18 250); /* #2383e2 Notion Blue */
+  --info-foreground: oklch(1 0 0);
 
-  /* Modal overlay + control surfaces */
-  --overlay: oklch(0 0 0 / 50%);
-  --thumb: oklch(0.98 0 0);
+  /* Modal overlay + controls */
+  --overlay: oklch(0 0 0 / 40%);
+  --thumb: oklch(0.85 0 0);
 
-  /* Borders & inputs */
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6 0.14 255);
+  /* Notion Light Borders & Inputs */
+  --border: oklch(0.32 0.01 65 / 12%); /* #e9e9e7 subtle gray */
+  --input: oklch(0.32 0.01 65 / 14%);
+  --ring: oklch(0.60 0.18 250);
 
-  /* Charts – blue-centric */
-  --chart-1: oklch(0.65 0.16 255);
-  --chart-2: oklch(0.7 0.14 230);
-  --chart-3: oklch(0.55 0.12 270);
-  --chart-4: oklch(0.75 0.18 210);
-  --chart-5: oklch(0.6 0.1 285);
+  /* Charts */
+  --chart-1: oklch(0.60 0.18 250); /* Blue */
+  --chart-2: oklch(0.55 0.11 150); /* Green */
+  --chart-3: oklch(0.64 0.14 65);  /* Orange */
+  --chart-4: oklch(0.62 0.19 25);  /* Red */
+  --chart-5: oklch(0.58 0.12 300); /* Purple */
 
-  /* Sidebar */
-  --sidebar: oklch(0.15 0.03 255);
-  --sidebar-foreground: oklch(0.95 0.01 255);
-  --sidebar-primary: oklch(0.65 0.16 255);
-  --sidebar-primary-foreground: oklch(0.12 0.02 255);
-  --sidebar-accent: oklch(0.28 0.06 250);
-  --sidebar-accent-foreground: oklch(0.95 0.01 255);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.6 0.14 255);
+  /* Notion Light Sidebar */
+  --sidebar: oklch(0.97 0.005 85); /* #f7f6f3 */
+  --sidebar-foreground: oklch(0.32 0.01 65);
+  --sidebar-primary: oklch(0.60 0.18 250);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.32 0.01 65 / 6%);
+  --sidebar-accent-foreground: oklch(0.32 0.01 65);
+  --sidebar-border: oklch(0.32 0.01 65 / 9%);
+  --sidebar-ring: oklch(0.60 0.18 250);
 
-  /* Priority badges */
-  --priority-high: oklch(0.55 0.22 25);
-  --priority-high-foreground: oklch(0.98 0 0);
-  --priority-high-bg: var(--priority-high);
-  --priority-high-text: var(--priority-high-foreground);
+  /* Notion Priority Badges */
+  --priority-high: oklch(0.62 0.19 25); /* Notion Red */
+  --priority-high-bg: oklch(0.62 0.19 25 / 10%);
+  --priority-high-text: var(--priority-high);
 
-  --priority-medium: oklch(0.6 0.16 85);
-  --priority-medium-foreground: oklch(0.12 0.02 255);
-  --priority-medium-bg: var(--priority-medium);
-  --priority-medium-text: var(--priority-medium-foreground);
+  --priority-medium: oklch(0.64 0.14 65); /* Notion Orange */
+  --priority-medium-bg: oklch(0.64 0.14 65 / 15%);
+  --priority-medium-text: var(--priority-medium);
 
-  --priority-low: oklch(0.45 0.14 255);
-  --priority-low-foreground: oklch(0.98 0 0);
-  --priority-low-bg: var(--priority-low);
-  --priority-low-text: var(--priority-low-foreground);
+  --priority-low: oklch(0.55 0.11 150); /* Notion Green */
+  --priority-low-bg: oklch(0.55 0.11 150 / 12%);
+  --priority-low-text: var(--priority-low);
 
   /* Form states */
-  --error-bg: oklch(0.32 0.09 25);
-  --error-border: oklch(0.6 0.22 25);
-  --error-text: oklch(0.85 0.12 25);
+  --error-bg: oklch(0.96 0.03 25);
+  --error-border: oklch(0.62 0.19 25);
+  --error-text: oklch(0.62 0.19 25);
 
   /* Inputs */
-  --input-bg: oklch(0.17 0.035 255);
-  --input-border: oklch(1 0 0 / 15%);
-  --input-text: oklch(0.95 0.01 255);
-  --input-placeholder: oklch(0.65 0.05 255);
+  --input-bg: oklch(1 0 0);
+  --input-border: oklch(0.32 0.01 65 / 14%);
+  --input-text: oklch(0.32 0.01 65);
+  --input-placeholder: oklch(0.56 0.01 65);
 
   /* Links */
-  --link-text: oklch(0.7 0.16 255);
-  --link-text-hover: oklch(0.78 0.18 255);
+  --link-text: oklch(0.60 0.18 250);
+  --link-text-hover: oklch(0.50 0.18 250);
 }
 
 .dark {
-  /* Core surfaces */
-  --background: oklch(0.14 0.03 155); /* very dark green */
-  --foreground: oklch(0.92 0.01 155); /* soft off-white with green tint */
+  /* Notion Dark Core Surfaces */
+  --background: oklch(0.18 0 0); /* #191919 deep Notion dark canvas */
+  --foreground: oklch(0.86 0 0); /* #d4d4d4 Notion dark text */
 
-  --card: oklch(0.18 0.035 155);
-  --card-foreground: oklch(0.95 0.01 155);
+  --card: oklch(0.22 0 0); /* #202020 Notion dark card */
+  --card-foreground: oklch(0.86 0 0);
 
-  --popover: oklch(0.18 0.035 155);
-  --popover-foreground: oklch(0.95 0.01 155);
+  --popover: oklch(0.24 0 0); /* #252525 */
+  --popover-foreground: oklch(0.86 0 0);
 
-  /* Primary (main green) */
-  --primary: oklch(0.62 0.14 150); /* rich dark green */
-  --primary-foreground: oklch(0.12 0.02 155);
+  /* Notion Interactive Blue */
+  --primary: oklch(0.60 0.18 250); /* #2383e2 */
+  --primary-foreground: oklch(1 0 0);
 
-  /* Secondary */
-  --secondary: oklch(0.24 0.04 155);
-  --secondary-foreground: oklch(0.92 0.01 155);
+  /* Notion Dark Secondary & Elevated Surfaces */
+  --secondary: oklch(0.30 0 0); /* Lighter dark gray */
+  --secondary-foreground: oklch(0.86 0 0);
 
-  /* Muted */
-  --muted: oklch(0.22 0.03 155);
-  --muted-foreground: oklch(0.7 0.03 155);
+  /* Notion Dark Muted / Hover */
+  --muted: oklch(0.32 0 0); /* Lighter for hover */
+  --muted-foreground: oklch(0.65 0 0); /* #9b9b9b Notion secondary text */
 
   /* Accent */
-  --accent: oklch(0.3 0.06 150);
-  --accent-foreground: oklch(0.95 0.01 155);
+  --accent: oklch(0.26 0 0);
+  --accent-foreground: oklch(1 0 0);
 
-  /* Status Colors */
-  --destructive: oklch(0.65 0.22 25);
-  --destructive-foreground: oklch(0.98 0 0);
+  /* Notion Dark Status Colors */
+  --destructive: oklch(0.68 0.18 25); /* #ff7369 Notion Dark Red */
+  --destructive-foreground: oklch(1 0 0);
 
-  --success: oklch(0.65 0.16 150);
-  --success-foreground: oklch(0.12 0.02 155);
+  --success: oklch(0.67 0.14 150); /* #4dab72 Notion Dark Green */
+  --success-foreground: oklch(1 0 0);
 
-  --warning: oklch(0.75 0.16 80);
-  --warning-foreground: oklch(0.12 0.02 155);
+  --warning: oklch(0.88 0.16 90); /* #ffdc49 Notion Dark Yellow */
+  --warning-foreground: oklch(0.18 0 0);
 
-  --info: oklch(0.65 0.14 220);
-  --info-foreground: oklch(0.12 0.02 155);
+  --info: oklch(0.68 0.12 240); /* #529cca Notion Dark Blue */
+  --info-foreground: oklch(1 0 0);
 
-  /* Modal overlay + control surfaces */
-  --overlay: oklch(0 0 0 / 50%);
-  --thumb: oklch(0.98 0 0);
+  /* Modal overlay + controls */
+  --overlay: oklch(0 0 0 / 65%);
+  --thumb: oklch(0.40 0 0);
 
-  /* Borders & inputs */
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.55 0.12 150);
+  /* Notion Dark Borders & Inputs */
+  --border: oklch(1 0 0 / 9.4%); /* #2e2e2e subtle line */
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.68 0.12 240);
 
-  /* Charts – green-centric palette */
-  --chart-1: oklch(0.62 0.14 150);
-  --chart-2: oklch(0.68 0.12 165);
-  --chart-3: oklch(0.55 0.1 140);
-  --chart-4: oklch(0.72 0.15 130);
-  --chart-5: oklch(0.6 0.08 170);
+  /* Charts */
+  --chart-1: oklch(0.68 0.12 240); /* Blue */
+  --chart-2: oklch(0.67 0.14 150); /* Green */
+  --chart-3: oklch(0.88 0.16 90);  /* Yellow */
+  --chart-4: oklch(0.68 0.18 25);  /* Red */
+  --chart-5: oklch(0.72 0.14 300); /* Purple */
 
-  /* Sidebar */
-  --sidebar: oklch(0.16 0.03 155);
-  --sidebar-foreground: oklch(0.95 0.01 155);
-  --sidebar-primary: oklch(0.62 0.14 150);
-  --sidebar-primary-foreground: oklch(0.12 0.02 155);
-  --sidebar-accent: oklch(0.26 0.05 150);
-  --sidebar-accent-foreground: oklch(0.95 0.01 155);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.55 0.12 150);
+  /* Notion Dark Sidebar */
+  --sidebar: oklch(0.22 0 0); /* #202020 */
+  --sidebar-foreground: oklch(0.86 0 0);
+  --sidebar-primary: oklch(0.60 0.18 250);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(1 0 0 / 12%); /* Increased from 5.5% to 12% for visibility */
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0 / 9.4%);
+  --sidebar-ring: oklch(0.68 0.12 240);
 
-  /* Priority badges – green-friendly dark mode */
-  --priority-high: oklch(0.55 0.22 25);
-  --priority-high-foreground: oklch(0.98 0 0);
-  --priority-high-bg: var(--priority-high);
-  --priority-high-text: var(--priority-high-foreground);
+  /* Notion Dark Priority Badges */
+  --priority-high: oklch(0.68 0.18 25); /* #ff7369 */
+  --priority-high-bg: oklch(0.68 0.18 25 / 15%);
+  --priority-high-text: var(--priority-high);
 
-  --priority-medium: oklch(0.6 0.18 85);
-  --priority-medium-foreground: oklch(0.12 0.02 155);
-  --priority-medium-bg: var(--priority-medium);
-  --priority-medium-text: var(--priority-medium-foreground);
+  --priority-medium: oklch(0.88 0.16 90); /* #ffdc49 */
+  --priority-medium-bg: oklch(0.88 0.16 90 / 15%);
+  --priority-medium-text: var(--priority-medium);
 
-  --priority-low: oklch(0.45 0.14 150);
-  --priority-low-foreground: oklch(0.98 0 0);
-  --priority-low-bg: var(--priority-low);
-  --priority-low-text: var(--priority-low-foreground);
+  --priority-low: oklch(0.67 0.14 150); /* #4dab72 */
+  --priority-low-bg: oklch(0.67 0.14 150 / 15%);
+  --priority-low-text: var(--priority-low);
 
   /* Form states */
-  --error-bg: oklch(0.32 0.09 25);
-  --error-border: oklch(0.6 0.22 25);
-  --error-text: oklch(0.85 0.12 25);
+  --error-bg: oklch(0.25 0.08 25);
+  --error-border: oklch(0.68 0.18 25);
+  --error-text: oklch(0.80 0.12 25);
 
   /* Inputs */
-  --input-bg: oklch(0.18 0.035 155);
-  --input-border: oklch(1 0 0 / 15%);
-  --input-text: oklch(0.95 0.01 155);
-  --input-placeholder: oklch(0.65 0.04 155);
+  --input-bg: oklch(0.22 0 0);
+  --input-border: oklch(1 0 0 / 12%);
+  --input-text: oklch(0.86 0 0);
+  --input-placeholder: oklch(0.65 0 0);
 
   /* Links */
-  --link-text: oklch(0.68 0.14 150);
-  --link-text-hover: oklch(0.75 0.16 150);
+  --link-text: oklch(0.68 0.12 240);
+  --link-text-hover: oklch(0.78 0.14 240);
 }
 
 @layer base {

@@ -4,8 +4,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { InteractiveAgent } from "./InteractiveAgent";
 import { Sparkles, ArrowRight, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
 
 export function Hero() {
+  const { data: session } = useSession();
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center bg-background text-foreground px-4 py-16 overflow-hidden">
       {/* Background Gradient Mesh & Light Effects */}
@@ -19,8 +21,8 @@ export function Hero() {
         {/* Left Side: Headline & CTAs (7 columns on desktop) */}
         <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-xs font-semibold text-primary">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted border border-border/60 text-xs font-semibold text-foreground">
+            <Sparkles className="w-3.5 h-3.5 text-foreground/70" />
             <span>Next-Gen AI Task Management</span>
           </div>
 
@@ -39,39 +41,53 @@ export function Hero() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center pt-2">
-            <Link href="/sign-up">
-              <Button
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-base font-semibold shadow-lg shadow-primary/25 cursor-pointer rounded-xl"
-              >
-                <span>Get Started Free</span>
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
+            {session ? (
+              <Link href="/dashboard">
+                <Button
+                  size="lg"
+                  className="bg-foreground hover:bg-foreground/90 text-background px-8 py-6 text-base font-semibold shadow-sm cursor-pointer rounded-xl"
+                >
+                  <span>Go to Dashboard</span>
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/sign-up">
+                  <Button
+                    size="lg"
+                    className="bg-foreground hover:bg-foreground/90 text-background px-8 py-6 text-base font-semibold shadow-sm cursor-pointer rounded-xl"
+                  >
+                    <span>Get Started Free</span>
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
 
-            <Link href="/sign-in">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-border hover:bg-muted text-foreground px-8 py-6 text-base font-semibold cursor-pointer rounded-xl"
-              >
-                Sign In to Dashboard
-              </Button>
-            </Link>
+                <Link href="/sign-in">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-border hover:bg-muted text-foreground px-8 py-6 text-base font-semibold cursor-pointer rounded-xl"
+                  >
+                    Sign In to Dashboard
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Trust Badges */}
           <div className="pt-6 border-t border-border/60 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-muted-foreground font-medium">
             <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-success" />
+              <CheckCircle2 className="w-4 h-4 text-foreground/70" />
               <span>Real-time AI Chat</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-chart-4" />
+              <Zap className="w-4 h-4 text-foreground/70" />
               <span>Instant Task Sync</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-primary" />
+              <ShieldCheck className="w-4 h-4 text-foreground/70" />
               <span>Secure Authentication</span>
             </div>
           </div>

@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, X, Tag as TagIcon, Check, ChevronDown, Zap, Filter } from "lucide-react";
+import { Search, X, Tag as TagIcon, Check, ChevronDown, Filter } from "lucide-react";
 import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import {
   Popover,
@@ -71,13 +70,11 @@ export function FilterBar({
     if (filters.quickPreset === preset) {
       onFilterChange({ quickPreset: null });
     } else {
-      // Automatically clear standard Priority filter when selecting a quick preset to prevent filter conflicts
       onFilterChange({ quickPreset: preset, priority: "all" });
     }
   };
 
   const handlePrioritySelect = (pOption: Priority | "all") => {
-    // If setting a specific priority and high_priority preset is active, clear quickPreset to prevent 0 tasks conflict
     const updatedPreset = filters.quickPreset === "high_priority" ? null : filters.quickPreset;
     onFilterChange({ priority: pOption, quickPreset: updatedPreset });
   };
@@ -90,31 +87,11 @@ export function FilterBar({
   }, [availableTags, tagSearch]);
 
   return (
-    <div className="rounded-xl border border-border/60 bg-card/60 backdrop-blur-md p-4 sm:p-5 space-y-4 shadow-sm">
-      {/* Row 1: Search Bar & Main Views (Clean Split & Perfectly Aligned Vertically) */}
-      <div className="flex flex-col sm:flex-row gap-3.5 items-stretch sm:items-center justify-between">
-        {/* Search Bar */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search tasks by title..."
-            value={filters.search}
-            onChange={(e) => onFilterChange({ search: e.target.value })}
-            className="pl-10 pr-9 h-10 bg-muted/40 border-border/60 focus:bg-background focus:ring-2 focus:ring-primary/20 transition rounded-lg text-sm placeholder:text-muted-foreground/60"
-          />
-          {filters.search && (
-            <button
-              onClick={() => onFilterChange({ search: "" })}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-md cursor-pointer transition"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-
-        {/* Main View Toggle Tabs */}
-        <div className="flex items-center bg-muted/60 p-1 rounded-lg border border-border/60 self-start sm:self-auto shadow-inner h-10 shrink-0">
+    <div className="space-y-3 py-2 border-b border-border mb-4">
+      {/* Row 1: Search & Filter Tabs */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+        
+        <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-md">
           {(["active", "all", "completed"] as FilterStatus[]).map((statusOption) => {
             const isActive = filters.status === statusOption;
             const label =
@@ -125,10 +102,10 @@ export function FilterBar({
               <button
                 key={statusOption}
                 onClick={() => onFilterChange({ status: statusOption })}
-                className={`px-4 h-full flex items-center justify-center rounded-md text-xs font-semibold transition-all cursor-pointer select-none ${
+                className={`px-3 py-1 rounded text-sm transition-colors cursor-pointer select-none ${
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                    ? "bg-background shadow-xs text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 {label}
@@ -136,143 +113,139 @@ export function FilterBar({
             );
           })}
         </div>
+
+        {/* Search Bar */}
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+          <Input
+            type="text"
+            placeholder="Search tasks..."
+            value={filters.search}
+            onChange={(e) => onFilterChange({ search: e.target.value })}
+            className="pl-8 pr-8 h-8 text-sm bg-transparent border-border hover:bg-muted/20 focus:bg-background transition shadow-none"
+          />
+          {filters.search && (
+            <button
+              onClick={() => onFilterChange({ search: "" })}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer transition"
+            >
+              <X className="w-3.5 h-3.5" strokeWidth={1.5} />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Row 2: Standardized Refinements (Clean Muted Icon & Matching Family Outline Buttons) */}
-      <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-border/50 overflow-x-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-0.5 flex-nowrap">
-        {/* Quick Presets matching family outline buttons with minimalist muted icon */}
-        <div className="flex items-center gap-2 shrink-0">
-          <Zap className="w-4 h-4 text-muted-foreground/70 shrink-0 select-none mr-0.5" />
+      {/* Row 2: Refinements */}
+      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
+        <Filter className="w-4 h-4 text-muted-foreground shrink-0 mr-1" strokeWidth={1.5} />
+        
+        {/* Quick Presets */}
+        <button
+          onClick={() => handleQuickPreset("overdue")}
+          className={`h-7 px-2.5 rounded text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
+            filters.quickPreset === "overdue"
+              ? "bg-destructive/10 text-destructive font-medium"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
+        >
+          Overdue
+        </button>
 
-          <button
-            type="button"
-            onClick={() => handleQuickPreset("overdue")}
-            className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
-              filters.quickPreset === "overdue"
-                ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
-                : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
-            }`}
-          >
-            ⚠️ Overdue
-          </button>
+        <button
+          onClick={() => handleQuickPreset("today")}
+          className={`h-7 px-2.5 rounded text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
+            filters.quickPreset === "today"
+              ? "bg-muted text-foreground font-medium border border-border/50 shadow-xs"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
+        >
+          Due Today
+        </button>
 
-          <button
-            type="button"
-            onClick={() => handleQuickPreset("today")}
-            className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
-              filters.quickPreset === "today"
-                ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
-                : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
-            }`}
-          >
-            📅 Due Today
-          </button>
+        <button
+          onClick={() => handleQuickPreset("tomorrow")}
+          className={`h-7 px-2.5 rounded text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
+            filters.quickPreset === "tomorrow"
+              ? "bg-muted text-foreground font-medium border border-border/50 shadow-xs"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
+        >
+          Due Tomorrow
+        </button>
+        
+        <div className="w-px h-4 bg-border mx-1 shrink-0" />
 
-          <button
-            type="button"
-            onClick={() => handleQuickPreset("tomorrow")}
-            className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
-              filters.quickPreset === "tomorrow"
-                ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
-                : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
-            }`}
-          >
-            ⏳ Due Tomorrow
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleQuickPreset("high_priority")}
-            className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
-              filters.quickPreset === "high_priority"
-                ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
-                : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
-            }`}
-          >
-            🔥 High Priority
-          </button>
-        </div>
-
-        {/* Priority & Tag Popover Dropdown Pills */}
-        <div className="flex items-center gap-2 shrink-0 ml-auto">
-          {/* Priority Popover Dropdown Pill */}
-          <Popover>
-            <PopoverTrigger asChild>
+        {/* Priority Popover */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className={`h-7 px-2.5 rounded text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
+                filters.priority !== "all"
+                  ? "bg-muted text-foreground font-medium border border-border/50 shadow-xs"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <span>Priority: <span className="capitalize">{filters.priority}</span></span>
+              <ChevronDown className="w-3.5 h-3.5" strokeWidth={1.5} />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-32 p-1">
+            {(["all", "high", "medium", "low"] as const).map((pOption) => (
               <button
-                type="button"
-                className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
-                  filters.priority !== "all"
-                    ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
-                    : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
+                key={pOption}
+                onClick={() => handlePrioritySelect(pOption)}
+                className={`w-full text-left px-2 py-1.5 rounded-sm text-xs transition cursor-pointer capitalize flex items-center justify-between ${
+                  filters.priority === pOption
+                    ? "bg-muted text-foreground font-medium"
+                    : "hover:bg-muted/50 text-foreground"
                 }`}
               >
-                <span>Priority: <span className="capitalize">{filters.priority}</span></span>
-                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                <span>{pOption}</span>
+                {filters.priority === pOption && <Check className="w-3.5 h-3.5" strokeWidth={1.5} />}
               </button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-40 p-1.5 space-y-1">
-              {(["all", "high", "medium", "low"] as const).map((pOption) => (
-                <button
-                  key={pOption}
-                  onClick={() => handlePrioritySelect(pOption)}
-                  className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-medium transition cursor-pointer capitalize flex items-center justify-between ${
-                    filters.priority === pOption
-                      ? "bg-primary/15 text-primary font-semibold"
-                      : "hover:bg-muted text-foreground"
-                  }`}
-                >
-                  <span>{pOption}</span>
-                  {filters.priority === pOption && <Check className="w-3.5 h-3.5 text-primary" />}
-                </button>
-              ))}
-            </PopoverContent>
-          </Popover>
+            ))}
+          </PopoverContent>
+        </Popover>
 
-          {/* Clean Tag Popover Dropdown Pill with Neutral Badge */}
-          {availableTags.length > 0 && (
+        {/* Tag Popover */}
+        {availableTags.length > 0 && (
+          <div className="flex items-center">
             <Popover>
               <PopoverTrigger asChild>
                 <button
-                  type="button"
-                  className={`h-8 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
+                  className={`h-7 px-2.5 text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
                     filters.selectedTags.length > 0
-                      ? "border-primary/50 bg-primary/10 text-primary font-semibold shadow-xs"
-                      : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80"
+                      ? "bg-muted text-foreground font-medium rounded-l border border-border/50 border-r-0 shadow-xs"
+                      : "text-muted-foreground hover:bg-muted rounded"
                   }`}
                 >
-                  <TagIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span>Tags</span>
-                  {filters.selectedTags.length > 0 ? (
-                    <span className="h-4 px-1.5 text-[10px] bg-muted-foreground/20 text-muted-foreground font-semibold rounded-full flex items-center justify-center ml-0.5">
-                      {filters.selectedTags.length}
-                    </span>
-                  ) : (
-                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
-                  )}
+                  <TagIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  <span>Tags {filters.selectedTags.length > 0 && `(${filters.selectedTags.length})`}</span>
+                  <ChevronDown className="w-3.5 h-3.5" strokeWidth={1.5} />
                 </button>
               </PopoverTrigger>
-              <PopoverContent align="end" className="w-64 p-3 space-y-2">
-                <div className="font-semibold text-xs text-foreground flex items-center justify-between">
-                  <span>Filter by Tags</span>
+              <PopoverContent align="start" className="w-48 p-1">
+                <div className="px-2 py-1 mb-1 flex items-center gap-1">
+                  <Input
+                    type="text"
+                    placeholder="Filter tags..."
+                    value={tagSearch}
+                    onChange={(e) => setTagSearch(e.target.value)}
+                    className="h-7 text-xs shadow-none bg-muted/30 border-none focus-visible:ring-0 px-2 flex-1"
+                  />
                   {filters.selectedTags.length > 0 && (
                     <button
                       onClick={() => onFilterChange({ selectedTags: [] })}
-                      className="text-[11px] text-destructive hover:underline cursor-pointer"
+                      className="h-7 w-7 flex items-center justify-center shrink-0 text-muted-foreground hover:bg-muted hover:text-foreground rounded transition-colors cursor-pointer"
+                      title="Clear tags"
                     >
-                      Clear tags
+                      <X className="w-3.5 h-3.5" strokeWidth={1.5} />
                     </button>
                   )}
                 </div>
-                <Input
-                  type="text"
-                  placeholder="Search tags..."
-                  value={tagSearch}
-                  onChange={(e) => setTagSearch(e.target.value)}
-                  className="h-7 text-xs bg-muted/50"
-                />
-                <div className="max-h-48 overflow-y-auto space-y-1 pt-1">
+                <div className="max-h-48 overflow-y-auto space-y-0.5">
                   {filteredAvailableTags.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-2">No tags found</p>
+                    <p className="text-xs text-muted-foreground px-2 py-1">No tags found</p>
                   ) : (
                     filteredAvailableTags.map((tag) => {
                       const isSelected = filters.selectedTags.includes(tag);
@@ -280,14 +253,14 @@ export function FilterBar({
                         <button
                           key={tag}
                           onClick={() => toggleTag(tag)}
-                          className={`w-full flex items-center justify-between px-2 py-1.5 rounded text-xs transition cursor-pointer ${
+                          className={`w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-xs transition cursor-pointer ${
                             isSelected
-                              ? "bg-primary/15 text-primary font-semibold"
-                              : "hover:bg-muted text-foreground"
+                              ? "bg-muted text-foreground font-medium"
+                              : "hover:bg-muted/50 text-foreground"
                           }`}
                         >
                           <span className="truncate">#{tag}</span>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-primary" />}
+                          {isSelected && <Check className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />}
                         </button>
                       );
                     })
@@ -295,91 +268,32 @@ export function FilterBar({
                 </div>
               </PopoverContent>
             </Popover>
-          )}
-        </div>
+
+            {/* Split button to clear tags easily */}
+            {filters.selectedTags.length > 0 && (
+              <button
+                onClick={() => onFilterChange({ selectedTags: [] })}
+                className="h-7 px-1.5 bg-muted text-foreground hover:bg-muted/80 rounded-r transition-colors cursor-pointer border border-border/50 border-l-border shrink-0 flex items-center justify-center shadow-xs"
+                title="Clear selected tags"
+              >
+                <X className="w-3.5 h-3.5" strokeWidth={2} />
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Clear All */}
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onResetFilters}
+            className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer flex items-center gap-1 transition shrink-0 ml-auto"
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
-
-      {/* Row 3: Clean Active Filter Chips Bar (Fixed Heading & Scrolling Chips) */}
-      {hasActiveFilters && (
-        <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-border/50">
-          {/* Left section: Static "Active Filters:" Label + Horizontal scrolling chips */}
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            {/* Fixed/Static Label that stays pinned */}
-            <span className="text-xs font-semibold text-muted-foreground/80 flex items-center gap-1 shrink-0 select-none">
-              <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-              Active Filters:
-            </span>
-
-            {/* Horizontal scrolling chip container (ONLY chips scroll) */}
-            <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex-1 min-w-0 py-0.5">
-              {/* Quick Preset Chip */}
-              {filters.quickPreset && (
-                <Badge
-                  variant="secondary"
-                  className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
-                  onClick={() => onFilterChange({ quickPreset: null })}
-                >
-                  Preset: {PRESET_LABELS[filters.quickPreset]}
-                  <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
-                </Badge>
-              )}
-
-              {/* Priority Chip */}
-              {filters.priority !== "all" && (
-                <Badge
-                  variant="secondary"
-                  className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
-                  onClick={() => onFilterChange({ priority: "all" })}
-                >
-                  Priority: {filters.priority.charAt(0).toUpperCase() + filters.priority.slice(1)}
-                  <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
-                </Badge>
-              )}
-
-              {/* Selected Tag Chips */}
-              {filters.selectedTags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
-                  onClick={() => toggleTag(tag)}
-                >
-                  #{tag}
-                  <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
-                </Badge>
-              ))}
-
-              {/* Search Chip */}
-              {filters.search.trim() && (
-                <Badge
-                  variant="secondary"
-                  className="h-6 px-2.5 text-xs gap-1.5 border border-border/70 bg-muted/50 text-foreground/90 rounded-full cursor-pointer font-medium max-w-xs truncate hover:bg-muted/80 transition inline-flex items-center shrink-0 select-none"
-                  onClick={() => onFilterChange({ search: "" })}
-                >
-                  Search: &quot;{filters.search}&quot;
-                  <X className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          {/* Right: Task Count & Clear All */}
-          <div className="flex items-center gap-3.5 ml-auto shrink-0">
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
-              Showing <span className="font-bold text-foreground">{filteredCount}</span> of {totalCount} tasks
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onResetFilters}
-              className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-1 font-medium transition whitespace-nowrap"
-            >
-              <X className="w-3.5 h-3.5" />
-              Clear All
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

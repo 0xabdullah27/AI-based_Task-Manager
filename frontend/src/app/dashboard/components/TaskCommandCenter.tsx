@@ -26,7 +26,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { TaskForm } from "@/components/tasks/TaskForm";
-import { BarChart3, CheckCircle2, Zap, Plus, AlertTriangle, ListFilter, RefreshCw } from "lucide-react";
+import { BarChart3, CheckCircle2, Zap, Plus, AlertTriangle, ListFilter, RefreshCw, CheckSquare } from "lucide-react";
 import { toast } from "sonner";
 import type { TaskCreateInput } from "@/lib/validations/task";
 import type { Todo } from "@/types/task";
@@ -229,85 +229,49 @@ export function TaskCommandCenter() {
   };
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
-            Task Command Center
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage priorities, track deadlines, and organize your work seamlessly.
-          </p>
+    <div className="space-y-6 pb-12 max-w-5xl mx-auto">
+      {/* Header section (Notion Style) */}
+      <div className="pb-4">
+        <div className="mb-4 text-muted-foreground">
+          <CheckSquare className="w-12 h-12" strokeWidth={1.5} />
         </div>
-        <div className="flex items-center gap-2.5">
-          <Button
-            variant="outline"
-            onClick={() => fetchTasks()}
-            disabled={isLoading}
-            className="cursor-pointer border-border/80 text-foreground hover:bg-muted font-medium flex items-center gap-2 h-10"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-            <span>Reload</span>
-          </Button>
-          <Button
-            onClick={() => {
-              setEditingTodo(null);
-              setFormDialogOpen(true);
-            }}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md cursor-pointer font-semibold h-10"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            New Task
-          </Button>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+              Task Dashboard
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
+              <span>{stats.total} total tasks</span>
+              <span>•</span>
+              <span className={overdueCount > 0 ? "text-destructive" : ""}>
+                {overdueCount} overdue
+              </span>
+              <span>•</span>
+              <span>{completionPercentage}% completed</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Button
+              variant="ghost"
+              onClick={() => fetchTasks()}
+              disabled={isLoading}
+              className="text-muted-foreground hover:bg-sidebar-accent hover:text-foreground h-9 px-3"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} strokeWidth={1.5} />
+              Reload
+            </Button>
+            <Button
+              onClick={() => {
+                setEditingTodo(null);
+                setFormDialogOpen(true);
+              }}
+              className="h-9 px-4 bg-foreground text-background font-medium rounded hover:bg-foreground/90 transition-colors"
+            >
+              <Plus className="w-4 h-4 mr-2" strokeWidth={2} />
+              New Task
+            </Button>
+          </div>
         </div>
-      </div>
-
-      {/* 4 Cards with Individual Borders & Gap */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        {isLoading && (!tasks || tasks.length === 0) ? (
-          <>
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-16 rounded-xl" />
-            ))}
-          </>
-        ) : (
-          <>
-            <StatCard
-              label="Total Tasks"
-              value={stats.total}
-              icon={BarChart3}
-              variant="total"
-              onClick={() => handleFilterChange({ status: "all", quickPreset: null })}
-              isActive={filters.status === "all" && !filters.quickPreset}
-            />
-            <StatCard
-              label="Completed"
-              value={stats.completed}
-              icon={CheckCircle2}
-              variant="completed"
-              progress={completionPercentage}
-              onClick={() => handleFilterChange({ status: "completed", quickPreset: null })}
-              isActive={filters.status === "completed"}
-            />
-            <StatCard
-              label="Due Today"
-              value={stats.today}
-              icon={Zap}
-              variant="today"
-              onClick={() => handleFilterChange({ quickPreset: "today" })}
-              isActive={filters.quickPreset === "today"}
-            />
-            <StatCard
-              label="Overdue"
-              value={overdueCount}
-              icon={AlertTriangle}
-              variant="overdue"
-              onClick={() => handleFilterChange({ quickPreset: "overdue" })}
-              isActive={filters.quickPreset === "overdue"}
-            />
-          </>
-        )}
       </div>
 
       {/* Interactive Filter Bar */}
@@ -339,8 +303,8 @@ export function TaskCommandCenter() {
               {filters.search || filters.quickPreset || filters.selectedTags.length > 0
                 ? "No tasks match your current filter criteria. Try adjusting or clearing your filters."
                 : filters.status === "completed"
-                ? "You haven't completed any tasks yet."
-                : "Your task list is clean! Create your first task to get started."}
+                  ? "You haven't completed any tasks yet."
+                  : "Your task list is clean! Create your first task to get started."}
             </p>
 
             {filters.search || filters.quickPreset || filters.selectedTags.length > 0 ? (
@@ -367,7 +331,7 @@ export function TaskCommandCenter() {
             <TaskGroupSection
               key={group.id}
               group={group}
-              defaultExpanded={group.id !== "completed" || filters.status === "completed"}
+              defaultExpanded={!["upcoming", "later", "completed"].includes(group.id) || filters.status === "completed"}
               renderTask={(task) => (
                 <TodoCard
                   key={task.id}
@@ -399,12 +363,12 @@ export function TaskCommandCenter() {
             defaultValues={
               editingTodo
                 ? {
-                    title: editingTodo.title,
-                    description: editingTodo.description || undefined,
-                    priority: editingTodo.priority,
-                    tags: editingTodo.tags,
-                    due_date: editingTodo.due_date || undefined,
-                  }
+                  title: editingTodo.title,
+                  description: editingTodo.description || undefined,
+                  priority: editingTodo.priority,
+                  tags: editingTodo.tags,
+                  due_date: editingTodo.due_date || undefined,
+                }
                 : undefined
             }
             mode={editingTodo ? "edit" : "create"}
