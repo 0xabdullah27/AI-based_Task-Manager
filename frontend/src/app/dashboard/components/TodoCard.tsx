@@ -105,28 +105,13 @@ export function TodoCard({
           {/* Main Checkbox */}
           <button
             onClick={onToggle}
-            disabled={subtasksPending}
-            title={
-              subtasksPending
-                ? "Complete all subtask steps first"
-                : todo.completed
-                ? "Mark incomplete"
-                : "Mark complete"
-            }
-            className={`mt-0.5 flex-shrink-0 cursor-pointer transition-transform ${
-              subtasksPending ? "cursor-not-allowed opacity-50" : "hover:scale-110"
-            }`}
+            title={todo.completed ? "Mark incomplete" : "Mark complete"}
+            className="mt-0.5 flex-shrink-0 cursor-pointer transition-transform hover:scale-110"
           >
             {todo.completed ? (
               <CheckCircle2 className="w-5 h-5 text-emerald-500 fill-emerald-500/20" />
             ) : (
-              <Circle
-                className={`w-5 h-5 ${
-                  subtasksPending
-                    ? "text-muted-foreground/40"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              />
+              <Circle className="w-5 h-5 text-muted-foreground hover:text-foreground" />
             )}
           </button>
 
