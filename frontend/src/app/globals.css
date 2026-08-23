@@ -131,19 +131,16 @@
 
   /* Notion Priority Badges */
   --priority-high: oklch(0.62 0.19 25); /* Notion Red */
-  --priority-high-foreground: oklch(1 0 0);
-  --priority-high-bg: var(--priority-high);
-  --priority-high-text: var(--priority-high-foreground);
+  --priority-high-bg: oklch(0.62 0.19 25 / 10%);
+  --priority-high-text: var(--priority-high);
 
   --priority-medium: oklch(0.64 0.14 65); /* Notion Orange */
-  --priority-medium-foreground: oklch(1 0 0);
-  --priority-medium-bg: var(--priority-medium);
-  --priority-medium-text: var(--priority-medium-foreground);
+  --priority-medium-bg: oklch(0.64 0.14 65 / 15%);
+  --priority-medium-text: var(--priority-medium);
 
   --priority-low: oklch(0.55 0.11 150); /* Notion Green */
-  --priority-low-foreground: oklch(1 0 0);
-  --priority-low-bg: var(--priority-low);
-  --priority-low-text: var(--priority-low-foreground);
+  --priority-low-bg: oklch(0.55 0.11 150 / 12%);
+  --priority-low-text: var(--priority-low);
 
   /* Form states */
   --error-bg: oklch(0.96 0.03 25);
@@ -229,19 +226,16 @@
 
   /* Notion Dark Priority Badges */
   --priority-high: oklch(0.68 0.18 25); /* #ff7369 */
-  --priority-high-foreground: oklch(1 0 0);
-  --priority-high-bg: var(--priority-high);
-  --priority-high-text: var(--priority-high-foreground);
+  --priority-high-bg: oklch(0.68 0.18 25 / 15%);
+  --priority-high-text: var(--priority-high);
 
   --priority-medium: oklch(0.88 0.16 90); /* #ffdc49 */
-  --priority-medium-foreground: oklch(0.18 0 0);
-  --priority-medium-bg: var(--priority-medium);
-  --priority-medium-text: var(--priority-medium-foreground);
+  --priority-medium-bg: oklch(0.88 0.16 90 / 15%);
+  --priority-medium-text: var(--priority-medium);
 
   --priority-low: oklch(0.67 0.14 150); /* #4dab72 */
-  --priority-low-foreground: oklch(1 0 0);
-  --priority-low-bg: var(--priority-low);
-  --priority-low-text: var(--priority-low-foreground);
+  --priority-low-bg: oklch(0.67 0.14 150 / 15%);
+  --priority-low-text: var(--priority-low);
 
   /* Form states */
   --error-bg: oklch(0.25 0.08 25);

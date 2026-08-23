@@ -153,7 +153,7 @@ export function TodoCard({
                   {todo.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] text-muted-foreground bg-muted rounded-sm truncate"
+                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] text-muted-foreground border border-border/60 bg-transparent rounded-sm truncate"
                     >
                       {tag}
                     </span>
