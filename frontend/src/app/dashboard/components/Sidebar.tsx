@@ -11,7 +11,11 @@ import {
 import { LogOut, ChevronsUpDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export function Sidebar({ onNavigate }: SidebarProps = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
@@ -44,7 +48,10 @@ export function Sidebar() {
     <div className="h-full flex flex-col overflow-y-auto p-2 bg-sidebar text-sidebar-foreground">
       {/* Workspace Selector (Notion Style) */}
       <div 
-        onClick={() => router.push("/")}
+        onClick={() => {
+          router.push("/");
+          onNavigate?.();
+        }}
         className="flex items-center gap-2 px-2 py-3 hover:bg-sidebar-accent rounded-md cursor-pointer transition-colors mt-2"
       >
         <div className="h-5 w-5 flex items-center justify-center rounded-[3px] bg-foreground text-background text-[10px] font-bold">
@@ -72,7 +79,10 @@ export function Sidebar() {
           return (
             <button
               key={section.id}
-              onClick={() => router.push(section.href)}
+              onClick={() => {
+                router.push(section.href);
+                onNavigate?.();
+              }}
               className={cn(
                 "w-full cursor-pointer flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm transition-colors",
                 isActive
