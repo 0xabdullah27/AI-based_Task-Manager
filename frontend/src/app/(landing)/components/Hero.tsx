@@ -11,8 +11,8 @@ export function Hero() {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center bg-background text-foreground px-4 py-16 overflow-hidden">
       {/* Background Gradient Mesh & Light Effects */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-primary/20 via-chart-4/15 to-transparent rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-chart-2/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-foreground/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Grid Pattern Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
@@ -21,22 +21,21 @@ export function Hero() {
         {/* Left Side: Headline & CTAs (7 columns on desktop) */}
         <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted border border-border/60 text-xs font-semibold text-foreground">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-background/50 backdrop-blur-md border border-foreground/10 shadow-[0_0_15px_rgba(0,0,0,0.05)] dark:shadow-[0_0_15px_rgba(255,255,255,0.05)] text-xs font-semibold text-foreground">
             <Sparkles className="w-3.5 h-3.5 text-foreground/70" />
-            <span>Next-Gen AI Task Management</span>
+            <span>Introducing TaskCortex 1.0</span>
           </div>
 
           {/* Main Title */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.15]">
-            Master Your Workflow with{" "}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-chart-4 to-chart-2">
-              Intelligent AI
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter leading-[1.15]">
+            <span className="bg-clip-text text-transparent bg-gradient-to-br from-foreground to-muted-foreground">
+              The Brain for Your Tasks.
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
-            Organize tasks, manage priorities, and chat in natural language with your personal AI agent. Effortless productivity built for modern teams.
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
+            Organize tasks, manage priorities, and chat in natural language with your personal AI agent. Built for clarity. Designed for speed.
           </p>
 
           {/* Action Buttons */}
@@ -45,10 +44,10 @@ export function Hero() {
               <Link href="/dashboard">
                 <Button
                   size="lg"
-                  className="bg-foreground hover:bg-foreground/90 text-background px-8 py-6 text-base font-semibold shadow-sm cursor-pointer rounded-xl"
+                  className="group bg-foreground hover:bg-foreground/90 text-background px-8 py-6 text-base font-semibold shadow-xl shadow-foreground/10 cursor-pointer rounded-xl transition-all"
                 >
                   <span>Go to Dashboard</span>
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
             ) : (
@@ -56,10 +55,10 @@ export function Hero() {
                 <Link href="/sign-up">
                   <Button
                     size="lg"
-                    className="bg-foreground hover:bg-foreground/90 text-background px-8 py-6 text-base font-semibold shadow-sm cursor-pointer rounded-xl"
+                    className="group bg-foreground hover:bg-foreground/90 text-background px-8 py-6 text-base font-semibold shadow-xl shadow-foreground/10 cursor-pointer rounded-xl transition-all"
                   >
                     <span>Get Started Free</span>
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
 
