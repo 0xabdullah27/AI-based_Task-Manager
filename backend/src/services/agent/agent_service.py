@@ -239,7 +239,7 @@ _cached_client: Optional[AsyncOpenAI] = None
 _cached_client_key: Optional[tuple] = None
 
 
-def _get_model() -> OpenAIChatCompletionsModel:
+def _get_model(session: Session = None, user_id: str = None) -> OpenAIChatCompletionsModel:
     """Instantiate and configure the OpenAIChatCompletionsModel based on application settings.
 
     Returns:
@@ -254,6 +254,25 @@ def _get_model() -> OpenAIChatCompletionsModel:
     model_id = settings.llm_model
     base_url = settings.llm_base_url or _PROVIDER_BASE_URLS.get(provider)
     api_key = settings.llm_api_key
+
+    # Apply BYOK if available
+    if session and user_id:
+        from src.models.user_settings import UserSettings
+        from src.utils.encryption import decrypt_value
+        user_settings = session.get(UserSettings, user_id)
+        
+        if user_settings and user_settings.use_custom_llm:
+            provider = user_settings.llm_provider or provider
+            model_id = user_settings.llm_model or model_id
+            
+            # Recalculate base_url based on custom provider if base_url is not explicitly overridden
+            if user_settings.llm_base_url:
+                base_url = user_settings.llm_base_url
+            elif user_settings.llm_provider:
+                base_url = _PROVIDER_BASE_URLS.get(provider)
+                
+            if user_settings.llm_api_key:
+                api_key = decrypt_value(user_settings.llm_api_key)
 
     if not api_key:
         raise ValueError(
@@ -315,10 +334,10 @@ async def handle_chat(
     else:
         input_for_agent = message
 
-    model = _get_model()
     context = AgentContext(session=session, user_id=user_id)
 
     try:
+        model = _get_model(session, user_id)
         logger.info("Running AI agent with SDK function tools")
         agent = Agent(
             name="Todo Assistant",
@@ -386,13 +405,13 @@ async def handle_chat_stream(
     else:
         input_for_agent = message
 
-    model = _get_model()
     context = AgentContext(session=session, user_id=user_id)
 
     response_text = ""
     token_count = 0
 
     try:
+        model = _get_model(session, user_id)
         logger.info("Stream: Running AI agent with SDK function tools")
         agent = Agent(
             name="Todo Assistant",

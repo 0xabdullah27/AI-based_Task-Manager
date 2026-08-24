@@ -13,6 +13,7 @@ This directory contains the robust backend API and AI orchestration layer for th
 ## ✨ Key Features
 
 - **Agentic AI Service:** Contains a sophisticated `agent_service.py` that translates natural language from the user into structured JSON tool calls (e.g., `add_task`, `list_tasks`) to manipulate the database on behalf of the user.
+- **BYOK Configuration Engine:** Allows individual users to inject their own API keys via the database, securely encrypted at rest using AES-256 Fernet symmetric encryption.
 - **RESTful API:** Clean, strongly-typed endpoints for standard CRUD operations on tasks.
 - **Strict Anti-Hallucination Measures:** The AI logic is carefully prompted to ensure it verifies database records before confirming actions to the user.
 
@@ -45,6 +46,10 @@ Make sure you have Python 3.10+ installed. A PostgreSQL database is also require
    Copy `.env.example` to `.env` and fill in your `DATABASE_URL`, `LLM_API_KEY`, and authentication secrets.
    ```bash
    cp .env.example .env
+   ```
+   **Important Note on Encryption:** The backend requires an `ENCRYPTION_KEY` to securely store user-provided API keys (BYOK feature). Generate one using the following command and add it to your `.env` file:
+   ```bash
+   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
    ```
 
 ### Development Server

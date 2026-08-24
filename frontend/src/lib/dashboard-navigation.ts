@@ -1,4 +1,4 @@
-import { CheckSquare, PlusCircle, MessageSquare } from "lucide-react";
+import { CheckSquare, PlusCircle, MessageSquare, Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface NavigationSection {
@@ -27,6 +27,12 @@ export const navigationSections: NavigationSection[] = [
     label: "Quick Add Task",
     icon: PlusCircle,
     href: "/dashboard/create-task",
+  },
+  {
+    id: "settings",
+    label: "AI Settings",
+    icon: Settings,
+    href: "/dashboard/settings",
   },
 ];
 

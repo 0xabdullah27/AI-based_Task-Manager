@@ -9,6 +9,7 @@ from src.models.task import Task  # noqa: F401
 from src.models.tag import Tag, TaskTag  # noqa: F401
 from src.models.conversation import Conversation  # noqa: F401
 from src.models.message import Message  # noqa: F401
+from src.models.user_settings import UserSettings  # noqa: F401
 from src.core.config import settings
 
 logger = logging.getLogger(__name__)

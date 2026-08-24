@@ -16,6 +16,7 @@ An intelligent, full-stack task management system that allows users to seamlessl
 ## ✨ Key Features
 
 - **🤖 AI Task Assistant:** Talk to your AI assistant to add tasks, set due dates, and organize your workflow using natural language.
+- **🔑 Bring Your Own Key (BYOK):** Allow users to override default AI models with their own API keys, securely encrypted at rest (AES-256 Fernet).
 - **📊 Modern Dashboard:** A beautiful, intuitive dashboard with Kanban-style task grouping, intelligent filtering, and search capabilities.
 - **📱 Fully Responsive:** Carefully crafted mobile-first design with a sliding navigation drawer and glassmorphism chat overlays.
 - **🔐 Secure Authentication:** Robust JWT-based authentication system powered by Better Auth.

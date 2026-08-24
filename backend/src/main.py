@@ -14,7 +14,7 @@ from src.middleware.rate_limit import limiter
 
 from src.core.config import settings
 
-from src.routers import health, tasks, tags, chat
+from src.routers import health, tasks, tags, chat, settings as settings_router
 
 from src.exceptions.base import (
     TaskNotFoundError,
@@ -80,6 +80,7 @@ app.include_router(health.router)
 app.include_router(tasks.router)
 app.include_router(tags.router)
 app.include_router(chat.router)
+app.include_router(settings_router.router)
 
 app.mount("/mcp", mcp_app)
 
