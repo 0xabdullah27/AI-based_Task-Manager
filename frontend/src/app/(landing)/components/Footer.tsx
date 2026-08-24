@@ -23,18 +23,13 @@ export function Footer() {
             <h3 className="font-semibold text-foreground mb-4">Product</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="#" className="hover:text-foreground transition">
+                <Link href="#features" className="hover:text-foreground transition">
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-foreground transition">
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-foreground transition">
-                  Security
+                <Link href="/sign-up" className="hover:text-foreground transition">
+                  Get Started
                 </Link>
               </li>
             </ul>
@@ -45,41 +40,26 @@ export function Footer() {
             <h3 className="font-semibold text-foreground mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="#" className="hover:text-foreground transition">
-                  Documentation
-                </Link>
+                <a href="https://github.com/0xabdullah27/TaskCortex" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition">
+                  GitHub Repository
+                </a>
               </li>
               <li>
-                <Link href="#" className="hover:text-foreground transition">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-foreground transition">
-                  Support
-                </Link>
+                <a href="https://github.com/0xabdullah27/TaskCortex/issues" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition">
+                  Report an Issue
+                </a>
               </li>
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Legal</h3>
+            <h3 className="font-semibold text-foreground mb-4">Connect</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="#" className="hover:text-foreground transition">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-foreground transition">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-foreground transition">
-                  Contact
-                </Link>
+                <a href="https://github.com/0xabdullah27" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition">
+                  Developer Profile
+                </a>
               </li>
             </ul>
           </div>
