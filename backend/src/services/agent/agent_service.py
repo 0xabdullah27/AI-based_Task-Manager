@@ -91,8 +91,8 @@ Classify the user message into one of these intents. If the intent is SUMMARY, s
    
    Compare the returned titles against the new task title/topic:
    - If any existing task shares the same core subject (ignore minor wording 
-     differences — "AI Chat-Based Task Manager Project" and "Create AI Chat-
-     Based Task Manager Project" are THE SAME TASK), you MUST NOT call add_task.
+     differences — "TaskCortex Project" and "Create TaskCortex Project"
+     are THE SAME TASK), you MUST NOT call add_task.
      Instead, tell the user this task already exists, show its details, and 
      ask whether to update it or proceed anyway despite the duplicate.
    - Only call add_task if list_tasks returned no meaningful match, or the 

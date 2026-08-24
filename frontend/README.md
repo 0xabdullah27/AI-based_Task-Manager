@@ -1,6 +1,6 @@
-# AI-Based Task Manager (Frontend)
+# TaskCortex (Frontend)
 
-This directory contains the frontend code for the AI-Based Task Manager application. It is built using modern web development standards to provide a highly responsive, beautiful, and interactive user experience.
+This directory contains the frontend code for the TaskCortex application. It is built using modern web development standards to provide a highly responsive, beautiful, and interactive user experience.
 
 ## 🛠️ Tech Stack
 

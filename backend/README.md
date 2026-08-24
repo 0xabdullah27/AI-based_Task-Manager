@@ -1,6 +1,6 @@
-# AI-Based Task Manager (Backend)
+# TaskCortex (Backend)
 
-This directory contains the robust backend API and AI orchestration layer for the AI-Based Task Manager application. It handles user authentication, database persistence, and integrates with large language models to interpret user intent.
+This directory contains the robust backend API and AI orchestration layer for the TaskCortex application. It handles user authentication, database persistence, and integrates with large language models to interpret user intent.
 
 ## 🛠️ Tech Stack
 

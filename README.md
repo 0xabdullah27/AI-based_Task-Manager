@@ -1,4 +1,4 @@
-# 🚀 AI-Based Task Manager
+# 🚀 TaskCortex
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Frontend: Next.js](https://img.shields.io/badge/Frontend-Next.js_15-black)

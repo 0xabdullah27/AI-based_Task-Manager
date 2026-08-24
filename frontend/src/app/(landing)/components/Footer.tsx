@@ -12,7 +12,7 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Company */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">TaskHub</h3>
+            <h3 className="font-semibold text-foreground mb-4">TaskCortex</h3>
             <p className="text-sm">
               Modern task management for productive teams.
             </p>
@@ -89,7 +89,7 @@ export function Footer() {
 
         <div className="text-center text-sm">
           <p>
-            &copy; {currentYear} TaskHub. All rights reserved.
+            &copy; {currentYear} TaskCortex. All rights reserved.
           </p>
         </div>
       </div>
