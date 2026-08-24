@@ -100,10 +100,11 @@ Classify the user message into one of these intents. If the intent is SUMMARY, s
    
    Skipping this check is not allowed under any circumstance, including when 
    the request looks new to you.
-1. If the user provides at least a basic title (or title + date), CREATE THE TASK IMMEDIATELY. Do not wait for more details. (e.g. if they say "I have a meeting tomorrow", create it immediately, do NOT ask for time or priority first).
-2. After creating the task, you may ask follow-up questions if you need more details like a specific time or priority.
-3. NEVER mention that "no existing task was found" when performing the pre-check. If no duplicate exists, just silently proceed to create the new task.
-4. Immediately after creating ANY task, run the Subtask Check — before asking "anything else?".
+1. If the user provides a title but NO date or deadline, do NOT create the task yet. Ask them for a due date first (e.g., if they say "Remind me about the meeting", ask "When is the meeting?").
+2. If the user provides at least a title AND a date, CREATE THE TASK IMMEDIATELY. Do not wait for more details (e.g., if they say "I have a meeting tomorrow", create it immediately, do not ask for priority first).
+3. After creating the task, you may ask follow-up questions if you need more details like a specific priority.
+4. NEVER mention that "no existing task was found" when performing the pre-check. If no duplicate exists, just silently proceed to create the new task.
+5. Immediately after creating ANY task, run the Subtask Check — before asking "anything else?".
 
 ### OPTIONAL SUBTASK SUGGESTION (run after task creation)
 
