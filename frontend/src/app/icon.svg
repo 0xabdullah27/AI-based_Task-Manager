@@ -1,0 +1,28 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Deep sleek gradient background -->
+  <rect width="256" height="256" rx="64" fill="url(#bg-gradient)"/>
+  
+  <!-- Stylized neural path (checkmark) -->
+  <path d="M72 136L112 176L184 96" stroke="url(#line-gradient)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Neural nodes -->
+  <circle cx="72" cy="136" r="16" fill="white"/>
+  <circle cx="112" cy="176" r="16" fill="white"/>
+  <circle cx="184" cy="96" r="16" fill="white"/>
+  
+  <!-- Subtle branching connections for the 'cortex' theme -->
+  <path d="M184 96L210 60" stroke="white" stroke-opacity="0.3" stroke-width="8" stroke-linecap="round"/>
+  <path d="M72 136L40 110" stroke="white" stroke-opacity="0.3" stroke-width="8" stroke-linecap="round"/>
+  <path d="M112 176L130 215" stroke="white" stroke-opacity="0.3" stroke-width="8" stroke-linecap="round"/>
+
+  <defs>
+    <linearGradient id="bg-gradient" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f172a"/> <!-- slate-900 -->
+      <stop offset="1" stop-color="#020617"/> <!-- slate-950 -->
+    </linearGradient>
+    <linearGradient id="line-gradient" x1="72" y1="136" x2="184" y2="96" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f8fafc"/> <!-- slate-50 -->
+      <stop offset="1" stop-color="#94a3b8"/> <!-- slate-400 -->
+    </linearGradient>
+  </defs>
+</svg>
