@@ -6,7 +6,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Todo App",
+  title: "TaskCortex",
   description: "A modern todo application with authentication",
 };
 

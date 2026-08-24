@@ -23,7 +23,7 @@ export function DashboardNav({ onMenuToggle }: DashboardNavProps) {
         >
           <Menu className="h-6 w-6" />
         </Button>
-        <span className="font-bold text-sm text-foreground">TaskHub</span>
+        <span className="font-bold text-sm text-foreground">TaskCortex</span>
       </div>
       <ThemeToggle />
     </nav>

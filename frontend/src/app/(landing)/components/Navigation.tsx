@@ -16,7 +16,7 @@ export function Navigation() {
           <div className="bg-foreground p-2 rounded-lg">
             <CheckSquare className="w-5 h-5 text-background" />
           </div>
-          <span>TaskHub</span>
+          <span>TaskCortex</span>
         </Link>
 
         {/* Auth Actions */}

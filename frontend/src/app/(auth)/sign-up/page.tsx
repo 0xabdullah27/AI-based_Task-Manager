@@ -9,7 +9,7 @@ export default function SignUpPage() {
         <div className="bg-foreground p-2 rounded-lg">
           <CheckSquare className="w-5 h-5 text-background" />
         </div>
-        <span>TaskHub</span>
+        <span>TaskCortex</span>
       </Link>
       <div className="w-full max-w-[360px] space-y-8 p-6 sm:p-8 bg-background">
         <div className="text-center space-y-2">

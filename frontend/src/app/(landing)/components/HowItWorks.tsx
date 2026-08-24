@@ -6,7 +6,7 @@ const steps = [
   {
     icon: MousePointerClick,
     title: "1. Add Your Tasks",
-    description: "Quickly dump everything on your mind into TaskHub. Don't worry about organization yet—just get it out.",
+    description: "Quickly dump everything on your mind into TaskCortex. Don't worry about organization yet—just get it out.",
   },
   {
     icon: Sparkles,
@@ -25,7 +25,7 @@ export function HowItWorks() {
     <section className="py-24 px-4 bg-muted/30">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">How TaskHub Works</h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">How TaskCortex Works</h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             A frictionless workflow designed to get out of your way.
           </p>
