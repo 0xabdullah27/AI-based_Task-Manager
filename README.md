@@ -7,6 +7,12 @@
 
 An intelligent, full-stack task management system that allows users to seamlessly manage their daily workflow using natural language. Built with a modern tech stack, this application features a sleek, mobile-responsive glassmorphism UI and a powerful AI chat assistant that can create, update, and manage your tasks for you.
 
+## 📸 Screenshots
+
+| Landing Page | Dashboard |
+|:---:|:---:|
+| ![Landing Page](docs/images/landing.png) | ![Dashboard](docs/images/dashboard.png) |
+
 ## ✨ Key Features
 
 - **🤖 AI Task Assistant:** Talk to your AI assistant to add tasks, set due dates, and organize your workflow using natural language.
