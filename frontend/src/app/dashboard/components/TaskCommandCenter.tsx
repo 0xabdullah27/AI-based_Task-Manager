@@ -341,6 +341,7 @@ export function TaskCommandCenter() {
                   onDelete={() => openDeleteConfirm(task.id)}
                   onAddSubtask={handleAddSubtask}
                   onToggleSubtask={handleToggleTodo}
+                  onDeleteSubtask={openDeleteConfirm}
                 />
               )}
             />

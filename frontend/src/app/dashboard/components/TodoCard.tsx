@@ -33,6 +33,7 @@ interface TodoCardProps {
   onDelete: () => void;
   onAddSubtask?: (parentId: string, title: string) => Promise<void>;
   onToggleSubtask?: (subtaskId: string) => void;
+  onDeleteSubtask?: (subtaskId: string) => void;
 }
 
 export function TodoCard({
@@ -42,8 +43,9 @@ export function TodoCard({
   onDelete,
   onAddSubtask,
   onToggleSubtask,
+  onDeleteSubtask,
 }: TodoCardProps) {
-  const [subtasksExpanded, setSubtasksExpanded] = useState(false);
+  const [subtasksExpanded, setSubtasksExpanded] = useState(true);
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const [subtaskTitle, setSubtaskTitle] = useState("");
   const [isSubmittingSubtask, setIsSubmittingSubtask] = useState(false);
@@ -163,10 +165,13 @@ export function TodoCard({
               
               {/* Subtask indicator badge */}
               {hasSubtasks && !subtasksExpanded && (
-                 <span className="inline-flex items-center text-[11px] text-muted-foreground">
+                 <button 
+                    onClick={() => setSubtasksExpanded(true)}
+                    className="inline-flex items-center text-[11px] text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                 >
                     <ChevronRight className="w-3 h-3 mr-0.5" strokeWidth={1.5} />
                     {completedSubtasksCount}/{totalSubtasksCount} steps
-                 </span>
+                 </button>
               )}
             </div>
           </div>
@@ -251,6 +256,16 @@ export function TodoCard({
                     >
                       {subtask.title}
                     </span>
+                    {onDeleteSubtask && (
+                      <button
+                        type="button"
+                        onClick={() => onDeleteSubtask(subtask.id)}
+                        className="opacity-0 group-hover/subtask:opacity-100 flex-shrink-0 text-muted-foreground hover:text-destructive transition-all"
+                        title="Delete step"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
