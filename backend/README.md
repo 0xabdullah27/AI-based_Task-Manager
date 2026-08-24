@@ -1,118 +1,62 @@
-# Backend - Todo Web App
+# AI-Based Task Manager (Backend)
 
-FastAPI + SQLModel REST API with JWT authentication and PostgreSQL database.
+This directory contains the robust backend API and AI orchestration layer for the AI-Based Task Manager application. It handles user authentication, database persistence, and integrates with large language models to interpret user intent.
 
-## Quick Start
+## 🛠️ Tech Stack
+
+- **Framework:** [FastAPI](https://fastapi.tiangolo.com/) (Python)
+- **Database ORM:** [SQLModel](https://sqlmodel.tiangolo.com/)
+- **Database Engine:** [PostgreSQL](https://www.postgresql.org/) (Neon)
+- **Authentication:** [Better Auth](https://www.better-auth.com/)
+- **AI Models:** Integrates with Mistral (via OpenRouter/Groq endpoints).
+
+## ✨ Key Features
+
+- **Agentic AI Service:** Contains a sophisticated `agent_service.py` that translates natural language from the user into structured JSON tool calls (e.g., `add_task`, `list_tasks`) to manipulate the database on behalf of the user.
+- **RESTful API:** Clean, strongly-typed endpoints for standard CRUD operations on tasks.
+- **Strict Anti-Hallucination Measures:** The AI logic is carefully prompted to ensure it verifies database records before confirming actions to the user.
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.12+
-- UV package manager
+Make sure you have Python 3.10+ installed. A PostgreSQL database is also required (local or cloud-hosted).
 
-### Setup
+### Installation
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Create and activate a virtual environment:
+   ```bash
+   # On macOS/Linux:
+   python -m venv venv
+   source venv/bin/activate
+   
+   # On Windows:
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+3. Install the dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Set up environment variables:
+   Copy `.env.example` to `.env` and fill in your `DATABASE_URL`, `MISTRAL_API_KEY`, and authentication secrets.
+   ```bash
+   cp .env.example .env
+   ```
+
+### Development Server
+Run the local FastAPI development server:
 ```bash
-# Install dependencies
-uv sync
-
-# Copy environment template
-cp .env.example .env
-
-# Run development server
-uv run uvicorn src.main:app --reload --port 8000
+uvicorn src.main:app --reload
 ```
+The API will be available at `http://localhost:8000`. 
+You can view the interactive API documentation (Swagger UI) at [http://localhost:8000/docs](http://localhost:8000/docs).
 
-Access API at http://localhost:8000
-- API Docs: http://localhost:8000/docs
-- Health Check: http://localhost:8000/health
-
-### Environment Variables
-```env
-DATABASE_URL=postgresql://user:password@host/database
-BETTER_AUTH_URL=http://localhost:3000
-CORS_ORIGINS=["http://localhost:3000"]
-```
-
-## Available Commands
-
-```bash
-uv sync                  # Install dependencies
-uv run pytest            # Run tests
-uv run pytest --cov=src  # Run tests with coverage
-uv run uvicorn src.main:app --reload  # Dev server
-```
-
-## Features
-
-- JWT authentication via Better Auth JWKS
-- User-isolated task management (CRUD)
-- Search, filter, and sort tasks
-- Tag management
-- Comprehensive error handling
-- CORS support for multiple origins
-
-## Project Structure
-
-```
-src/
-├── main.py           # FastAPI app entry
-├── config.py         # Environment configuration
-├── auth/             # JWT verification
-├── crud/             # Database operations
-├── db/               # Database connection
-├── models/           # SQLModel entities
-├── routers/          # API endpoints
-├── schemas/          # Request/response models
-├── middleware/       # CORS, logging, error handling
-└── exceptions/       # Custom exceptions
-```
-
-## API Endpoints
-
-All endpoints require JWT authentication via `Authorization: Bearer <token>` header.
-
-### Tasks
-- `POST /api/todos` - Create task
-- `GET /api/todos` - List user's tasks
-- `GET /api/todos/{id}` - Get specific task
-- `PATCH /api/todos/{id}` - Update task
-- `DELETE /api/todos/{id}` - Delete task
-- `POST /api/todos/{id}/toggle` - Toggle completion
-
-### Health
-- `GET /health` - Health check
-- `GET /` - Root endpoint
-
-Full API documentation: http://localhost:8000/docs
-
-## Technology
-
-- **Framework**: FastAPI
-- **Language**: Python 3.12+
-- **ORM**: SQLModel (SQLAlchemy + Pydantic)
-- **Database**: PostgreSQL
-- **Auth**: JWT verification via JWKS
-- **Testing**: pytest + TestClient
-
-## Testing
-
-```bash
-# Run all tests
-uv run pytest
-
-# Run with coverage
-uv run pytest --cov=src --cov-report=term-missing
-
-# Run specific test
-uv run pytest tests/unit/test_task_crud.py
-```
-
-Target: 70%+ code coverage
-
-## Deployment
-
-For deployment instructions, see `DEPLOYMENT.md`
-
-## Support
-
-- See `CLAUDE.md` for development standards
-- See root `README.md` for full project overview
-- Frontend README: `../frontend/README.md`
+## 📁 Directory Structure
+- `/src/api`: API route definitions and controller logic.
+- `/src/models`: Database schema models defined with SQLModel.
+- `/src/services`: Core business logic, including the AI agent processing pipeline.
+- `/src/core`: Configuration and dependency injection setup.

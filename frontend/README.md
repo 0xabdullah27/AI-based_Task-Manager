@@ -1,87 +1,52 @@
-# Frontend - Todo Web App
+# AI-Based Task Manager (Frontend)
 
-Next.js 16 + TypeScript task management application with Better Auth authentication.
+This directory contains the frontend code for the AI-Based Task Manager application. It is built using modern web development standards to provide a highly responsive, beautiful, and interactive user experience.
 
-## Quick Start
+## 🛠️ Tech Stack
+
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components:** [Shadcn UI](https://ui.shadcn.com/) (Radix Primitives)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **State Management:** React Context API
+
+## ✨ Key Features
+
+- **Responsive Dashboard:** A kanban-style task dashboard that automatically adapts its layout from mobile screens up to ultra-wide desktop monitors.
+- **Glassmorphism Chat UI:** An integrated AI chat overlay with premium glassmorphism effects, allowing users to talk to the AI without leaving their context.
+- **Dynamic Theming:** Seamless toggling between light and dark modes.
+- **Smart Filtering:** Client-side task filtering, searching, and sorting with smooth animations.
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- npm 10+
+Make sure you have Node.js (v18+) installed.
 
-### Setup
+### Installation
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables:
+   Copy `.env.example` to `.env.local` and ensure your `NEXT_PUBLIC_API_URL` is pointing to the local FastAPI backend.
+   ```bash
+   cp .env.example .env.local
+   ```
+
+### Development Server
+Run the local development server:
 ```bash
-# Install dependencies
-npm install
-
-# Copy environment template
-cp .env.example .env.local
-
-# Run development server
 npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Open http://localhost:3000
-
-### Environment Variables
-```env
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:8000
-DATABASE_URL=postgresql://...
-BETTER_AUTH_SECRET=your-secret-key
-```
-
-## Available Scripts
-
-```bash
-npm run dev       # Development server
-npm run build     # Production build
-npm start         # Start production server
-npm test          # Run tests
-npm run lint      # Lint code
-```
-
-## Features
-
-- User authentication (signup/signin)
-- Create, edit, delete tasks
-- Filter and sort tasks
-- Responsive design
-- Full TypeScript support
-
-## Project Structure
-
-```
-src/
-├── app/          # Next.js pages
-├── components/   # React components
-├── hooks/        # Custom hooks
-├── lib/          # Utilities & config
-├── middleware/   # API interceptor
-├── types/        # TypeScript types
-└── tests/        # Test setup
-```
-
-## Technology
-
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Forms**: React Hook Form + Zod
-- **Auth**: Better Auth
-- **HTTP**: Axios
-- **Testing**: Jest + React Testing Library
-
-## Deployment
-
-Deploy to Vercel:
-1. Push to GitHub
-2. Connect repo to Vercel
-3. Set environment variables
-4. Deploy
-
-See root `README.md` for detailed instructions.
-
-## Support
-
-- View API docs: http://localhost:8000/docs
-- See `CLAUDE.md` for development standards
+## 📁 Directory Structure
+- `/src/app`: Next.js App Router definitions (pages, layouts).
+- `/src/components`: Reusable UI components (buttons, dialogs, forms).
+- `/src/lib`: Utility functions and shared API clients.
+- `/src/providers`: Global state providers for Auth, Theme, and Tasks.
