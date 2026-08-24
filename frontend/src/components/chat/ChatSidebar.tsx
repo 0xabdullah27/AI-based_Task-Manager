@@ -47,7 +47,7 @@ export function ChatSidebar({
           fixed lg:relative
           top-0 left-0
           h-full
-          bg-muted/10
+          bg-background/80 backdrop-blur-xl
           z-50
           flex
           flex-col
