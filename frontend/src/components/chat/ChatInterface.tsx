@@ -22,6 +22,13 @@ export function ChatInterface() {
   } = useChatContext();
   const [input, setInput] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Auto-close sidebar on mobile when component mounts
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, []);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to latest message
