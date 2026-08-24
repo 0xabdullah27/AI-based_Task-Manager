@@ -17,11 +17,11 @@ export interface LLMSettingsUpdate {
 }
 
 export const getLLMSettings = async (): Promise<LLMSettings> => {
-  const response = await apiClient.get("/settings/llm");
+  const response = await apiClient.get("/api/settings/llm");
   return response.data;
 };
 
 export const updateLLMSettings = async (data: LLMSettingsUpdate): Promise<LLMSettings> => {
-  const response = await apiClient.put("/settings/llm", data);
+  const response = await apiClient.put("/api/settings/llm", data);
   return response.data;
 };

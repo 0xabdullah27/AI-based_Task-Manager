@@ -354,7 +354,31 @@ async def handle_chat(
 
     except Exception as e:
         logger.error(f"Agent error: {e}", exc_info=True)
-        response_text = f"I encountered an error processing your request: {str(e)}"
+        
+        # Extract cleaner error message if available
+        error_msg = str(e)
+        try:
+            import ast
+            if "Error code:" in error_msg and " - {" in error_msg:
+                dict_str = error_msg.split(" - ", 1)[1]
+                err_dict = ast.literal_eval(dict_str)
+                if isinstance(err_dict, dict) and "error" in err_dict:
+                    if isinstance(err_dict["error"], dict) and "message" in err_dict["error"]:
+                        error_msg = err_dict["error"]["message"]
+            elif hasattr(e, 'body') and isinstance(e.body, dict):
+                err_dict = e.body.get("error", {})
+                if isinstance(err_dict, dict) and "message" in err_dict:
+                    error_msg = err_dict["message"]
+        except Exception:
+            pass
+
+        # Determine error message based on BYOK status
+        from src.models.user_settings import UserSettings
+        user_settings = session.get(UserSettings, user_id)
+        if user_settings and user_settings.use_custom_llm:
+            response_text = f"I encountered an error connecting to your custom AI provider. Please check your configuration in the AI Settings page.\n\nError details: {error_msg}"
+        else:
+            response_text = f"Our current AI service is unavailable or has reached its limits. We are working on fixing it ASAP. In the meantime, you can configure your own API key in the AI Settings page.\n\nError details: {error_msg}"
 
     conversation_service.add_message(
         session, conversation.id, user_id, role="assistant", content=response_text
@@ -467,7 +491,32 @@ async def handle_chat_stream(
 
     except Exception as e:
         logger.error(f"Stream agent error: {e}", exc_info=True)
-        error_message = f"I encountered an error processing your request: {str(e)}"
+        
+        # Extract cleaner error message if available
+        error_msg = str(e)
+        try:
+            import ast
+            if "Error code:" in error_msg and " - {" in error_msg:
+                dict_str = error_msg.split(" - ", 1)[1]
+                err_dict = ast.literal_eval(dict_str)
+                if isinstance(err_dict, dict) and "error" in err_dict:
+                    if isinstance(err_dict["error"], dict) and "message" in err_dict["error"]:
+                        error_msg = err_dict["error"]["message"]
+            elif hasattr(e, 'body') and isinstance(e.body, dict):
+                err_dict = e.body.get("error", {})
+                if isinstance(err_dict, dict) and "message" in err_dict:
+                    error_msg = err_dict["message"]
+        except Exception:
+            pass
+                
+        # Determine error message based on BYOK status
+        from src.models.user_settings import UserSettings
+        user_settings = session.get(UserSettings, user_id)
+        if user_settings and user_settings.use_custom_llm:
+            error_message = f"I encountered an error connecting to your custom AI provider. Please check your configuration in the AI Settings page.\n\nError details: {error_msg}"
+        else:
+            error_message = f"Our current AI service is unavailable or has reached its limits. We are working on fixing it ASAP. In the meantime, you can configure your own API key in the AI Settings page.\n\nError details: {error_msg}"
+            
         yield json.dumps({"type": "error", "content": error_message})
         response_text = error_message
 

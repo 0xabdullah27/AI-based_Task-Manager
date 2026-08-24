@@ -27,8 +27,8 @@ export default function SettingsPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const [useCustom, setUseCustom] = useState(false);
-  const [provider, setProvider] = useState("mistral");
-  const [model, setModel] = useState("");
+  const [provider, setProvider] = useState("gemini");
+  const [model, setModel] = useState("gemini-2.5-flash");
   const [apiKey, setApiKey] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
 
@@ -56,13 +56,15 @@ export default function SettingsPage() {
     setIsSaving(true);
     setSaveStatus("idle");
     try {
-      await updateLLMSettings({
+      const updatedSettings = await updateLLMSettings({
         use_custom_llm: useCustom,
         llm_provider: useCustom ? provider : null,
         llm_model: useCustom ? model : null,
         llm_api_key: useCustom ? apiKey : null,
         llm_base_url: useCustom ? baseUrl : null,
       });
+      setSettings(updatedSettings); // Update settings with the latest state
+      setApiKey(updatedSettings.has_api_key ? "********" : "");
       setSaveStatus("success");
       setTimeout(() => setSaveStatus("idle"), 3000);
     } catch (error: any) {
@@ -73,10 +75,23 @@ export default function SettingsPage() {
     }
   };
 
+  const hasChanges = 
+    settings?.use_custom_llm !== useCustom ||
+    (settings?.llm_provider || "gemini") !== provider ||
+    (settings?.llm_model || "gemini-2.5-flash") !== model ||
+    (settings?.llm_base_url || "") !== baseUrl ||
+    (apiKey !== "" && apiKey !== "********");
+
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex h-full items-center justify-center p-12">
+        <div className="flex flex-col items-center gap-4 animate-in fade-in duration-500">
+          <div className="relative flex items-center justify-center h-10 w-10">
+            <div className="absolute inset-0 rounded-full border-2 border-primary/20"></div>
+            <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+          </div>
+          <p className="text-sm text-muted-foreground animate-pulse">Loading settings...</p>
+        </div>
       </div>
     );
   }
@@ -84,7 +99,7 @@ export default function SettingsPage() {
   return (
     <div className="flex-1 space-y-6 p-6 pb-16 md:block">
       <div className="space-y-0.5">
-        <h2 className="text-2xl font-bold tracking-tight">AI Settings</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
         <p className="text-muted-foreground">
           Configure how the AI agent operates. You can use the app's default model or bring your own API key.
         </p>
@@ -107,6 +122,8 @@ export default function SettingsPage() {
             onCheckedChange={setUseCustom}
           />
         </div>
+
+
 
         {useCustom && (
           <div className="space-y-6 rounded-lg border p-6 bg-card animate-in fade-in slide-in-from-top-4 duration-300">
@@ -135,6 +152,9 @@ export default function SettingsPage() {
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
                 placeholder="e.g. gpt-4o, mistral-large-latest"
+                autoComplete="off"
+                data-1p-ignore="true"
+                spellCheck="false"
               />
               <p className="text-[13px] text-muted-foreground">
                 Make sure the model name exactly matches the provider's API.
@@ -149,6 +169,8 @@ export default function SettingsPage() {
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="sk-..."
+                autoComplete="new-password"
+                data-1p-ignore="true"
               />
               <p className="text-[13px] text-muted-foreground">
                 {settings?.has_api_key && apiKey === "********"
@@ -176,7 +198,17 @@ export default function SettingsPage() {
 
         {/* Save Actions */}
         <div className="flex items-center gap-4">
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button 
+            variant="secondary"
+            onClick={handleSave} 
+            disabled={
+              !hasChanges ||
+              isSaving || 
+              (useCustom && !provider) || 
+              (useCustom && provider === "custom" && !baseUrl) || 
+              (useCustom && !apiKey && !settings?.has_api_key)
+            }
+          >
             {isSaving ? (
               <span className="flex items-center gap-2">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />

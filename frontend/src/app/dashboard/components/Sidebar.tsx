@@ -8,7 +8,7 @@ import {
   navigationSections,
   getActiveSection,
 } from "@/lib/dashboard-navigation";
-import { LogOut, ChevronsUpDown, Plus } from "lucide-react";
+import { LogOut, ChevronsUpDown, Plus, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -100,6 +100,22 @@ export function Sidebar({ onNavigate }: SidebarProps = {}) {
       {/* Bottom Actions */}
       <div className="space-y-[2px] mt-auto pt-4 pb-2">
         <ThemeToggle showLabel className="w-full justify-start px-3 py-1.5 h-auto text-muted-foreground hover:bg-sidebar-accent hover:text-foreground rounded-md transition-colors" />
+
+        <button
+          onClick={() => {
+            router.push("/dashboard/settings");
+            onNavigate?.();
+          }}
+          className={cn(
+            "w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm cursor-pointer transition-colors",
+            pathname === "/dashboard/settings"
+              ? "bg-sidebar-accent text-foreground font-medium"
+              : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+          )}
+        >
+          <Settings className={cn("h-[18px] w-[18px] shrink-0", pathname === "/dashboard/settings" ? "text-foreground" : "text-muted-foreground")} strokeWidth={1.5} />
+          <span className="truncate">Settings</span>
+        </button>
 
         <button
           onClick={handleSignOut}

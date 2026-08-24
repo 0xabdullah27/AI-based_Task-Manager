@@ -28,12 +28,6 @@ export const navigationSections: NavigationSection[] = [
     icon: PlusCircle,
     href: "/dashboard/create-task",
   },
-  {
-    id: "settings",
-    label: "AI Settings",
-    icon: Settings,
-    href: "/dashboard/settings",
-  },
 ];
 
 export function getActiveSection(pathname: string): string | null {

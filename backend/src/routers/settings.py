@@ -7,7 +7,7 @@ from src.api.deps import get_current_user, DbSession
 from src.models.user_settings import UserSettings
 from src.utils.encryption import encrypt_value, decrypt_value
 
-router = APIRouter(prefix="/settings", tags=["settings"])
+router = APIRouter(prefix="/api/settings", tags=["settings"])
 
 class LLMSettingsResponse(BaseModel):
     use_custom_llm: bool

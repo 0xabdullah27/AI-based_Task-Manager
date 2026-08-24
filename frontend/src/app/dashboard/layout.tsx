@@ -34,8 +34,17 @@ export default function DashboardLayout({
 
   if (isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading dashboard...</div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4 animate-in fade-in duration-500">
+          <div className="relative flex items-center justify-center h-12 w-12">
+            <div className="absolute inset-0 rounded-full border-2 border-primary/20"></div>
+            <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+          </div>
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h3 className="text-lg font-medium text-foreground tracking-tight">Authenticating</h3>
+            <p className="text-sm text-muted-foreground animate-pulse">Setting up your workspace...</p>
+          </div>
+        </div>
       </div>
     );
   }
