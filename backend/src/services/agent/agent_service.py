@@ -239,7 +239,7 @@ _cached_client: Optional[AsyncOpenAI] = None
 _cached_client_key: Optional[tuple] = None
 
 
-def _get_model() -> OpenAIChatCompletionsModel:
+def _get_model(session: Session = None, user_id: str = None) -> OpenAIChatCompletionsModel:
     """Instantiate and configure the OpenAIChatCompletionsModel based on application settings.
 
     Returns:
@@ -253,21 +253,30 @@ def _get_model() -> OpenAIChatCompletionsModel:
     provider = settings.llm_provider
     model_id = settings.llm_model
     base_url = settings.llm_base_url or _PROVIDER_BASE_URLS.get(provider)
+    api_key = settings.llm_api_key
 
-    api_key_map = {
-        "openrouter": settings.openrouter_api_key,
-        "openai": settings.openai_api_key,
-        "gemini": settings.gemini_api_key,
-        "mistral": settings.mistral_api_key,
-        "groq": settings.groq_api_key,
-        "freetokenfaucet": settings.freetokenfaucet_api_key,
-    }
-    api_key = api_key_map.get(provider)
+    # Apply BYOK if available
+    if session and user_id:
+        from src.models.user_settings import UserSettings
+        from src.utils.encryption import decrypt_value
+        user_settings = session.get(UserSettings, user_id)
+        
+        if user_settings and user_settings.use_custom_llm:
+            provider = user_settings.llm_provider or provider
+            model_id = user_settings.llm_model or model_id
+            
+            # Recalculate base_url based on custom provider if base_url is not explicitly overridden
+            if user_settings.llm_base_url:
+                base_url = user_settings.llm_base_url
+            elif user_settings.llm_provider:
+                base_url = _PROVIDER_BASE_URLS.get(provider)
+                
+            if user_settings.llm_api_key:
+                api_key = decrypt_value(user_settings.llm_api_key)
 
     if not api_key:
-        env_var = f"{provider.upper()}_API_KEY"
         raise ValueError(
-            f"{env_var} not set in settings for provider '{provider}'. "
+            f"LLM_API_KEY not set in settings. "
             f"Current config: LLM_PROVIDER={provider}, LLM_MODEL={model_id}"
         )
 
@@ -325,10 +334,10 @@ async def handle_chat(
     else:
         input_for_agent = message
 
-    model = _get_model()
     context = AgentContext(session=session, user_id=user_id)
 
     try:
+        model = _get_model(session, user_id)
         logger.info("Running AI agent with SDK function tools")
         agent = Agent(
             name="Todo Assistant",
@@ -345,7 +354,31 @@ async def handle_chat(
 
     except Exception as e:
         logger.error(f"Agent error: {e}", exc_info=True)
-        response_text = f"I encountered an error processing your request: {str(e)}"
+        
+        # Extract cleaner error message if available
+        error_msg = str(e)
+        try:
+            import ast
+            if "Error code:" in error_msg and " - {" in error_msg:
+                dict_str = error_msg.split(" - ", 1)[1]
+                err_dict = ast.literal_eval(dict_str)
+                if isinstance(err_dict, dict) and "error" in err_dict:
+                    if isinstance(err_dict["error"], dict) and "message" in err_dict["error"]:
+                        error_msg = err_dict["error"]["message"]
+            elif hasattr(e, 'body') and isinstance(e.body, dict):
+                err_dict = e.body.get("error", {})
+                if isinstance(err_dict, dict) and "message" in err_dict:
+                    error_msg = err_dict["message"]
+        except Exception:
+            pass
+
+        # Determine error message based on BYOK status
+        from src.models.user_settings import UserSettings
+        user_settings = session.get(UserSettings, user_id)
+        if user_settings and user_settings.use_custom_llm:
+            response_text = f"I encountered an error connecting to your custom AI provider. Please check your configuration in the AI Settings page.\n\nError details: {error_msg}"
+        else:
+            response_text = f"Our current AI service is unavailable or has reached its limits. We are working on fixing it ASAP. In the meantime, you can configure your own API key in the AI Settings page.\n\nError details: {error_msg}"
 
     conversation_service.add_message(
         session, conversation.id, user_id, role="assistant", content=response_text
@@ -396,13 +429,13 @@ async def handle_chat_stream(
     else:
         input_for_agent = message
 
-    model = _get_model()
     context = AgentContext(session=session, user_id=user_id)
 
     response_text = ""
     token_count = 0
 
     try:
+        model = _get_model(session, user_id)
         logger.info("Stream: Running AI agent with SDK function tools")
         agent = Agent(
             name="Todo Assistant",
@@ -458,7 +491,32 @@ async def handle_chat_stream(
 
     except Exception as e:
         logger.error(f"Stream agent error: {e}", exc_info=True)
-        error_message = f"I encountered an error processing your request: {str(e)}"
+        
+        # Extract cleaner error message if available
+        error_msg = str(e)
+        try:
+            import ast
+            if "Error code:" in error_msg and " - {" in error_msg:
+                dict_str = error_msg.split(" - ", 1)[1]
+                err_dict = ast.literal_eval(dict_str)
+                if isinstance(err_dict, dict) and "error" in err_dict:
+                    if isinstance(err_dict["error"], dict) and "message" in err_dict["error"]:
+                        error_msg = err_dict["error"]["message"]
+            elif hasattr(e, 'body') and isinstance(e.body, dict):
+                err_dict = e.body.get("error", {})
+                if isinstance(err_dict, dict) and "message" in err_dict:
+                    error_msg = err_dict["message"]
+        except Exception:
+            pass
+                
+        # Determine error message based on BYOK status
+        from src.models.user_settings import UserSettings
+        user_settings = session.get(UserSettings, user_id)
+        if user_settings and user_settings.use_custom_llm:
+            error_message = f"I encountered an error connecting to your custom AI provider. Please check your configuration in the AI Settings page.\n\nError details: {error_msg}"
+        else:
+            error_message = f"Our current AI service is unavailable or has reached its limits. We are working on fixing it ASAP. In the meantime, you can configure your own API key in the AI Settings page.\n\nError details: {error_msg}"
+            
         yield json.dumps({"type": "error", "content": error_message})
         response_text = error_message
 

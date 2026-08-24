@@ -16,6 +16,7 @@ An intelligent, full-stack task management system that allows users to seamlessl
 ## ✨ Key Features
 
 - **🤖 AI Task Assistant:** Talk to your AI assistant to add tasks, set due dates, and organize your workflow using natural language.
+- **🔑 Bring Your Own Key (BYOK):** Allow users to override default AI models with their own API keys, securely encrypted at rest (AES-256 Fernet).
 - **📊 Modern Dashboard:** A beautiful, intuitive dashboard with Kanban-style task grouping, intelligent filtering, and search capabilities.
 - **📱 Fully Responsive:** Carefully crafted mobile-first design with a sliding navigation drawer and glassmorphism chat overlays.
 - **🔐 Secure Authentication:** Robust JWT-based authentication system powered by Better Auth.
@@ -69,7 +70,7 @@ Create a `.env` file in the `backend` directory. You can copy the provided examp
 ```bash
 cp .env.example .env
 ```
-Make sure to fill in your `DATABASE_URL` and `MISTRAL_API_KEY` (or your chosen LLM provider key) in the `.env` file.
+Make sure to fill in your `DATABASE_URL` and `LLM_API_KEY` (with your chosen LLM provider key) in the `.env` file.
 
 **Run the Server:**
 ```bash

@@ -33,15 +33,13 @@ class Settings(BaseSettings):
     app_name: str = "Todo Backend"
     debug: bool = False
 
-    # LLM Configuration (for OpenAI Agents SDK)
-    openrouter_api_key: Optional[str] = None
-    openai_api_key: Optional[str] = None
-    gemini_api_key: Optional[str] = None
-    mistral_api_key: Optional[str] = None
-    groq_api_key: Optional[str] = None
-    freetokenfaucet_api_key: Optional[str] = None
+    # LLM Configuration
+    llm_api_key: Optional[str] = None
     
-    llm_provider: Literal["openrouter", "openai", "gemini", "mistral", "groq", "freetokenfaucet"] = "mistral"
+    # BYOK Encryption Key (Fernet 32-byte url-safe base64-encoded string)
+    encryption_key: Optional[str] = None
+    
+    llm_provider: Literal["openrouter", "openai", "gemini", "mistral", "groq", "freetokenfaucet", "custom"] = "mistral"
     llm_model: str = "mistral-medium-latest"
     llm_base_url: Optional[str] = None
 

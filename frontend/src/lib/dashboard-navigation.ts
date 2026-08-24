@@ -1,4 +1,4 @@
-import { CheckSquare, PlusCircle, MessageSquare } from "lucide-react";
+import { CheckSquare, PlusCircle, MessageSquare, Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface NavigationSection {
