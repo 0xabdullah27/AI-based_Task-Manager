@@ -11,7 +11,7 @@ An intelligent, full-stack task management system that allows users to seamlessl
 
 | Landing Page | Dashboard |
 |:---:|:---:|
-| ![Landing Page](docs/images/landing.png) | ![Dashboard](docs/images/dashboard.png) |
+| ![Landing Page](docs/images/landing.png) | ![Dashboard](docs/images/dashboarddark.png) |
 
 ## ✨ Key Features
 
