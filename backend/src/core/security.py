@@ -56,39 +56,29 @@ def get_user_id_from_token(token: str) -> str:
         raise jwt.InvalidTokenError("Token missing 'sub' claim")
     return user_id
 
-# this is the actual thing where the user_id is extracted from the token and returned
 
-# async def get_current_user(
-#         # this is the same as extracting the token from the Authorization header using the oauth2 scheme, but we can keep it simple by just using the HTTPBearer security scheme provided by FastAPI,that also give the obj with the scheme(Bearer) and credentials(actual token) instead of just token string.
-#     credentials: HTTPAuthorizationCredentials = Depends(security),
-# ) -> str:
-#     """Dependency to get current authenticated user ID from JWT token."""
-#     if not credentials:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Missing authentication credentials",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-#     token = credentials.credentials
-#     try:
-#         return get_user_id_from_token(token)
-#     except jwt.ExpiredSignatureError:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Token has expired",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-#     except jwt.InvalidTokenError as e:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail=f"Invalid authentication credentials: {str(e)}",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-
-
-
-
-async def get_current_user() -> str:
-    """Dependency to get current authenticated user ID """
-    # return "yKCN7ctCRp3PCJbQpYP1FbJXH3LkZCGI"
-    return "ogHc9deXwO5zvmgT9u4DXRjaU2NdGskc"
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> str:
+    """Dependency to get current authenticated user ID from JWT token."""
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token = credentials.credentials
+    try:
+        return get_user_id_from_token(token)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid authentication credentials: {str(e)}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
