@@ -42,7 +42,7 @@ Make sure you have Python 3.10+ installed. A PostgreSQL database is also require
    pip install -r requirements.txt
    ```
 4. Set up environment variables:
-   Copy `.env.example` to `.env` and fill in your `DATABASE_URL`, `MISTRAL_API_KEY`, and authentication secrets.
+   Copy `.env.example` to `.env` and fill in your `DATABASE_URL`, `LLM_API_KEY`, and authentication secrets.
    ```bash
    cp .env.example .env
    ```

@@ -253,21 +253,11 @@ def _get_model() -> OpenAIChatCompletionsModel:
     provider = settings.llm_provider
     model_id = settings.llm_model
     base_url = settings.llm_base_url or _PROVIDER_BASE_URLS.get(provider)
-
-    api_key_map = {
-        "openrouter": settings.openrouter_api_key,
-        "openai": settings.openai_api_key,
-        "gemini": settings.gemini_api_key,
-        "mistral": settings.mistral_api_key,
-        "groq": settings.groq_api_key,
-        "freetokenfaucet": settings.freetokenfaucet_api_key,
-    }
-    api_key = api_key_map.get(provider)
+    api_key = settings.llm_api_key
 
     if not api_key:
-        env_var = f"{provider.upper()}_API_KEY"
         raise ValueError(
-            f"{env_var} not set in settings for provider '{provider}'. "
+            f"LLM_API_KEY not set in settings. "
             f"Current config: LLM_PROVIDER={provider}, LLM_MODEL={model_id}"
         )
 
