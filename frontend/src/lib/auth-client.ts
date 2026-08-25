@@ -8,7 +8,7 @@ import { jwtClient } from "better-auth/client/plugins";
 const JWT_TOKEN_KEY = "better_auth_jwt";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+
   plugins: [
     jwtClient({
       jwks: {
