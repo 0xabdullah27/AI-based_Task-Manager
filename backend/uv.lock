@@ -1223,7 +1223,7 @@ requires-dist = [
     { name = "aiosqlite", specifier = ">=0.22.1" },
     { name = "cryptography", specifier = ">=46.0.3" },
     { name = "fastapi", specifier = ">=0.128.0" },
-    { name = "mcp", specifier = ">=1.0.0" },
+    { name = "mcp", specifier = ">=1.0.0,<2.0.0" },
     { name = "openai-agents", specifier = ">=0.2.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.2" },
     { name = "psycopg2-binary", specifier = ">=2.9.11" },
