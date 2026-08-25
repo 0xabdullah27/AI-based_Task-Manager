@@ -52,8 +52,8 @@ Make sure you have the following installed:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/0xabdullah27/AI-based_Task-Manager.git
-cd AI-based_Task-Manager
+git clone https://github.com/0xabdullah27/TaskCortex.git
+cd TaskCortex
 ```
 
 ### 2. Backend Setup
@@ -102,7 +102,7 @@ The frontend will be running at `http://localhost:3000`.
 ## 📁 Project Structure
 
 ```text
-AI-based_Task-Manager/
+TaskCortex/
 ├── backend/                  # FastAPI Backend
 │   ├── src/
 │   │   ├── api/              # Route definitions and controllers
