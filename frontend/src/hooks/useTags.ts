@@ -24,7 +24,7 @@ export function useTags(): UseTagsReturn {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.get<{ tags: Tag[] }>("/api/tags");
+      const response = await api.get<{ tags: Tag[] }>("/api/tags/");
       setTags(response.data.tags);
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Failed to fetch tags");

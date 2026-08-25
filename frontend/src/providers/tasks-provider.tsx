@@ -95,7 +95,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
       if (params?.order) queryParams.append("order", params.order);
 
       const queryString = queryParams.toString();
-      const url = `/api/todos${queryString ? "?" + queryString : ""}`;
+      const url = `/api/todos/${queryString ? "?" + queryString : ""}`;
 
       const response = await api.get<TaskListResponse>(url);
       setTasks(response.data.tasks);
@@ -127,7 +127,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   const createTask = useCallback(async (data: TaskCreateInput): Promise<Task> => {
     try {
       setError(null);
-      const response = await api.post<Task>("/api/todos", data);
+      const response = await api.post<Task>("/api/todos/", data);
       if (response.data.parent_id) {
         await fetchTasks(lastParamsRef.current, { silent: true });
       } else {

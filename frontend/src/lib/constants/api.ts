@@ -7,7 +7,7 @@ export const API_ENDPOINTS = {
   HEALTH: '/health',
 
   // Task endpoints
-  TASKS: '/api/todos',
+  TASKS: '/api/todos/',
   TASK_BY_ID: (id: string) => `/api/todos/${id}`,
   TOGGLE_TASK: (id: string) => `/api/todos/${id}/toggle`,
 } as const;
