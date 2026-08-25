@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { getJwtToken } from "@/lib/auth-client";
+
 export default function AuthLayout({
   children,
 }: {
@@ -14,8 +14,6 @@ export default function AuthLayout({
 
   useEffect(() => {
     if (!isPending && session) {
-      const token = getJwtToken();
-      console.log(`AuthLayout: User is authenticated. JWT Token: ${token}`);
       router.push("/dashboard");
     }
   }, [session, isPending, router]);

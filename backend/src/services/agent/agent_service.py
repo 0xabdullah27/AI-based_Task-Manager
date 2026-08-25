@@ -314,9 +314,7 @@ async def handle_chat(
     Returns:
         ChatResponse: Structured response containing conversation ID and text response.
     """
-    print(f"handle_chat called with user_id={user_id}, conversation_id={conversation_id}, message={message}")
-    
-    logger.info(f"Handling chat for user {user_id}, conversation: {conversation_id or 'new'}")
+    logger.debug(f"Handling chat for conversation: {conversation_id or 'new'}")
 
     conversation = conversation_service.get_or_create_conversation(
         session, user_id, conversation_id
@@ -411,7 +409,7 @@ async def handle_chat_stream(
     Yields:
         AsyncGenerator[str, None]: SSE event strings formatted as JSON.
     """
-    logger.info(f"Starting streaming chat for user {user_id}, conversation: {conversation_id or 'new'}")
+    logger.debug(f"Starting streaming chat for conversation: {conversation_id or 'new'}")
 
     conversation = conversation_service.get_or_create_conversation(
         session, user_id, conversation_id

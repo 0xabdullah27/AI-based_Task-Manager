@@ -171,7 +171,6 @@ async def list_tasks(
         'description', 'completed', 'priority', and 'tags'. Returns list with error dict on failure.
     """
     try:
-        print("list_tasks called with\n status", status, "\npriority", priority, "\nsearch", search, "\ntags", tags)
         status_map = {"all": None, "pending": "pending", "completed": "completed"}
         mapped_status = status_map.get(status or "all", None)
 
@@ -184,7 +183,6 @@ async def list_tasks(
             tags=tags,
             limit=50,
         )
-        print("tasks are:", tasks)
         if not tasks:
             return [{"info": "No tasks found matching your criteria."}]
 

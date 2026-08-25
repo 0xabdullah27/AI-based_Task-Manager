@@ -42,7 +42,7 @@ async def chat(
     Returns:
         ChatResponse: Response object containing conversation ID and generated AI answer string.
     """
-    logger.info(f"Chat request from user {user_id}: {chat_request.message[:50]}...")
+    logger.debug(f"Chat request message length: {len(chat_request.message)}")
 
     return await handle_chat(
         user_id=user_id,
@@ -71,7 +71,7 @@ async def chat_stream(
     Returns:
         EventSourceResponse: SSE stream emitting token events and completion signal.
     """
-    logger.info(f"Streaming chat request from user {user_id}: {chat_request.message[:50]}...")
+    logger.debug(f"Streaming chat request message length: {len(chat_request.message)}")
 
     async def event_generator() -> AsyncGenerator[str, None]:
         async for chunk in handle_chat_stream(
@@ -99,7 +99,7 @@ async def get_history(
     Returns:
         ChatHistoryResponse: Most recent conversation ID and list of message schemas.
     """
-    logger.info(f"Fetching latest chat history for user {user_id}")
+    logger.debug("Fetching latest chat history")
     return conversation_service.get_latest_conversation_history(session, user_id)
 
 
@@ -155,5 +155,5 @@ async def list_conversations(
     Returns:
         ConversationListResponse: List of conversation summaries and total conversation count.
     """
-    logger.info(f"Listing conversations for user {user_id}")
+    logger.debug("Listing conversations")
     return conversation_service.list_conversations_response(session, user_id, limit=limit)
