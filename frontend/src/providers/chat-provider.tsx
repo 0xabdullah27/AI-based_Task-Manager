@@ -20,7 +20,7 @@ interface ChatContextValue {
   isSending: boolean;
   isFetchingHistory: boolean;
   selectConversation: (id: string) => Promise<void>;
-  sendMessage: (text: string) => Promise<void>;
+  sendMessage: (text: string) => void;
   newChat: () => void;
 }
 
@@ -32,6 +32,10 @@ const ChatContext = createContext<ChatContextValue | null>(null);
  * Fetches conversations + last history once per dashboard session and
  * caches per-conversation messages in memory, so toggling to the chat
  * page never refetches. Optimistic updates keep the sidebar in sync.
+ *
+ * Streaming: sendMessage uses the SSE /api/chat/stream endpoint.
+ * Tokens are appended to the last assistant message slot as they arrive,
+ * giving the user a real-time typing effect.
  */
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { fetchTasks } = useTasksContext();
@@ -44,10 +48,19 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [cache, setCache] = useState<Record<string, ChatMessage[]>>({});
   const didInitRef = useRef(false);
   const activeIdRef = useRef<string | null>(null);
+  // Holds the AbortController for any in-flight stream so we can cancel on unmount
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     activeIdRef.current = activeId;
   }, [activeId]);
+
+  // Cancel any in-flight stream when the provider unmounts
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   useEffect(() => {
     if (didInitRef.current) return;
@@ -100,18 +113,23 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   );
 
   const newChat = useCallback(() => {
+    abortControllerRef.current?.abort();
     setActiveId(null);
     setMessages([]);
+    setIsSending(false);
   }, []);
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    (text: string) => {
       if (!text.trim() || isSending) return;
 
       const userMessage = text.trim();
       const isNewThread = !activeId;
       const tempId = isNewThread ? `temp-${Date.now()}` : null;
+      // Capture the conversation ID that was active when we started
+      const startingConvId = activeId;
 
+      // --- Optimistic UI: user message ---
       setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
 
       if (isNewThread) {
@@ -130,7 +148,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           const now = new Date();
           const existing = prev.find((c) => c.id === activeId);
           const updated: Conversation = {
-            id: activeId,
+            id: activeId!,
             created_at: existing?.created_at ?? now,
             updated_at: now,
             message_count: (existing?.message_count ?? 0) + 1,
@@ -141,59 +159,104 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         });
       }
 
-      setIsSending(true);
-      try {
-        const result = await chatApi.sendMessage(userMessage, activeId);
-        
-        // Prevent frontend bleed: only update visible messages if the user is STILL on the same chat
-        if (activeIdRef.current === activeId) {
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: result.response },
-          ]);
-        }
-        
-        // Update cache so the message isn't lost if they navigate away during thinking
-        const targetId = result.conversation_id;
-        setCache((prev) => {
-          const currentHistory = prev[activeId || ""] || [];
-          // Note: for a new thread, currentHistory is empty in cache, but user message was 
-          // added to UI state. So we manually construct the cache.
-          const appendedHistory = [
-            ...currentHistory,
-            // If new thread, add the user message to cache (it was missed). If existing, it's missed too unless we pushed it
-            ...(currentHistory.length === 0 || !activeId ? [{ role: "user" as const, content: userMessage }] : []),
-            { role: "assistant" as const, content: result.response }
-          ];
-          return { ...prev, [targetId]: appendedHistory };
-        });
+      // --- Optimistic UI: empty assistant placeholder (will be filled by tokens) ---
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+      // Abort any existing stream before starting a new one
+      abortControllerRef.current?.abort();
 
-        if (isNewThread && tempId) {
-          setConversations((prev) =>
-            prev.map((c) =>
-              c.id === tempId ? { ...c, id: result.conversation_id } : c,
-            ),
-          );
-        }
-        setActiveId(result.conversation_id);
-
-        // Refresh task list automatically in background in case AI agent created/updated/deleted any task
-        fetchTasks().catch(console.error);
-      } catch (error) {
-        console.error("Chat Error:", error);
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content:
-              "Sorry, I encountered an error communicating with the server.",
+      const controller = chatApi.sendMessageStream(
+        userMessage,
+        startingConvId,
+        {
+          onToken(token) {
+            // Only update if the user hasn't switched conversations mid-stream
+            if (activeIdRef.current !== startingConvId && !isNewThread) return;
+            setMessages((prev) => {
+              const next = [...prev];
+              const lastIdx = next.length - 1;
+              if (next[lastIdx]?.role === "assistant") {
+                next[lastIdx] = {
+                  ...next[lastIdx],
+                  content: next[lastIdx].content + token,
+                };
+              }
+              return next;
+            });
           },
-        ]);
-      } finally {
-        setIsSending(false);
-      }
+
+          onDone(conversationId, fullResponse) {
+            setIsSending(false);
+
+            // Ensure last message has the complete fullResponse
+            if (activeIdRef.current === startingConvId || isNewThread) {
+              setMessages((prev) => {
+                const next = [...prev];
+                const lastIdx = next.length - 1;
+                if (next[lastIdx]?.role === "assistant") {
+                  next[lastIdx] = {
+                    ...next[lastIdx],
+                    content: fullResponse || next[lastIdx].content,
+                  };
+                }
+                return next;
+              });
+            }
+
+            // Replace the temp sidebar entry with the real conversation ID
+            if (isNewThread && tempId) {
+              setConversations((prev) =>
+                prev.map((c) =>
+                  c.id === tempId ? { ...c, id: conversationId } : c,
+                ),
+              );
+            }
+            setActiveId(conversationId);
+
+            // Sync cache so navigating away and back doesn't lose messages
+            setCache((prev) => {
+              const key = startingConvId ?? conversationId;
+              const currentHistory = prev[key] || [];
+              const newHistory = [
+                ...(currentHistory.length === 0 || !startingConvId
+                  ? [{ role: "user" as const, content: userMessage }]
+                  : []),
+                { role: "assistant" as const, content: fullResponse },
+              ];
+              return {
+                ...prev,
+                [conversationId]: [...currentHistory, ...newHistory],
+              };
+            });
+
+            // Refresh task list in case the agent created/updated/deleted any task
+            fetchTasks().catch(console.error);
+          },
+
+          onError(errorContent) {
+            setIsSending(false);
+            // Only update visible messages if still on the same conversation
+            if (activeIdRef.current === startingConvId || isNewThread) {
+              setMessages((prev) => {
+                const next = [...prev];
+                const lastIdx = next.length - 1;
+                if (next[lastIdx]?.role === "assistant") {
+                  next[lastIdx] = {
+                    ...next[lastIdx],
+                    content: errorContent,
+                  };
+                } else {
+                  next.push({ role: "assistant", content: errorContent });
+                }
+                return next;
+              });
+            }
+          },
+        },
+      );
+
+      abortControllerRef.current = controller;
     },
-    [activeId, isSending],
+    [activeId, isSending, fetchTasks],
   );
 
   const value = {

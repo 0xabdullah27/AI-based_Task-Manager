@@ -82,7 +82,7 @@ async def chat_stream(
         ):
             yield chunk
 
-    return EventSourceResponse(event_generator(), media_type="text/plain")
+    return EventSourceResponse(event_generator())
 
 
 @router.get("/chat/history", response_model=ChatHistoryResponse, status_code=status.HTTP_200_OK)

@@ -456,15 +456,17 @@ async def handle_chat_stream(
                         text_delta = ""
                         event_data = event.data
 
-                        if hasattr(event_data, "type"):
-                            if hasattr(event_data, "delta") and event_data.delta:
-                                text_delta = event_data.delta
-                            elif hasattr(event_data, "delta") and hasattr(event_data, "item_id"):
-                                text_delta = event_data.delta or ""
+                        event_type = getattr(event_data, "type", "")
+                        # Ignore tool call / function argument events
+                        if any(kw in str(event_type) for kw in ("function", "tool", "reasoning")):
+                            continue
+
+                        if event_type in ("response.output_text.delta", "response.text.delta"):
+                            text_delta = getattr(event_data, "delta", "") or ""
+                        elif hasattr(event_data, "delta") and isinstance(event_data.delta, str):
+                            text_delta = event_data.delta
                         elif isinstance(event_data, str):
                             text_delta = event_data
-                        else:
-                            text_delta = str(event_data)
 
                         if text_delta:
                             response_text += text_delta

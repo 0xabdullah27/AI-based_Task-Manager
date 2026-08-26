@@ -111,7 +111,7 @@ export function ChatInterface() {
                   className={`flex gap-4 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {m.role === "assistant" && (
-                     <Sparkles className="w-5 h-5 mt-1 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                     <Sparkles className={`w-5 h-5 mt-1 shrink-0 text-muted-foreground ${isSending && i === messages.length - 1 ? "animate-pulse" : ""}`} strokeWidth={1.5} />
                   )}
 
                   <div
@@ -121,7 +121,21 @@ export function ChatInterface() {
                         : "text-foreground"
                     }`}
                   >
-                    <ChatMessageContent content={m.content} role={m.role} />
+                    {m.role === "assistant" && !m.content && isSending && i === messages.length - 1 ? (
+                      <div className="flex items-center gap-1.5 h-6 py-1">
+                        <div className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce"></div>
+                      </div>
+                    ) : (
+                      <>
+                        <ChatMessageContent content={m.content} role={m.role} />
+                        {/* Blinking cursor while this assistant message is being streamed */}
+                        {isSending && m.role === "assistant" && i === messages.length - 1 && (
+                          <span className="inline-block w-0.5 h-4 bg-muted-foreground/70 ml-0.5 animate-pulse align-middle" />
+                        )}
+                      </>
+                    )}
                   </div>
 
                   {m.role === "user" && (
@@ -133,18 +147,6 @@ export function ChatInterface() {
               ))
             )}
 
-            {isSending && (
-              <div className="flex gap-4 justify-start">
-                <Sparkles className="w-5 h-5 mt-1 shrink-0 animate-pulse text-muted-foreground" strokeWidth={1.5} />
-                <div className="flex items-center gap-2 h-8">
-                  <div className="flex space-x-1">
-                    <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                    <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                    <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce"></div>
-                  </div>
-                </div>
-              </div>
-            )}
             <div ref={endOfMessagesRef} />
           </div>
 

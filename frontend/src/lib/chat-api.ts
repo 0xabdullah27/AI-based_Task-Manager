@@ -2,6 +2,15 @@ import { getJwtToken } from "@/lib/auth-client";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+export interface StreamCallbacks {
+  /** Called with each text token as it arrives */
+  onToken: (token: string) => void;
+  /** Called once streaming is fully complete */
+  onDone: (conversationId: string, fullResponse: string) => void;
+  /** Called if an error event arrives or the fetch itself fails */
+  onError: (errorContent: string) => void;
+}
+
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -59,6 +68,101 @@ export const chatApi = {
     }
 
     return response.json();
+  },
+
+  /**
+   * Stream the AI response via Server-Sent Events (SSE).
+   * Connects to POST /api/chat/stream and fires callbacks for each token.
+   * Returns an AbortController so the caller can cancel mid-stream.
+   */
+  sendMessageStream(
+    message: string,
+    conversation_id: string | null = null,
+    callbacks: StreamCallbacks,
+  ): AbortController {
+    const controller = new AbortController();
+    const token = getJwtToken();
+
+    (async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/chat/stream`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "text/event-stream",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ message, conversation_id }),
+          signal: controller.signal,
+        });
+
+        if (!response.ok || !response.body) {
+          const errorText = await response.text().catch(() => response.statusText);
+          callbacks.onError(`Stream connection failed (${response.status}): ${errorText}`);
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let fullResponse = "";
+
+        const processLine = (line: string) => {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith("data:")) return;
+
+          const raw = trimmed.slice(5).trim();
+          if (!raw || raw === "[DONE]") return;
+
+          try {
+            const parsed = JSON.parse(raw) as {
+              type: "token" | "error" | "done";
+              content?: string;
+              conversation_id?: string;
+              response?: string;
+            };
+
+            if (parsed.type === "token" && parsed.content) {
+              fullResponse += parsed.content;
+              callbacks.onToken(parsed.content);
+            } else if (parsed.type === "error" && parsed.content) {
+              callbacks.onError(parsed.content);
+            } else if (parsed.type === "done") {
+              callbacks.onDone(
+                parsed.conversation_id ?? "",
+                parsed.response ?? fullResponse,
+              );
+            }
+          } catch {
+            // Non-JSON line — ignore
+          }
+        };
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split(/\r?\n/);
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            processLine(line);
+          }
+        }
+
+        if (buffer.trim()) {
+          processLine(buffer);
+        }
+      } catch (err: unknown) {
+        if ((err as { name?: string }).name === "AbortError") return;
+        callbacks.onError(
+          err instanceof Error ? err.message : "Unknown streaming error",
+        );
+      }
+    })();
+
+    return controller;
   },
 
   /**
