@@ -121,11 +121,10 @@ export function ChatInterface() {
                         : "text-foreground"
                     }`}
                   >
-                    {m.role === "assistant" && !m.content && isSending && i === messages.length - 1 ? (
-                      <div className="flex items-center gap-1.5 h-6 py-1">
-                        <div className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce"></div>
+                    {m.role === "assistant" && !m.content && i === messages.length - 1 ? (
+                      <div className="flex items-center gap-2 py-0.5 text-muted-foreground select-none">
+                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                        <span className="text-xs font-medium text-muted-foreground">Thinking...</span>
                       </div>
                     ) : (
                       <>

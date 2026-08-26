@@ -161,6 +161,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
       // --- Optimistic UI: empty assistant placeholder (will be filled by tokens) ---
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+      setIsSending(true);
+
       // Abort any existing stream before starting a new one
       abortControllerRef.current?.abort();
 
