@@ -1,8 +1,9 @@
 """Settings routes for managing BYOK configuration."""
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 from typing import Optional
 
+from src.middleware.rate_limit import limiter
 from src.api.deps import get_current_user, DbSession
 from src.models.user_settings import UserSettings
 from src.utils.encryption import encrypt_value, decrypt_value
@@ -25,7 +26,9 @@ class LLMSettingsUpdate(BaseModel):
 
 
 @router.get("/llm", response_model=LLMSettingsResponse)
+@limiter.limit("30/minute")
 async def get_llm_settings(
+    request: Request,
     session: DbSession,
     user_id: str = Depends(get_current_user)
 ):
@@ -49,7 +52,9 @@ async def get_llm_settings(
     )
 
 @router.put("/llm", response_model=LLMSettingsResponse)
+@limiter.limit("30/minute")
 async def update_llm_settings(
+    request: Request,
     update_data: LLMSettingsUpdate,
     session: DbSession,
     user_id: str = Depends(get_current_user)

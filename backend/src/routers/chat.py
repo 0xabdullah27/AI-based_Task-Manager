@@ -53,7 +53,7 @@ async def chat(
 
 
 @router.post("/chat/stream")
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 async def chat_stream(
     request: Request,
     chat_request: ChatRequest,

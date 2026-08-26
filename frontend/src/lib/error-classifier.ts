@@ -2,7 +2,7 @@
  * Error classification utility for empathetic error messages.
  */
 
-export type ErrorType = 'network' | 'timeout' | 'auth' | 'validation' | 'server' | 'unknown';
+export type ErrorType = 'network' | 'timeout' | 'auth' | 'validation' | 'server' | 'rate_limit' | 'unknown';
 
 export interface ClassifiedError {
   type: ErrorType;
@@ -35,6 +35,15 @@ export function classifyError(error: unknown): ClassifiedError {
   // Handle response errors
   if (error instanceof Error && error.message) {
     const message = error.message.toLowerCase();
+
+    // Rate limiting (429)
+    if (message.includes('429') || message.includes('rate limit') || message.includes('too many requests')) {
+      return {
+        type: 'rate_limit',
+        message: "You're sending requests too quickly. Please wait a moment before trying again.",
+        isRetryable: true,
+      };
+    }
 
     // Auth errors
     if (message.includes('401') || message.includes('unauthorized') || message.includes('session')) {

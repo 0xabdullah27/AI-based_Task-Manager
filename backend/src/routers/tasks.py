@@ -3,10 +3,11 @@
 This layer handles HTTP request parsing, status codes, OpenAPI metadata, and delegates
 all business logic and database queries to the service layer.
 """
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Query, status, Request
 from typing import List, Optional
 import logging
 
+from src.middleware.rate_limit import limiter
 from src.api.deps import CurrentUser, DbSession
 from src.schemas.task import (
     TaskCreate,
@@ -27,7 +28,9 @@ router = APIRouter(prefix="/api/todos", tags=["tasks"])
 
 
 @router.post("/", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
+@limiter.limit("60/minute")
 async def create_task(
+    request: Request,
     task_data: TaskCreate,
     user_id: CurrentUser,
     session: DbSession,
@@ -46,7 +49,9 @@ async def create_task(
 
 
 @router.get("/", response_model=TaskListResponse)
+@limiter.limit("120/minute")
 async def list_tasks(
+    request: Request,
     user_id: CurrentUser,
     session: DbSession,
     search: Optional[str] = Query(default=None, description="Search term for task title or description"),
@@ -62,6 +67,7 @@ async def list_tasks(
     """List tasks for the authenticated user with advanced filtering, searching, sorting, and pagination.
 
     Args:
+        request (Request): Raw FastAPI request for rate limiter.
         user_id (CurrentUser): Authenticated user ID dependency for row-level security.
         session (DbSession): Active database session dependency.
         search (Optional[str]): Case-insensitive keyword search against task title and description.
@@ -93,7 +99,9 @@ async def list_tasks(
 
 
 @router.get("/{task_id}", response_model=TaskRead)
+@limiter.limit("120/minute")
 async def get_task(
+    request: Request,
     task_id: str,
     user_id: CurrentUser,
     session: DbSession,
@@ -101,6 +109,7 @@ async def get_task(
     """Retrieve details of a specific task by its unique ID.
 
     Args:
+        request (Request): Raw FastAPI request for rate limiter.
         task_id (str): Unique UUID path parameter identifying the task.
         user_id (CurrentUser): Authenticated user ID for security validation.
         session (DbSession): Active database session dependency.
@@ -115,7 +124,9 @@ async def get_task(
 
 
 @router.patch("/{task_id}", response_model=TaskRead)
+@limiter.limit("60/minute")
 async def update_task(
+    request: Request,
     task_id: str,
     task_data: TaskUpdate,
     user_id: CurrentUser,
@@ -124,6 +135,7 @@ async def update_task(
     """Update fields and/or tag associations for a specific task.
 
     Args:
+        request (Request): Raw FastAPI request for rate limiter.
         task_id (str): Unique UUID path parameter identifying the task to update.
         task_data (TaskUpdate): Validated request schema containing updated fields.
         user_id (CurrentUser): Authenticated user ID dependency.
@@ -139,7 +151,9 @@ async def update_task(
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("60/minute")
 async def delete_task(
+    request: Request,
     task_id: str,
     user_id: CurrentUser,
     session: DbSession,
@@ -147,6 +161,7 @@ async def delete_task(
     """Delete a task record and its tag links by task ID.
 
     Args:
+        request (Request): Raw FastAPI request for rate limiter.
         task_id (str): Unique UUID path parameter identifying the task to delete.
         user_id (CurrentUser): Authenticated user ID dependency.
         session (DbSession): Active database session dependency.
@@ -161,7 +176,9 @@ async def delete_task(
 
 
 @router.post("/{task_id}/toggle", response_model=TaskRead)
+@limiter.limit("120/minute")
 async def toggle_task_completion(
+    request: Request,
     task_id: str,
     user_id: CurrentUser,
     session: DbSession,
@@ -169,6 +186,7 @@ async def toggle_task_completion(
     """Toggle the completion status of a specific task (Pending <-> Completed).
 
     Args:
+        request (Request): Raw FastAPI request for rate limiter.
         task_id (str): Unique UUID path parameter identifying the task.
         user_id (CurrentUser): Authenticated user ID dependency.
         session (DbSession): Active database session dependency.

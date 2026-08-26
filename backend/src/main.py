@@ -10,7 +10,7 @@ from slowapi.errors import RateLimitExceeded
 from src.middleware.cors import configure_cors
 from src.middleware.logging import logging_middleware
 from src.middleware.error_handler import error_handler_middleware
-from src.middleware.rate_limit import limiter
+from src.middleware.rate_limit import limiter, rate_limit_exceeded_handler
 
 from src.core.config import settings
 
@@ -74,7 +74,7 @@ app.add_exception_handler(TagNotFoundError, tag_not_found_handler)
 app.add_exception_handler(ConversationNotFoundError, conversation_not_found_handler)
 app.add_exception_handler(UnauthorizedError, unauthorized_handler)
 app.add_exception_handler(ValidationError, validation_error_handler)
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 app.include_router(health.router)
 app.include_router(tasks.router)

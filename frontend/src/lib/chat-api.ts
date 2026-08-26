@@ -63,6 +63,16 @@ export const chatApi = {
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        try {
+          const errJson = await response.json();
+          throw new Error(errJson.detail || "You're sending requests too quickly. Please wait a moment before trying again.");
+        } catch (e: unknown) {
+          if (e instanceof Error && !e.message.startsWith("Chat API error")) {
+            throw e;
+          }
+        }
+      }
       const errorText = await response.text();
       throw new Error(`Chat API error (${response.status}): ${errorText}`);
     }
@@ -97,6 +107,16 @@ export const chatApi = {
         });
 
         if (!response.ok || !response.body) {
+          if (response.status === 429) {
+            try {
+              const errJson = await response.json();
+              callbacks.onError(errJson.detail || "You're sending messages too quickly. Please wait a moment before sending another message.");
+              return;
+            } catch {
+              callbacks.onError("You're sending messages too quickly. Please wait a moment before sending another message.");
+              return;
+            }
+          }
           const errorText = await response.text().catch(() => response.statusText);
           callbacks.onError(`Stream connection failed (${response.status}): ${errorText}`);
           return;
