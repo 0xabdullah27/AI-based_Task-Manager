@@ -1,13 +1,52 @@
 "use client";
 
+import { useState } from "react";
 import { useTasks } from "@/hooks/useTasks";
 import { PriorityTabs } from "../components/PriorityTabs";
 import { TodoCard } from "../components/TodoCard";
 import { Flag } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/Dialog";
+import { TaskForm } from "@/components/tasks/TaskForm";
+import { toast } from "sonner";
 import type { Todo } from "@/types/task";
+import type { TaskCreateInput } from "@/lib/validations/task";
 
 export default function PriorityPage() {
-  const { tasks, isLoading, deleteTask, toggleTask } = useTasks();
+  const { tasks, isLoading, updateTask, deleteTask, toggleTask } = useTasks();
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+
+  const openEditDialog = (todo: Todo) => {
+    setEditingTodo(todo);
+    setFormDialogOpen(true);
+  };
+
+  const closeFormDialog = () => {
+    setFormDialogOpen(false);
+    setEditingTodo(null);
+  };
+
+  const handleEditSubmit = async (data: TaskCreateInput) => {
+    if (!editingTodo) return;
+    try {
+      await updateTask(editingTodo.id, {
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        due_date: data.due_date,
+        tags: data.tags,
+      });
+      toast.success("Task updated");
+      closeFormDialog();
+    } catch {
+      toast.error("Failed to update task");
+    }
+  };
 
   // T006: Fixed priority filtering logic to render all priority levels
   const renderPriorityContent = (
@@ -32,9 +71,7 @@ export default function PriorityPage() {
             key={todo.id}
             todo={todo}
             onToggle={() => toggleTask(todo.id)}
-            onEdit={(t) => {
-              // Edit functionality handled in main dashboard
-            }}
+            onEdit={openEditDialog}
             onDelete={() => deleteTask(todo.id)}
           />
         ))}
@@ -60,6 +97,22 @@ export default function PriorityPage() {
         isLoading={isLoading}
         renderContent={renderPriorityContent}
       />
+
+      {/* Edit Task Dialog */}
+      <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Task</DialogTitle>
+          </DialogHeader>
+          {editingTodo && (
+            <TaskForm
+              todo={editingTodo}
+              onSubmit={handleEditSubmit}
+              onCancel={closeFormDialog}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

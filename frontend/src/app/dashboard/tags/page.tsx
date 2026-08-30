@@ -6,11 +6,49 @@ import { TagsList } from "../components/TagsList";
 import { TodoCard } from "../components/TodoCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tag } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/Dialog";
+import { TaskForm } from "@/components/tasks/TaskForm";
+import { toast } from "sonner";
 import type { Todo } from "@/types/task";
+import type { TaskCreateInput } from "@/lib/validations/task";
 
 export default function TagsPage() {
   const { tasks, isLoading, updateTask, deleteTask, toggleTask } = useTasks();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+
+  const openEditDialog = (todo: Todo) => {
+    setEditingTodo(todo);
+    setFormDialogOpen(true);
+  };
+
+  const closeFormDialog = () => {
+    setFormDialogOpen(false);
+    setEditingTodo(null);
+  };
+
+  const handleEditSubmit = async (data: TaskCreateInput) => {
+    if (!editingTodo) return;
+    try {
+      await updateTask(editingTodo.id, {
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        due_date: data.due_date,
+        tags: data.tags,
+      });
+      toast.success("Task updated");
+      closeFormDialog();
+    } catch {
+      toast.error("Failed to update task");
+    }
+  };
 
   // Filter todos by selected tag
   const filteredTodos = useMemo(() => {
@@ -81,9 +119,7 @@ export default function TagsPage() {
                   key={todo.id}
                   todo={todo}
                   onToggle={() => toggleTask(todo.id)}
-                  onEdit={(t) => {
-                    // Handle edit
-                  }}
+                  onEdit={openEditDialog}
                   onDelete={() => deleteTask(todo.id)}
                 />
               ))
@@ -91,6 +127,22 @@ export default function TagsPage() {
           </div>
         </div>
       )}
+
+      {/* Edit Task Dialog */}
+      <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Task</DialogTitle>
+          </DialogHeader>
+          {editingTodo && (
+            <TaskForm
+              todo={editingTodo}
+              onSubmit={handleEditSubmit}
+              onCancel={closeFormDialog}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

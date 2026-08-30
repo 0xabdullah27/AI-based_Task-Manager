@@ -35,11 +35,11 @@ apiClient.interceptors.response.use(
       clearJwtToken();
 
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/sign-in') && !window.location.pathname.startsWith('/sign-up')) {
-        // Sign out of Better Auth session to prevent AuthLayout loop
+        // Sign out of Better Auth session to prevent stale state
         await signOut().catch(() => {});
-        // Save current location for return after sign-in
+        // Smoothly redirect to sign-in with return URL
         const returnUrl = window.location.pathname;
-        window.location.href = `/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`;
+        window.location.replace(`/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`);
       }
     }
 

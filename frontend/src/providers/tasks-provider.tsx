@@ -13,6 +13,12 @@ import type { Task } from "@/types/task";
 import type { TaskCreateInput, TaskUpdateInput } from "@/lib/validations/task";
 import api from "@/middleware/api-interceptor";
 import { useSession } from "@/lib/auth-client";
+import {
+  createTaskAction,
+  updateTaskAction,
+  deleteTaskAction,
+  toggleTaskAction,
+} from "@/actions/tasks";
 
 export interface FetchTasksParams {
   search?: string;
@@ -45,35 +51,49 @@ interface TasksContextValue {
   updateTask: (id: string, data: TaskUpdateInput) => Promise<Task>;
   deleteTask: (id: string) => Promise<void>;
   toggleTask: (id: string) => Promise<Task>;
+  seedTasks?: (tasks: Task[], total?: number) => void;
 }
 
 const TasksContext = createContext<TasksContextValue | null>(null);
 
+export interface TasksProviderProps {
+  children: React.ReactNode;
+  initialTasks?: Task[];
+  initialTotal?: number;
+}
+
 /**
  * TasksProvider - Single source of truth for tasks state.
- * Mounted in the root layout so it survives all route navigation
- * (home <-> dashboard) for the lifetime of the SPA session.
- * Holds all tasks in memory; CRUD operations update local state and
- * the backend together, so the UI never refetches on tab switches.
- * Fetches only for an authenticated user and clears state on logout.
- * Designed as a Redux-like slice: swap the internals for Redux Toolkit
- * later without changing the useTasks() consumer API.
+ * Supports server-side initial task hydration (for fast first paint)
+ * and uses Next.js Server Actions with revalidatePath for mutations
+ * while preserving snappy optimistic client updates.
  */
-export function TasksProvider({ children }: { children: React.ReactNode }) {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [total, setTotal] = useState(0);
-  const [filtered, setFiltered] = useState(0);
+export function TasksProvider({
+  children,
+  initialTasks = [],
+  initialTotal = 0,
+}: TasksProviderProps) {
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [total, setTotal] = useState(initialTotal || initialTasks.length);
+  const [filtered, setFiltered] = useState(initialTotal || initialTasks.length);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const loadedForRef = useRef<string | null>(null);
   const lastParamsRef = useRef<FetchTasksParams | undefined>(undefined);
-  const tasksRef = useRef<Task[]>([]);
+  const tasksRef = useRef<Task[]>(tasks);
   const { data: session } = useSession();
   const userId = session?.user?.id ?? null;
 
   useEffect(() => {
     tasksRef.current = tasks;
   }, [tasks]);
+
+  // Seed tasks from RSC if provided/updated
+  const seedTasks = useCallback((newTasks: Task[], newTotal?: number) => {
+    setTasks(newTasks);
+    setTotal(newTotal ?? newTasks.length);
+    setFiltered(newTotal ?? newTasks.length);
+  }, []);
 
   const fetchTasks = useCallback(async (params?: FetchTasksParams, options?: FetchTasksOptions) => {
     try {
@@ -113,29 +133,36 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!userId) {
       loadedForRef.current = null;
-      setTasks([]);
-      setTotal(0);
-      setFiltered(0);
+      if (initialTasks.length === 0) {
+        setTasks([]);
+        setTotal(0);
+        setFiltered(0);
+      }
       setError(null);
       return;
     }
     if (loadedForRef.current === userId) return;
     loadedForRef.current = userId;
-    fetchTasks();
-  }, [userId, fetchTasks]);
+
+    // Only refetch on client if initialTasks wasn't already provided
+    if (initialTasks.length === 0) {
+      fetchTasks();
+    }
+  }, [userId, fetchTasks, initialTasks.length]);
 
   const createTask = useCallback(async (data: TaskCreateInput): Promise<Task> => {
     try {
       setError(null);
-      const response = await api.post<Task>("/api/todos/", data);
-      if (response.data.parent_id) {
+      // Call Server Action with server revalidation
+      const createdTask = await createTaskAction(data);
+      if (createdTask.parent_id) {
         await fetchTasks(lastParamsRef.current, { silent: true });
       } else {
-        setTasks((prev) => [response.data, ...prev]);
+        setTasks((prev) => [createdTask, ...prev]);
         setTotal((prev) => prev + 1);
         setFiltered((prev) => prev + 1);
       }
-      return response.data;
+      return createdTask;
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Failed to create task");
       setError(error);
@@ -144,18 +171,27 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   }, [fetchTasks]);
 
   const updateTask = useCallback(async (id: string, data: TaskUpdateInput): Promise<Task> => {
+    const previousTasks = tasksRef.current;
+
+    // Optimistic update
+    setTasks((prev) =>
+      prev.map((task) => (task.id === id ? { ...task, ...data } as Task : task))
+    );
+
     try {
       setError(null);
-      const response = await api.patch<Task>(`/api/todos/${id}`, data);
-      if (response.data.parent_id || (response.data.subtasks && response.data.subtasks.length > 0) || data.parent_id || data.position !== undefined) {
+      // Call Server Action with server revalidation
+      const updatedTask = await updateTaskAction(id, data);
+      if (updatedTask.parent_id || (updatedTask.subtasks && updatedTask.subtasks.length > 0) || data.parent_id || data.position !== undefined) {
         await fetchTasks(lastParamsRef.current, { silent: true });
       } else {
         setTasks((prev) =>
-          prev.map((task) => (task.id === id ? response.data : task))
+          prev.map((task) => (task.id === id ? updatedTask : task))
         );
       }
-      return response.data;
+      return updatedTask;
     } catch (err) {
+      setTasks(previousTasks);
       const error = err instanceof Error ? err : new Error("Failed to update task");
       setError(error);
       throw error;
@@ -178,7 +214,8 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
 
     try {
       setError(null);
-      await api.delete(`/api/todos/${id}`);
+      // Call Server Action with server revalidation
+      await deleteTaskAction(id);
       if ((target?.subtasks?.length ?? 0) > 0 || target?.parent_id) {
         await fetchTasks(lastParamsRef.current, { silent: true });
       } else {
@@ -199,7 +236,6 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     // Optimistically toggle status in local state for instant UI response
     setTasks((prev) =>
       prev.map((task) => {
-        // Check if root task
         if (task.id === id) {
           const nextCompleted = !task.completed;
           return {
@@ -208,7 +244,6 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
             subtasks: task.subtasks?.map((s) => ({ ...s, completed: nextCompleted })) ?? [],
           };
         }
-        // Check if subtask inside this parent
         if (task.subtasks && task.subtasks.some((s) => s.id === id)) {
           const updatedSubtasks = task.subtasks.map((s) =>
             s.id === id ? { ...s, completed: !s.completed } : s
@@ -228,17 +263,17 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
 
     try {
       setError(null);
-      const response = await api.post<Task>(`/api/todos/${id}/toggle`);
-      if (response.data.parent_id || (response.data.subtasks && response.data.subtasks.length > 0)) {
+      // Call Server Action with server revalidation
+      const toggledTask = await toggleTaskAction(id);
+      if (toggledTask.parent_id || (toggledTask.subtasks && toggledTask.subtasks.length > 0)) {
         await fetchTasks(lastParamsRef.current, { silent: true });
       } else {
         setTasks((prev) =>
-          prev.map((task) => (task.id === id ? response.data : task))
+          prev.map((task) => (task.id === id ? toggledTask : task))
         );
       }
-      return response.data;
+      return toggledTask;
     } catch (err) {
-      // Rollback to previous state on failure
       setTasks(previousTasks);
       const error = err instanceof Error ? err : new Error("Failed to toggle task");
       setError(error);
@@ -257,6 +292,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     updateTask,
     deleteTask,
     toggleTask,
+    seedTasks,
   };
 
   return <TasksContext.Provider value={value}>{children}</TasksContext.Provider>;

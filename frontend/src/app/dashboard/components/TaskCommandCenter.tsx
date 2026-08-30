@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTasks } from "@/hooks/useTasks";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { StatCard } from "./StatCard";
@@ -29,7 +29,7 @@ import { TaskForm } from "@/components/tasks/TaskForm";
 import { BarChart3, CheckCircle2, Zap, Plus, AlertTriangle, ListFilter, RefreshCw, CheckSquare } from "lucide-react";
 import { toast } from "sonner";
 import type { TaskCreateInput } from "@/lib/validations/task";
-import type { Todo } from "@/types/task";
+import type { Todo, Task } from "@/types/task";
 
 const INITIAL_FILTERS: FilterState = {
   search: "",
@@ -39,16 +39,32 @@ const INITIAL_FILTERS: FilterState = {
   selectedTags: [],
 };
 
-export function TaskCommandCenter() {
+export interface TaskCommandCenterProps {
+  initialTasks?: Task[];
+  initialTotal?: number;
+}
+
+export function TaskCommandCenter({ initialTasks, initialTotal }: TaskCommandCenterProps = {}) {
   const {
-    tasks,
-    isLoading,
+    tasks: contextTasks,
+    isLoading: contextIsLoading,
     fetchTasks,
     createTask,
     updateTask,
     deleteTask,
     toggleTask,
+    seedTasks,
   } = useTasks();
+
+  // Seed context with server-rendered initial tasks
+  useEffect(() => {
+    if (initialTasks && initialTasks.length > 0 && contextTasks.length === 0) {
+      seedTasks?.(initialTasks, initialTotal);
+    }
+  }, [initialTasks, initialTotal, contextTasks.length, seedTasks]);
+
+  const tasks = contextTasks.length > 0 ? contextTasks : (initialTasks ?? contextTasks);
+  const isLoading = contextTasks.length > 0 || (initialTasks && initialTasks.length > 0) ? false : contextIsLoading;
 
   const stats = useDashboardStats(tasks);
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
