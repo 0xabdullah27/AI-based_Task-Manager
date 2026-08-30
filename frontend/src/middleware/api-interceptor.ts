@@ -14,16 +14,10 @@ export const apiClient = axios.create({
   withCredentials: true,  // Include cookies for cross-origin requests
 });
 
-// Request interceptor - add JWT token from localStorage
+// Request interceptor - ensures cookies are passed for authenticated requests
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Get JWT token stored after sign-in
-    const token = getJwtToken();
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
+    // With credentials enabled, cookies are automatically sent by the browser
     return config;
   },
   (error: AxiosError) => {

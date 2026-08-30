@@ -52,6 +52,7 @@ export const chatApi = {
 
     const response = await fetch(`${BACKEND_URL}/api/chat`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -97,6 +98,7 @@ export const chatApi = {
       try {
         const response = await fetch(`${BACKEND_URL}/api/chat/stream`, {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Accept: "text/event-stream",
@@ -200,6 +202,7 @@ export const chatApi = {
 
     const response = await fetch(`${BACKEND_URL}/api/conversations`, {
       method: "GET",
+      credentials: "include",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
@@ -233,6 +236,7 @@ export const chatApi = {
       `${BACKEND_URL}/api/chat/history/${conversation_id}`,
       {
         method: "GET",
+        credentials: "include",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
@@ -263,6 +267,7 @@ export const chatApi = {
       `${BACKEND_URL}/api/chat/history`,
       {
         method: "GET",
+        credentials: "include",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
