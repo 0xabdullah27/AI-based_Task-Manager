@@ -15,6 +15,13 @@ export const auth = betterAuth({
   trustedOrigins: [
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   ],
+  session: {
+    cookieCache: {
+      enabled: true,
+      strategy: "jwt",
+      maxAge: 5 * 60, // 5 minutes cache
+    },
+  },
   advanced: {
     cookies: {
       session_token: {
@@ -31,6 +38,7 @@ export const auth = betterAuth({
       jwks: {
         jwksPath: "/.well-known/jwks.json",
       },
+      sessionCookieCache: true,
     }),
   ],
 });
