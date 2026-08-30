@@ -14,25 +14,4 @@ export const authClient = createAuthClient({
   ],
 });
 
-// Helper stubs for backward-compatibility without localStorage dependency
-export function getJwtToken(): string | null {
-  return null;
-}
-
-export function clearJwtToken(): void {
-  // Cookies are cleared automatically by Better Auth signOut()
-}
-
-export async function fetchAndStoreJwt(): Promise<string | null> {
-  try {
-    const { data, error } = await authClient.token();
-    if (error || !data?.token) {
-      return null;
-    }
-    return data.token;
-  } catch {
-    return null;
-  }
-}
-
 export const { signIn, signUp, signOut, useSession, getSession } = authClient;

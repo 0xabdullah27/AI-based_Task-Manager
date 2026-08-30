@@ -1,4 +1,4 @@
-import { apiClient } from "@/middleware/api-interceptor";
+import { apiClient } from "@/lib/api-client";
 
 export interface LLMSettings {
   use_custom_llm: boolean;

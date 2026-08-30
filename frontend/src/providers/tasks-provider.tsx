@@ -11,7 +11,7 @@ import React, {
 
 import type { Task } from "@/types/task";
 import type { TaskCreateInput, TaskUpdateInput } from "@/lib/validations/task";
-import api from "@/middleware/api-interceptor";
+import api from "@/lib/api-client";
 import { useSession } from "@/lib/auth-client";
 import {
   createTaskAction,

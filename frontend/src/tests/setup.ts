@@ -86,8 +86,17 @@ jest.mock('@/lib/auth-client', () => ({
     signIn: jest.fn(),
     signOut: jest.fn(),
     signUp: jest.fn(),
+    useSession: jest.fn(() => ({
+      data: { user: { id: 'test-user-id', email: 'test@example.com', name: 'Test User' } },
+      isPending: false,
+    })),
   },
-  getJwtToken: jest.fn(() => 'mock-jwt-token'),
-  setJwtToken: jest.fn(),
-  clearJwtToken: jest.fn(),
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+  signUp: jest.fn(),
+  useSession: jest.fn(() => ({
+    data: { user: { id: 'test-user-id', email: 'test@example.com', name: 'Test User' } },
+    isPending: false,
+  })),
+  getSession: jest.fn(),
 }));

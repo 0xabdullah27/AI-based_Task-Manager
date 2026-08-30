@@ -6,7 +6,7 @@
 
 import { useState, useCallback } from "react";
 import type { Tag } from "@/types/task";
-import api from "@/middleware/api-interceptor";
+import api from "@/lib/api-client";
 
 interface UseTagsReturn {
   tags: Tag[];

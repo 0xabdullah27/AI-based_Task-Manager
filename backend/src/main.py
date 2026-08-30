@@ -31,9 +31,6 @@ from src.exceptions.handlers import (
     validation_error_handler,
 )
 
-# from mcp_server.server import mcp_app
-# from mcp_server.server import mcp
-
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -43,8 +40,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan — startup and shutdown logic."""
-    async with AsyncExitStack() as stack:
-        # await stack.enter_async_context(mcp.session_manager.run())
+    async with AsyncExitStack():
         logger.info("Starting up Todo Backend API...")
         try:
             from run_migrations import main as run_migrations
@@ -81,8 +77,6 @@ app.include_router(tasks.router)
 app.include_router(tags.router)
 app.include_router(chat.router)
 app.include_router(settings_router.router)
-
-# app.mount("/mcp", mcp_app)
 
 
 @app.get("/")
