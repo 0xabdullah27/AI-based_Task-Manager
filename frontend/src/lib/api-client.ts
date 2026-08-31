@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { signOut } from "@/lib/auth-client";
+import { authClient, signOut } from "@/lib/auth-client";
 
 // Centralized Axios API client for FastAPI backend
 export const apiClient = axios.create({
@@ -11,9 +11,21 @@ export const apiClient = axios.create({
   withCredentials: true, // Automatically transmits httpOnly session cookies
 });
 
-// Request interceptor
+// Request interceptor - ensures Bearer token is attached for cross-origin requests
 apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => config,
+  async (config: InternalAxiosRequestConfig) => {
+    if (typeof window !== "undefined" && !config.headers.Authorization) {
+      try {
+        const { data } = await authClient.token();
+        if (data?.token) {
+          config.headers.Authorization = `Bearer ${data.token}`;
+        }
+      } catch {
+        // Fallback to cookie
+      }
+    }
+    return config;
+  },
   (error: AxiosError) => Promise.reject(error)
 );
 

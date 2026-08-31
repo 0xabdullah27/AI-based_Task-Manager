@@ -1,4 +1,23 @@
+import { authClient } from "@/lib/auth-client";
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+async function getAuthHeaders(authToken?: string): Promise<Record<string, string>> {
+  if (authToken) {
+    return { Authorization: `Bearer ${authToken}` };
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const { data } = await authClient.token();
+      if (data?.token) {
+        return { Authorization: `Bearer ${data.token}` };
+      }
+    } catch {
+      // Fallback
+    }
+  }
+  return {};
+}
 
 export interface StreamCallbacks {
   /** Called with each text token as it arrives */
@@ -47,12 +66,13 @@ export const chatApi = {
     conversation_id: string | null = null,
     authToken?: string,
   ): Promise<ChatResponsePayload> {
+    const authHeaders = await getAuthHeaders(authToken);
     const response = await fetch(`${BACKEND_URL}/api/chat`, {
       method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        ...authHeaders,
       },
       body: JSON.stringify({
         message,
@@ -93,13 +113,14 @@ export const chatApi = {
 
     (async () => {
       try {
+        const authHeaders = await getAuthHeaders(authToken);
         const response = await fetch(`${BACKEND_URL}/api/chat/stream`, {
           method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Accept: "text/event-stream",
-            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+            ...authHeaders,
           },
           body: JSON.stringify({ message, conversation_id }),
           signal: controller.signal,
@@ -190,11 +211,12 @@ export const chatApi = {
   async getConversations(
     authToken?: string,
   ): Promise<ConversationsResponsePayload> {
+    const authHeaders = await getAuthHeaders(authToken);
     const response = await fetch(`${BACKEND_URL}/api/conversations`, {
       method: "GET",
       credentials: "include",
       headers: {
-        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        ...authHeaders,
       },
     });
 
@@ -215,13 +237,14 @@ export const chatApi = {
     conversation_id: string,
     authToken?: string,
   ): Promise<ChatHistoryResponsePayload> {
+    const authHeaders = await getAuthHeaders(authToken);
     const response = await fetch(
       `${BACKEND_URL}/api/chat/history/${conversation_id}`,
       {
         method: "GET",
         credentials: "include",
         headers: {
-          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          ...authHeaders,
         },
       },
     );
@@ -239,13 +262,14 @@ export const chatApi = {
   async getLastMessagesHistory(
     authToken?: string,
   ): Promise<ChatHistoryResponsePayload> {
+    const authHeaders = await getAuthHeaders(authToken);
     const response = await fetch(
       `${BACKEND_URL}/api/chat/history`,
       {
         method: "GET",
         credentials: "include",
         headers: {
-          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          ...authHeaders,
         },
       },
     );
