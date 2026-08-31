@@ -91,8 +91,6 @@ export async function createTaskAction(data: TaskCreateInput): Promise<Task> {
   const createdTask: Task = await response.json();
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/todos");
-  revalidatePath("/dashboard/priority");
-  revalidatePath("/dashboard/tags");
   return createdTask;
 }
 
@@ -118,8 +116,6 @@ export async function updateTaskAction(
   const updatedTask: Task = await response.json();
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/todos");
-  revalidatePath("/dashboard/priority");
-  revalidatePath("/dashboard/tags");
   return updatedTask;
 }
 
@@ -140,8 +136,6 @@ export async function deleteTaskAction(id: string): Promise<void> {
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/todos");
-  revalidatePath("/dashboard/priority");
-  revalidatePath("/dashboard/tags");
 }
 
 /**
@@ -162,7 +156,5 @@ export async function toggleTaskAction(id: string): Promise<Task> {
   const toggledTask: Task = await response.json();
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/todos");
-  revalidatePath("/dashboard/priority");
-  revalidatePath("/dashboard/tags");
   return toggledTask;
 }

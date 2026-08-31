@@ -60,10 +60,14 @@ def client_fixture(session, mock_user_id):
     app.dependency_overrides[get_session] = get_session_override
     app.dependency_overrides[get_current_user] = get_current_user_override
 
+    # Disable rate limiter for testing
+    app.state.limiter.enabled = False
+
     client = TestClient(app)
     yield client
 
     app.dependency_overrides.clear()
+    app.state.limiter.enabled = True
 
 
 @pytest.fixture(name="auth_headers")
