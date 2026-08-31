@@ -1,4 +1,4 @@
-"""FastAPI application entry point."""
+"""FastAPI application entry point - v1.0.1"""
 
 from contextlib import asynccontextmanager, AsyncExitStack
 import logging
