@@ -33,11 +33,13 @@ def verify_jwt(token: str) -> Dict[str, Any]:
     """
     try:
         signing_key = jwks_client.get_signing_key_from_jwt(token)
+        decode_options = {"verify_aud": bool(settings.jwt_audience)}
         payload = jwt.decode(
             token,
             signing_key.key,
-            algorithms=[settings.jwt_algorithm],
-            audience=settings.jwt_audience,
+            algorithms=[settings.jwt_algorithm, "EdDSA", "RS256"],
+            audience=settings.jwt_audience if settings.jwt_audience else None,
+            options=decode_options,
         )
         logger.debug(f"JWT verified successfully for user: {payload.get('sub')}")
         return payload

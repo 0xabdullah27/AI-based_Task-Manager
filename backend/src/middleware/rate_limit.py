@@ -15,7 +15,7 @@ def get_rate_limit_key(request: Request) -> str:
         try:
             # Fast unverified decode to read 'sub' for rate-limiting bucket
             # (Cryptographic verification is performed by route dependencies)
-            payload = jwt.decode(token, options={"verify_signature": False})
+            payload = jwt.decode(token, options={"verify_signature": False, "verify_aud": False})
             user_id = payload.get("sub")
             if user_id:
                 return f"user:{user_id}"

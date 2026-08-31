@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: List[str] = ["http://localhost:3000"]
 
-    # JWT - Better Auth uses EdDSA (Ed25519) by default, audience is BASE_URL
+    # JWT - Better Auth uses EdDSA (Ed25519) by default, audience is optional
     jwt_algorithm: str = "EdDSA"
     jwt_audience: Optional[str] = None
 
@@ -54,14 +54,6 @@ class Settings(BaseSettings):
                 return json.loads(v)
             except json.JSONDecodeError:
                 return [v]
-        return v
-
-    @field_validator("jwt_audience", mode="before")
-    @classmethod
-    def set_jwt_audience(cls, v, info):
-        """Set JWT audience to better_auth_url if not explicitly set."""
-        if v is None:
-            return info.data.get("better_auth_url", "http://localhost:3000")
         return v
 
 
