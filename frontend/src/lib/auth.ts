@@ -15,11 +15,30 @@ export const auth = betterAuth({
   trustedOrigins: [
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   ],
+  session: {
+    cookieCache: {
+      enabled: true,
+      strategy: "jwt",
+      maxAge: 5 * 60, // 5 minutes cache
+    },
+  },
+  advanced: {
+    cookies: {
+      session_token: {
+        attributes: {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+        },
+      },
+    },
+  },
   plugins: [
     jwt({
       jwks: {
         jwksPath: "/.well-known/jwks.json",
       },
+      sessionCookieCache: true,
     }),
   ],
 });

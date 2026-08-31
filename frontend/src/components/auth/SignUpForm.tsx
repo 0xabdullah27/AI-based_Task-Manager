@@ -4,7 +4,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema, type SignUpInput } from "@/lib/validations/auth";
-import { signUp, fetchAndStoreJwt } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth-client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -42,13 +42,12 @@ export function SignUpForm() {
           name: data.name,
         },
         {
-          onSuccess: async () => {
-            // Fetch and store JWT for API calls
-            await fetchAndStoreJwt();
+          onSuccess: () => {
             toast.success("Account created successfully");
             setIsRedirecting(true);
             setIsLoading(false);
             router.push("/dashboard");
+            router.refresh();
           },
           onError: (ctx) => {
             setIsLoading(false);

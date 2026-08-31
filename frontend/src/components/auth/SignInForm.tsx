@@ -4,7 +4,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, type SignInInput } from "@/lib/validations/auth";
-import { signIn, fetchAndStoreJwt } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -40,13 +40,12 @@ export function SignInForm() {
           password: data.password,
         },
         {
-          onSuccess: async () => {
-            // Fetch and store JWT for API calls
-            await fetchAndStoreJwt();
+          onSuccess: () => {
             toast.success("Signed in successfully");
             setIsRedirecting(true);
             setIsLoading(false);
             router.push("/dashboard");
+            router.refresh();
           },
           onError: (ctx) => {
             setIsLoading(false);

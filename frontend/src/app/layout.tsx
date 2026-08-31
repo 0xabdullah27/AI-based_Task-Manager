@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "@/providers/auth-provider";
 import { TasksProvider } from "@/providers/tasks-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import "./globals.css";
@@ -24,11 +23,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <TasksProvider>
-              {children}
-            </TasksProvider>
-          </AuthProvider>
+          <TasksProvider>
+            {children}
+          </TasksProvider>
           <Toaster />
         </ThemeProvider>
       </body>
