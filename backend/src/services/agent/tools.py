@@ -153,17 +153,15 @@ async def list_tasks(
     ctx: RunContextWrapper[AgentContext],
     status: Optional[str] = "all",
     priority: Optional[str] = None,
-    search: Optional[str] = None,
     tags: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
-    """Retrieve the current user's tasks with optional filtering.
+    """Retrieve the current user's tasks with optional status, priority, and tag filtering.
 
     Args:
         ctx (RunContextWrapper[AgentContext]): Runtime agent context carrying request DB session and user_id.
         status (Optional[str]): Filter by status: "all", "pending", or "completed" (default "all").
         priority (Optional[str]): Filter by priority: "high", "medium", or "low" (optional).
             Leave empty to retrieve ALL tasks regardless of priority.
-        search (Optional[str]): Case-insensitive search keyword matching title or description (optional).
         tags (Optional[List[str]]): Filter tasks matching any of the specified tag names (optional).
 
     Returns:
@@ -179,7 +177,7 @@ async def list_tasks(
             user_id=ctx.context.user_id,
             status=mapped_status,
             priority=_normalize_priority_filter(priority),
-            search=search,
+            search=None,
             tags=tags,
             limit=50,
         )

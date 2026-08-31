@@ -86,14 +86,14 @@ class TestListTasksTool:
         task = _make_task()
         with patch("src.services.agent.tools.task_service.list_tasks", return_value=[task]) as mock_list:
             wrapper = _make_wrapper(user_id="u-1", session="the-session")
-            result = await list_tasks(wrapper, status="pending", search="milk")
+            result = await list_tasks(wrapper, status="pending")
         assert result[0]["id"] == task.id
         assert result[0]["title"] == task.title
         mock_list.assert_called_once()
         assert mock_list.call_args.kwargs["session"] == "the-session"
         assert mock_list.call_args.kwargs["user_id"] == "u-1"
         assert mock_list.call_args.kwargs["status"] == "pending"
-        assert mock_list.call_args.kwargs["search"] == "milk"
+        assert mock_list.call_args.kwargs["search"] is None
 
     @pytest.mark.asyncio
     async def test_unspecified_priority_filter_returns_all(self):
